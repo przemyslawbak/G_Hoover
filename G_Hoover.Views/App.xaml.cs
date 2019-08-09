@@ -13,12 +13,6 @@ namespace G_Hoover.Init
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            var startupView = new Views.BrowserView();
-            startupView.ShowDialog();
 
-            base.OnStartup(e);
-        }
     }
 }
