@@ -4,50 +4,104 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             Title="G_Hoover" Height="800" Width="1250"
+             Title="G_Hoover" Height="800" Width="1250" MinWidth="915"
              WindowStartupLocation="Manual"
              Left="0" Top="0"
              Name="Browser"
              DataContext="{Binding BrowserViewModel, Source={StaticResource ViewModelLocator}}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <BitmapImage x:Key="start" UriSource="pack://siteoforigin:,,,/Resources/start.png" />
+            <BitmapImage x:Key="stop" UriSource="pack://siteoforigin:,,,/Resources/stop.png" />
+            <BitmapImage x:Key="pause" UriSource="pack://siteoforigin:,,,/Resources/pause.png" />
+            <BitmapImage x:Key="clicker" UriSource="pack://siteoforigin:,,,/Resources/clicker.png" />
+            <BitmapImage x:Key="connection" UriSource="pack://siteoforigin:,,,/Resources/connection.png" />
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <!-- Definicja wierszy i kolumn dla panelu Grid-->
         <Grid.RowDefinitions>
-            <RowDefinition Height="25px"/>
+            <RowDefinition Height="60px"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <!-- Status bar -->
-        <TextBlock Grid.Row="0"
+        <Border BorderBrush="Gray" BorderThickness="0 0 0 2" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    HorizontalAlignment="Left"
+                        Height="55px">
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Start">
+                    <Image Source="{StaticResource start}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Stop">
+                    <Image Source="{StaticResource stop}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Pause">
+                    <Image Source="{StaticResource pause}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Change clicker">
+                    <Image Source="{StaticResource clicker}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Change connection">
+                    <Image Source="{StaticResource connection}" Width="20" Height="20"/>
+                </Button>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="200" />
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="Current status"
+				  Grid.Column="0"
+                          Margin="5"/>
+                    <GroupBox Header="Connection"
+				  Grid.Column="1"
+                          Margin="5"/>
+                    <GroupBox Header="Clicker"
+				  Grid.Column="2"
+                          Margin="5"/>
+                    <TextBlock
                    Grid.Column="0"
-                   Text="{Binding Path=Status, StringFormat='Current status: {0}', Mode=OneWay}"
-                   Background="Gray"
-                   Foreground="White"/>
-        <TextBlock Grid.Row="0"
+                   Text="{Binding Path=Status, StringFormat='Obecny status {0}', Mode=OneWay}"
+                       VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    FontWeight="Bold"/>
+                    <TextBlock
                    Grid.Column="1"
-                   Text="{Binding Path=Network, StringFormat='Connection: {0}', Mode=OneWay}"
-                   Background="Gray"
-                   Foreground="White"/>
-        <Button Grid.Row="0"
-                Grid.Column="1"
-                Width="150px"
-                Content="Switch connection"
-                Name="btnZmienPolaczenie"/>
-        <TextBlock Grid.Row="0"
+                   Text="{Binding Path=Network, StringFormat='Połączenie {0}', Mode=OneWay}"
+                       VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    FontWeight="Bold"/>
+                    <TextBlock
                    Grid.Column="2"
-                   Text="{Binding Path=Clicker, StringFormat='Clicker: {0}', Mode=OneWay}"
-                   Background="Gray"
-                   Foreground="White"/>
-        <Button Grid.Row="0"
-                Grid.Column="2"
-                Width="150px"
-                Content="Switch clicker"
-                Name="btnZmienKlikanie"/>
-        <DockPanel x:Name="browserRow" Grid.Row="1" Grid.ColumnSpan="3">
-
-        </DockPanel>
+                   Text="{Binding Path=Clicker, StringFormat='Klikanie {0}', Mode=OneWay}"
+                       VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    FontWeight="Bold"/>
+                </Grid>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
