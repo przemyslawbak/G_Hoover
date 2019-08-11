@@ -14,15 +14,26 @@ namespace G_Hoover.Desktop.ViewModels
             PauseCommand = new DelegateCommand(OnPauseCommand);
             ConnectionChangeCommand = new DelegateCommand(OnConnectionChangeCommand);
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
+            UploadCommand = new DelegateCommand(OnUploadCommand);
+            BuildCommand = new DelegateCommand(OnBuildCommand);
 
             InitializeBrowser();
         }
-
         private void InitializeBrowser()
         {
             Address = "https://www.google.com/";
             var dupa = WebBrowser;
 
+        }
+
+        private void OnBuildCommand(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnUploadCommand(object obj)
+        {
+            throw new NotImplementedException();
         }
 
         private void OnClickerChangeCommand(object obj)
@@ -55,6 +66,8 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand PauseCommand { get; private set; }
         public ICommand ConnectionChangeCommand { get; private set; }
         public ICommand ClickerChangeCommand { get; private set; }
+        public ICommand UploadCommand { get; private set; }
+        public ICommand BuildCommand { get; private set; }
 
         public bool ClickerInput { get; set; } //if click by input simulation
         public string CompletePhrase { get; set; } //search phrase builded

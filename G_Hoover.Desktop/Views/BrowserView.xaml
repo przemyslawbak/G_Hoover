@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-             Title="G_Hoover" Height="800" Width="1250" MinWidth="915"
+             Title="G_Hoover" Height="800" Width="1250" MinWidth="1035"
              WindowStartupLocation="Manual"
              Left="0" Top="0"
              Name="Browser"
@@ -16,6 +16,8 @@
             <BitmapImage x:Key="pause" UriSource="pack://siteoforigin:,,,/Resources/pause.png" />
             <BitmapImage x:Key="clicker" UriSource="pack://siteoforigin:,,,/Resources/clicker.png" />
             <BitmapImage x:Key="connection" UriSource="pack://siteoforigin:,,,/Resources/connection.png" />
+            <BitmapImage x:Key="upload" UriSource="pack://siteoforigin:,,,/Resources/upload.png" />
+            <BitmapImage x:Key="builder" UriSource="pack://siteoforigin:,,,/Resources/builder.png" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -68,6 +70,20 @@
                 ToolTip="Change clicker"
                     Command="{Binding ClickerChangeCommand}">
                     <Image Source="{StaticResource clicker}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Upload list"
+                    Command="{Binding UploadCommand}">
+                    <Image Source="{StaticResource upload}" Width="20" Height="20"/>
+                </Button>
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Phrase builder"
+                    Command="{Binding BuildCommand}">
+                    <Image Source="{StaticResource builder}" Width="20" Height="20"/>
                 </Button>
                 <Grid>
                     <Grid.ColumnDefinitions>
