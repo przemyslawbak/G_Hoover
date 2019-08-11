@@ -1,6 +1,7 @@
-﻿<Application x:Class="G_Hoover.Init.App"
+﻿<Application x:Class="G_Hoover.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:G_Hoover"
              StartupUri="Views/BrowserView.xaml"
              xmlns:startup="clr-namespace:G_Hoover.Views.Startup">
     <Application.Resources>

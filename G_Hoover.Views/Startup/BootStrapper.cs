@@ -1,8 +1,13 @@
 ﻿using Autofac;
 using G_Hoover.ViewModels;
 using G_Hoover.Views.Views;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace G_Hoover.Startup
+namespace G_Hoover.Views.Startup
 {
     public class BootStrapper
     {

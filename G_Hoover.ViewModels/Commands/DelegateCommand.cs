@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace G_Hoover.Services.Commands
+namespace G_Hoover.ViewModels.Commands
 {
     public class DelegateCommand : ICommand
     {

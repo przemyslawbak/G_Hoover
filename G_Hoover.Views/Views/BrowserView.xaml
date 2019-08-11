@@ -37,32 +37,37 @@
                 <Button
                 Width="50px"
                 Margin="5"
-                ToolTip="Start">
+                ToolTip="Start"
+                    Command="{Binding StartCommand}">
                     <Image Source="{StaticResource start}" Width="20" Height="20"/>
                 </Button>
                 <Button
                 Width="50px"
                 Margin="5"
-                ToolTip="Stop">
+                ToolTip="Stop"
+                    Command="{Binding StopCommand}">
                     <Image Source="{StaticResource stop}" Width="20" Height="20"/>
                 </Button>
                 <Button
                 Width="50px"
                 Margin="5"
-                ToolTip="Pause">
+                ToolTip="Pause"
+                    Command="{Binding PauseCommand}">
                     <Image Source="{StaticResource pause}" Width="20" Height="20"/>
                 </Button>
                 <Button
                 Width="50px"
                 Margin="5"
-                ToolTip="Change clicker">
-                    <Image Source="{StaticResource clicker}" Width="20" Height="20"/>
+                ToolTip="Change connection"
+                    Command="{Binding ConnectionChangeCommand}">
+                    <Image Source="{StaticResource connection}" Width="20" Height="20"/>
                 </Button>
                 <Button
                 Width="50px"
                 Margin="5"
-                ToolTip="Change connection">
-                    <Image Source="{StaticResource connection}" Width="20" Height="20"/>
+                ToolTip="Change clicker"
+                    Command="{Binding ClickerChangeCommand}">
+                    <Image Source="{StaticResource clicker}" Width="20" Height="20"/>
                 </Button>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -103,5 +108,8 @@
                 </Grid>
             </StackPanel>
         </Border>
+        <DockPanel x:Name="browserViewRow" Grid.Row="1">
+
+        </DockPanel>
     </Grid>
 </Window>

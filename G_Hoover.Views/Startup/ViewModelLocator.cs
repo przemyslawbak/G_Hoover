@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using G_Hoover.Startup;
 using G_Hoover.ViewModels;
 using System;
 using System.Collections.Generic;
