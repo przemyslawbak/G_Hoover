@@ -1,10 +1,9 @@
 ﻿<Application x:Class="G_Hoover.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:G_Hoover"
              StartupUri="Views/BrowserView.xaml"
-             xmlns:startup="clr-namespace:G_Hoover.Views.Startup">
+             xmlns:vm="clr-namespace:G_Hoover.Desktop.ViewModels">
     <Application.Resources>
-        <startup:ViewModelLocator x:Key="ViewModelLocator"/>
+        <vm:ViewModelLocator x:Key="ViewModelLocator"/>
     </Application.Resources>
 </Application>

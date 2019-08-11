@@ -1,12 +1,9 @@
-﻿using G_Hoover.ViewModels.Commands;
+﻿using CefSharp.Wpf;
+using G_Hoover.Desktop.Commands;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace G_Hoover.ViewModels
+namespace G_Hoover.Desktop.ViewModels
 {
     public class BrowserViewModel : ViewModelBase
     {
@@ -23,7 +20,9 @@ namespace G_Hoover.ViewModels
 
         private void InitializeBrowser()
         {
-            throw new NotImplementedException();
+            Address = "https://www.google.com/";
+            var dupa = WebBrowser;
+
         }
 
         private void OnClickerChangeCommand(object obj)
@@ -60,8 +59,33 @@ namespace G_Hoover.ViewModels
         public bool ClickerInput { get; set; } //if click by input simulation
         public string CompletePhrase { get; set; } //search phrase builded
         public bool SearchViaTor { get; set; } //if searching when using Tor network
-        //public ChromiumWebBrowser
 
+        private ChromiumWebBrowser webBrowser;
+        public ChromiumWebBrowser WebBrowser
+        {
+            get
+            {
+                return webBrowser;
+            }
+            set
+            {
+                webBrowser = value;
+                OnPropertyChanged();
+            }
+        }
+        private string adderess;
+        public string Address
+        {
+            get
+            {
+                return adderess;
+            }
+            set
+            {
+                adderess = value;
+                OnPropertyChanged();
+            }
+        }
         private string network;
         public string Network
         {

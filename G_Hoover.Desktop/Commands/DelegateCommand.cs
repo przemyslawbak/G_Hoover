@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace G_Hoover.ViewModels.Commands
+namespace G_Hoover.Desktop.Commands
 {
     public class DelegateCommand : ICommand
     {

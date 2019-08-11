@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\G_Hoover.Models\G_Hoover.Models.csproj" />
+    <ProjectReference Include="..\G_Hoover.Desktop\G_Hoover.Desktop.csproj" />
     <ProjectReference Include="..\G_Hoover.Services\G_Hoover.Services.csproj" />
-    <ProjectReference Include="..\G_Hoover.ViewModels\G_Hoover.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

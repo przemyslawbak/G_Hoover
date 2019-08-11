@@ -1,12 +1,7 @@
 ﻿using Autofac;
-using G_Hoover.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using G_Hoover.Desktop.Startup;
 
-namespace G_Hoover.Views.Startup
+namespace G_Hoover.Desktop.ViewModels
 {
     public class ViewModelLocator
     {

@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace G_Hoover.Views.Views
+namespace G_Hoover.Desktop.Views
 {
     /// <summary>
     /// Interaction logic for BrowserView.xaml
