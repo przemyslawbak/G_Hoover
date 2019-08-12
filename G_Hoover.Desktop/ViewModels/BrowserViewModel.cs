@@ -31,46 +31,60 @@ namespace G_Hoover.Desktop.ViewModels
             Address = "https://www.google.com/";
         }
 
-        private void StoppedConfiguration()
+        public void StoppedConfiguration()
         {
             UiButtonsEnabled = true;
             StopBtnEnabled = false;
             PauseBtnEnabled = false;
         }
 
-        private void OnBuildCommand(object obj)
+        public void StartedConfiguration()
+        {
+            UiButtonsEnabled = false;
+            StopBtnEnabled = true;
+            PauseBtnEnabled = true;
+        }
+
+        private void StartCrawling()
         {
             throw new NotImplementedException();
         }
 
-        private void OnUploadCommand(object obj)
+        public void OnBuildCommand(object obj)
         {
             throw new NotImplementedException();
         }
 
-        private void OnClickerChangeCommand(object obj)
+        public void OnUploadCommand(object obj)
         {
             throw new NotImplementedException();
         }
 
-        private void OnConnectionChangeCommand(object obj)
+        public void OnClickerChangeCommand(object obj)
         {
             throw new NotImplementedException();
         }
 
-        private void OnPauseCommand(object obj)
+        public void OnConnectionChangeCommand(object obj)
         {
             throw new NotImplementedException();
         }
 
-        private void OnStopCommand(object obj)
+        public void OnPauseCommand(object obj)
         {
             throw new NotImplementedException();
         }
 
-        private void OnStartCommand(object obj)
+        public void OnStopCommand(object obj)
         {
             throw new NotImplementedException();
+        }
+
+        public void OnStartCommand(object obj)
+        {
+            StartedConfiguration();
+
+            StartCrawling();
         }
 
         public ICommand StartCommand { get; private set; }
@@ -84,9 +98,49 @@ namespace G_Hoover.Desktop.ViewModels
         public bool ClickerInput { get; set; } //if click by input simulation
         public string CompletePhrase { get; set; } //search phrase builded
         public bool SearchViaTor { get; set; } //if searching when using Tor network
-        public bool UiButtonsEnabled { get; set; }
-        public bool StopBtnEnabled { get; set; }
-        public bool PauseBtnEnabled { get; set; }
+        public int PhraseNo { get; set; } //number of currently checked phrase
+
+        private bool pauseBtnEnabled;
+        public bool PauseBtnEnabled
+        {
+            get
+            {
+                return pauseBtnEnabled;
+            }
+            set
+            {
+                pauseBtnEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool stopBtnEnabled;
+        public bool StopBtnEnabled
+        {
+            get
+            {
+                return stopBtnEnabled;
+            }
+            set
+            {
+                stopBtnEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool uiButtonsEnabled;
+        public bool UiButtonsEnabled
+        {
+            get
+            {
+                return uiButtonsEnabled;
+            }
+            set
+            {
+                uiButtonsEnabled = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string address;
         public string Address
