@@ -1,2 +1,0 @@
-- load file btn
-- build phrase btn

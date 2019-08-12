@@ -1,6 +1,9 @@
-﻿using CefSharp.Wpf;
+﻿using CefSharp;
+using CefSharp.Wpf;
 using G_Hoover.Desktop.Commands;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
@@ -19,11 +22,20 @@ namespace G_Hoover.Desktop.ViewModels
 
             InitializeBrowser();
         }
-        private void InitializeBrowser()
-        {
-            Address = "https://www.google.com/";
-            var dupa = WebBrowser;
 
+        public async void InitializeBrowser()
+        {
+            StoppedConfiguration();
+
+            await Task.Delay(5000);
+            Address = "https://www.google.com/";
+        }
+
+        private void StoppedConfiguration()
+        {
+            UiButtonsEnabled = true;
+            StopBtnEnabled = false;
+            PauseBtnEnabled = false;
         }
 
         private void OnBuildCommand(object obj)
@@ -72,9 +84,26 @@ namespace G_Hoover.Desktop.ViewModels
         public bool ClickerInput { get; set; } //if click by input simulation
         public string CompletePhrase { get; set; } //search phrase builded
         public bool SearchViaTor { get; set; } //if searching when using Tor network
+        public bool UiButtonsEnabled { get; set; }
+        public bool StopBtnEnabled { get; set; }
+        public bool PauseBtnEnabled { get; set; }
 
-        private ChromiumWebBrowser webBrowser;
-        public ChromiumWebBrowser WebBrowser
+        private string address;
+        public string Address
+        {
+            get
+            {
+                return address;
+            }
+            set
+            {
+                address = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private IWpfWebBrowser webBrowser;
+        public IWpfWebBrowser WebBrowser
         {
             get
             {
@@ -86,19 +115,7 @@ namespace G_Hoover.Desktop.ViewModels
                 OnPropertyChanged();
             }
         }
-        private string adderess;
-        public string Address
-        {
-            get
-            {
-                return adderess;
-            }
-            set
-            {
-                adderess = value;
-                OnPropertyChanged();
-            }
-        }
+
         private string network;
         public string Network
         {
