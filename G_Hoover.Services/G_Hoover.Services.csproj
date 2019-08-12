@@ -59,8 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="File\FileService.cs" />
-    <Compile Include="File\IFileService.cs" />
+    <Compile Include="Files\FileService.cs" />
+    <Compile Include="Files\IFileService.cs" />
+    <Compile Include="Messages\IMessageService.cs" />
+    <Compile Include="Messages\MessageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -3,8 +3,10 @@ using CefSharp.Wpf;
 using G_Hoover.Commands;
 using G_Hoover.Desktop.Commands;
 using G_Hoover.Services.Files;
+using G_Hoover.Services.Messages;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,11 +19,15 @@ namespace G_Hoover.Desktop.ViewModels
     {
         private readonly IFileService _fileService;
         private readonly IDialogService _dialogService;
+        private IMessageService _messageService;
+        private Logger _logger;
 
-        public BrowserViewModel(IFileService fileService, IDialogService dialogService)
+        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IMessageService messageService)
         {
             _dialogService = dialogService;
             _fileService = fileService;
+            _messageService = messageService;
+            _logger = LogManager.GetCurrentClassLogger();
 
             StartCommand = new DelegateCommand(OnStartCommand);
             StopCommand = new DelegateCommand(OnStopCommand);
@@ -32,6 +38,20 @@ namespace G_Hoover.Desktop.ViewModels
             BuildCommand = new DelegateCommand(OnBuildCommand);
 
             InitializeBrowser();
+        }
+
+        /// <summary>
+        /// loads message dictionaries from MessageService
+        /// </summary>
+        public void LoadDictionaries()
+        {
+            MessagesInfo = new Dictionary<string, string>();
+            MessagesError = new Dictionary<string, string>();
+            MessagesResult = new Dictionary<string, string>();
+
+            MessagesInfo = _messageService.GetMessagesInfo();
+            MessagesError = _messageService.GetMessagesError();
+            MessagesResult = _messageService.GetMessagesResult();
         }
 
         public async void InitializeBrowser()
@@ -70,8 +90,12 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnUploadCommandAsync()
         {
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
             NameList.Clear();
             FilePath = GetFilePath();
+
+            _logger.Info(MessagesInfo[CallerName]);
 
             try
             {
@@ -81,7 +105,7 @@ namespace G_Hoover.Desktop.ViewModels
 
                     if (NameList.Count > 0)
                     {
-                        Message = _dialogService.ShowMessageBox(this,"Loaded successfully.");
+                        LogAndMessage(MessagesResult[CallerName]);
                     }
                     else
                     {
@@ -90,12 +114,12 @@ namespace G_Hoover.Desktop.ViewModels
                 }
                 else
                 {
-                    throw new Exception("Wrong path.");
+                    throw new Exception("Wrong path or cancelled.");
                 }
             }
             catch (Exception e)
             {
-                Message = _dialogService.ShowMessageBox(this,"Unable to load data. " + e.Message);
+                LogAndMessage(MessagesError[CallerName] + e.Message);
             }
         }
 
@@ -141,6 +165,10 @@ namespace G_Hoover.Desktop.ViewModels
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string FilePath { get; set; } //path of uploaded file
         public MessageBoxResult Message { get; set; } //error messages
+        public Dictionary<string, string> MessagesInfo { get; set; }
+        public Dictionary<string, string> MessagesError { get; set; }
+        public Dictionary<string, string> MessagesResult { get; set; }
+        public string CallerName { get; set; }
 
         private bool pauseBtnEnabled;
         public bool PauseBtnEnabled
@@ -272,6 +300,12 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 return string.Empty;
             }
+        }
+
+        public void LogAndMessage(string message)
+        {
+            _logger.Info(message);
+            Message = _dialogService.ShowMessageBox(this, message);
         }
     }
 }

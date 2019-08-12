@@ -5,13 +5,19 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class ViewModelLocator
     {
-        IContainer container = BootStrapper.BootStrap();
+        IContainer _container;
+        public ViewModelLocator()
+        {
+            _container = BootStrapper.BootStrap();
+
+            _container.Resolve<PopulateDictionaries>();
+        }
 
         public BrowserViewModel BrowserViewModel
         {
             get
             {
-                return container.Resolve<BrowserViewModel>();
+                return _container.Resolve<BrowserViewModel>();
             }
         }
     }

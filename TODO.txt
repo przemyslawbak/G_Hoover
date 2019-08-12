@@ -1,2 +1,2 @@
-NLog -> file log
 NLog -> clear file @ init
+OnUploadCommandAsync and other methods disables btns
