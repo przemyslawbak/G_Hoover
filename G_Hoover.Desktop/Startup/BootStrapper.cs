@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Desktop.Views;
+using G_Hoover.Services.Files;
+using MvvmDialogs;
 
 namespace G_Hoover.Desktop.Startup
 {
@@ -14,7 +16,11 @@ namespace G_Hoover.Desktop.Startup
         {
             var builder = new ContainerBuilder();
 
+            builder.RegisterType<DialogService>()
+              .As<IDialogService>().SingleInstance();
 
+            builder.RegisterType<FileService>()
+              .As<IFileService>().SingleInstance();
 
             builder.RegisterType<BrowserView>().AsSelf();
             builder.RegisterType<BrowserViewModel>().AsSelf().SingleInstance();

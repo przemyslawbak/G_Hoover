@@ -1,0 +1,2 @@
+NLog -> file log
+NLog -> clear file @ init
