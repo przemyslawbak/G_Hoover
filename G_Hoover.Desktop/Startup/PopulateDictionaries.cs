@@ -29,6 +29,7 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_fileService.GetNewListFromFileAsync));
             methods.Add(nameof(_fileService.RemoveOldLogs));
             methods.Add(nameof(_browserVM.OnUploadCommandAsync));
+            methods.Add(nameof(_browserVM.OnBuildCommand));
 
             return methods;
         }

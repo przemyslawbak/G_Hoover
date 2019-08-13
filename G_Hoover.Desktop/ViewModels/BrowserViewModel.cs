@@ -1,5 +1,6 @@
 ﻿using CefSharp.Wpf;
 using G_Hoover.Desktop.Commands;
+using G_Hoover.Desktop.Views;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
@@ -79,7 +80,7 @@ namespace G_Hoover.Desktop.ViewModels
             PauseBtnEnabled = true;
         }
 
-        private void PleaseWaitConfiguration()
+        public void PleaseWaitConfiguration()
         {
             PleaseWaitVisible = true;
             UiButtonsEnabled = false;
@@ -87,14 +88,36 @@ namespace G_Hoover.Desktop.ViewModels
             PauseBtnEnabled = false;
         }
 
-        private void StartCrawling()
+        public void StartCrawling()
         {
             throw new NotImplementedException();
         }
 
         public void OnBuildCommand(object obj)
         {
-            throw new NotImplementedException();
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
+
+            _logger.Info(MessagesInfo[CallerName]); //log
+
+            try
+            {
+                SearchPhrase = ShowDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
+
+                if (!string.IsNullOrEmpty(SearchPhrase))
+                {
+                    LogAndMessage(MessagesResult[CallerName]); //log
+                }
+                else
+                {
+                    throw new Exception("Incorrect phrase.");
+                }
+            }
+            catch (Exception e)
+            {
+                LogAndMessage(MessagesError[CallerName] + e.Message); //log
+            }
+
         }
 
         public async Task OnUploadCommandAsync()
@@ -182,6 +205,21 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
+        {
+            var dialogViewModel = new PhraseViewModel();
+
+            bool? success = showDialog(dialogViewModel);
+            if (success == true)
+            {
+                return dialogViewModel.Text;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
         public void LogAndMessage(string message)
         {
             _logger.Info(message);
@@ -207,6 +245,7 @@ namespace G_Hoover.Desktop.ViewModels
         public Dictionary<string, string> MessagesError { get; set; } //message dictionary
         public Dictionary<string, string> MessagesResult { get; set; } //message dictionary
         public string CallerName { get; set; } //caller method
+        public string SearchPhrase { get; set; } //phrase built in dialog window
 
         private bool pleaseWaitVisible;
         public bool PleaseWaitVisible
