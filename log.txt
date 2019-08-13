@@ -1,1 +1,0 @@
-2019-08-13 05:38:13.6590|INFO|G_Hoover.Services.Files.FileService|Removed old log.txt file.RemoveOldLogs
