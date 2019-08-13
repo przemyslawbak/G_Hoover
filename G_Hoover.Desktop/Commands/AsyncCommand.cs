@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace G_Hoover.Commands
+namespace G_Hoover.Desktop.Commands
 {
     //credits: https://stackoverflow.com/a/45878669/11027921
     public class AsyncCommand : AsyncCommandBase

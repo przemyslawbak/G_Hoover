@@ -3,11 +3,11 @@
 namespace G_Hoover.Desktop.Views
 {
     /// <summary>
-    /// Interaction logic for BrowserView.xaml
+    /// Interaction logic for PhraseView.xaml
     /// </summary>
-    public partial class BrowserView : Window
+    public partial class PhraseView : Window
     {
-        public BrowserView()
+        public PhraseView()
         {
             InitializeComponent();
         }

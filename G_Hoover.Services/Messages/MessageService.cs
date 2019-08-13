@@ -28,9 +28,9 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesInfo()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Uploading data from the file.");
-            messages.Add(MethodList[1], "Deleting old log.txt file.");
-            messages.Add(MethodList[2], "Clicked upload button.");
+            messages.Add(MethodList[0], "Uploading data from the file. ");
+            messages.Add(MethodList[1], "Deleting old log.txt file. ");
+            messages.Add(MethodList[2], "Clicked upload button. ");
 
             return messages;
         }
@@ -38,9 +38,9 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesResult()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Uploaded List<string> from the file.");
-            messages.Add(MethodList[1], "Removed old log.txt file.");
-            messages.Add(MethodList[2], "Data uploaded successfully.");
+            messages.Add(MethodList[0], "Uploaded List<string> from the file. ");
+            messages.Add(MethodList[1], "Removed old log.txt file. ");
+            messages.Add(MethodList[2], "Data uploaded successfully. ");
 
             return messages;
         }
@@ -48,9 +48,9 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesError()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Error when reading data from the file.");
-            messages.Add(MethodList[1], "Could not delete old log.txt.");
-            messages.Add(MethodList[2], "Could not upload data from the file.");
+            messages.Add(MethodList[0], "Error when reading data from the file. ");
+            messages.Add(MethodList[1], "Could not delete old log.txt. ");
+            messages.Add(MethodList[2], "Could not upload data from the file. ");
 
             return messages;
         }

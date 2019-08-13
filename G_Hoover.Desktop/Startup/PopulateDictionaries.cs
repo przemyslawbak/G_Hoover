@@ -1,11 +1,7 @@
 ﻿using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace G_Hoover.Desktop.Startup
 {

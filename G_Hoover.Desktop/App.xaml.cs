@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace G_Hoover
+namespace G_Hoover.Desktop
 {
     /// <summary>
     /// Interaction logic for App.xaml

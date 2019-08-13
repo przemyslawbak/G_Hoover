@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace G_Hoover.Commands
+namespace G_Hoover.Desktop.Commands
 {
     //credits https://msdn.microsoft.com/en-us/magazine/dn630647.aspx
     public interface IAsyncCommand : ICommand

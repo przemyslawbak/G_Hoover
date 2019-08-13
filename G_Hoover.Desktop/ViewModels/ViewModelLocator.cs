@@ -20,5 +20,12 @@ namespace G_Hoover.Desktop.ViewModels
                 return _container.Resolve<BrowserViewModel>();
             }
         }
+        public PhraseViewModel PhraseViewModel
+        {
+            get
+            {
+                return _container.Resolve<PhraseViewModel>();
+            }
+        }
     }
 }
