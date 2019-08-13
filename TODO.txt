@@ -1,2 +1,3 @@
-NLog -> clear file @ init
-OnUploadCommandAsync and other methods disables btns
+tomorrow: phrase builder + nlog file clear
+
+validate file txt + rows

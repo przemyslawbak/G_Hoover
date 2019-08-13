@@ -1,4 +1,5 @@
 ﻿using G_Hoover.Desktop.ViewModels;
+using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace G_Hoover.Desktop.Startup
     class PopulateDictionaries
     {
         IMessageService _messageService;
+        FileService _fileService;
         BrowserViewModel _browserVM;
 
         public PopulateDictionaries(IMessageService messageService)
@@ -28,6 +30,8 @@ namespace G_Hoover.Desktop.Startup
         private List<string> LoadMethods()
         {
             List<string> methods = new List<string>();
+            methods.Add(nameof(_fileService.GetNewListFromFileAsync));
+            methods.Add(nameof(_fileService.RemoveOldLogs));
             methods.Add(nameof(_browserVM.OnUploadCommandAsync));
 
             return methods;

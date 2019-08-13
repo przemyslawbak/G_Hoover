@@ -6,5 +6,6 @@ namespace G_Hoover.Services.Files
     public interface IFileService
     {
         Task<List<string>> GetNewListFromFileAsync(string filePath);
+        void RemoveOldLogs();
     }
 }
