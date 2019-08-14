@@ -1,6 +1,5 @@
-save/load phrase
-After/Before <name> validation
-
 validate file txt + rows
 
 InitializeBrowser <- async void / Task
+
+Current status -> event handler dla Message(??)

@@ -34,6 +34,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[3], "Clicked phrase builder button. ");
             messages.Add(MethodList[4], "Loading phrase form the file. ");
             messages.Add(MethodList[5], "Saving new phrase to the file. ");
+            messages.Add(MethodList[6], "Start collecting data. ");
 
             return messages;
         }
@@ -47,6 +48,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[3], "New phrase: ");
             messages.Add(MethodList[4], "Loaded phrase. ");
             messages.Add(MethodList[5], "Phrase saved. ");
+            messages.Add(MethodList[6], "List of phrases is finished. ");
 
             return messages;
         }
@@ -60,6 +62,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[3], "Could not build the phrase. ");
             messages.Add(MethodList[4], "Could not load phrase from the file. ");
             messages.Add(MethodList[5], "Could not save phrase to the file. ");
+            messages.Add(MethodList[6], "Error when collecting data. ");
 
             return messages;
         }

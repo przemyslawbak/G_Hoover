@@ -1,6 +1,8 @@
-﻿using CefSharp.Wpf;
+﻿using CefSharp;
+using CefSharp.Wpf;
 using G_Hoover.Desktop.Commands;
 using G_Hoover.Desktop.Views;
+using G_Hoover.Services.Browser;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
@@ -14,21 +16,25 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
+    public enum WorkStatus : byte { Start, Stop, Pause }
     public class BrowserViewModel : ViewModelBase
     {
         private readonly IFileService _fileService;
         private readonly IDialogService _dialogService;
-        private IMessageService _messageService;
+        private readonly IBrowserService _browserService;
+        private readonly IMessageService _messageService;
         private Logger _logger;
+        private EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
 
-        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IMessageService messageService)
+        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IMessageService messageService, IBrowserService browserService)
         {
             _dialogService = dialogService;
             _fileService = fileService;
+            _browserService = browserService;
             _messageService = messageService;
             _logger = LogManager.GetCurrentClassLogger();
 
-            StartCommand = new DelegateCommand(OnStartCommand);
+            StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);
             PauseCommand = new DelegateCommand(OnPauseCommand);
             ConnectionChangeCommand = new DelegateCommand(OnConnectionChangeCommand);
@@ -57,12 +63,12 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async void InitializeBrowser()
         {
+            AudioTryCounter = 0;
+            PhraseNo = 0;
+
             StoppedConfiguration();
             await LoadPhraseAsync();
             _fileService.RemoveOldLogs();
-
-            await Task.Delay(5000);
-            Address = "https://www.google.com/";
         }
 
         public async Task LoadPhraseAsync()
@@ -70,8 +76,18 @@ namespace G_Hoover.Desktop.ViewModels
             SearchPhrase = await _fileService.LoadPhraseAsync();
         }
 
+        public void PausedConfiguration()
+        {
+            WorkStatus = WorkStatus.Pause;
+            PleaseWaitVisible = false;
+            UiButtonsEnabled = false;
+            StopBtnEnabled = true;
+            PauseBtnEnabled = true;
+        }
+
         public void StoppedConfiguration()
         {
+            WorkStatus = WorkStatus.Stop;
             PleaseWaitVisible = false;
             UiButtonsEnabled = true;
             StopBtnEnabled = false;
@@ -80,10 +96,19 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void StartedConfiguration()
         {
+            WorkStatus = WorkStatus.Start;
             PleaseWaitVisible = false;
             UiButtonsEnabled = false;
             StopBtnEnabled = true;
             PauseBtnEnabled = true;
+            if (ClickerInput) //if input clicker
+            {
+                ShowAll();
+            }
+            else //if JavaScript clicker
+            {
+                ShowLess();
+            }
         }
 
         public void PleaseWaitConfiguration()
@@ -94,9 +119,86 @@ namespace G_Hoover.Desktop.ViewModels
             PauseBtnEnabled = false;
         }
 
-        public void StartCrawling()
+        public async Task CollectDataAsync()
         {
-            //
+            if (NameList.Count > 0)
+            {
+                StartedConfiguration();
+
+                await GetRecordAsync();
+            }
+            else
+            {
+                //no more phrases / finalization
+            }
+        }
+
+        public async Task GetRecordAsync()
+        {
+            AudioTryCounter = 0; //reset audio counter
+            string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]); //search phrase
+
+            string nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
+
+            //PhraseNo++
+
+
+
+            /*
+            WebBrowser.Load("https://www.google.com/"); //load website
+
+
+            _pageLoadedEventHandler = async (sender, args) =>
+            {
+                if (args.IsLoading == false)
+                {
+                    WebBrowser.LoadingStateChanged -= _pageLoadedEventHandler;
+                            await WebBrowser.EvaluateScriptAsync(@"
+                            var arr = document.getElementsByTagName('input')[2].value = '" + phrase + @"';
+                            "); await Task.Delay(1000);
+                            await WebBrowser.EvaluateScriptAsync(@"
+                            var arr = document.getElementsByTagName('input')[3].click();
+                            ");
+                }
+            };
+
+                WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
+            */
+        }
+
+        private void ShowLess()
+        {
+            CurWindowState = WindowState.Normal;
+
+            IsBrowserFocused = false;
+        }
+
+        private void ShowAll()
+        {
+            CurWindowState = WindowState.Maximized;
+
+            IsBrowserFocused = true;
+
+            WebBrowser.Focus();
+        }
+
+        public async Task OnStartCommandAsync()
+        {
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
+
+            _logger.Info(MessagesInfo[CallerName]); //log
+
+            try
+            {
+                await CollectDataAsync();
+
+                LogAndMessage(MessagesResult[CallerName] + SearchPhrase); //log
+            }
+            catch (Exception e)
+            {
+                LogAndMessage(MessagesError[CallerName] + e.Message); //log
+            }
         }
 
         public async Task OnBuildCommandAsync()
@@ -136,10 +238,10 @@ namespace G_Hoover.Desktop.ViewModels
 
             _logger.Info(MessagesInfo[CallerName]); //log
 
-            FilePath = GetFilePath();
-
             try
             {
+                FilePath = GetFilePath();
+
                 if (!string.IsNullOrEmpty(FilePath))
                 {
                     PleaseWaitConfiguration(); //ui
@@ -186,13 +288,6 @@ namespace G_Hoover.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        public void OnStartCommand(object obj)
-        {
-            StartedConfiguration();
-
-            StartCrawling();
-        }
-
         public string GetFilePath()
         {
             var settings = new OpenFileDialogSettings
@@ -234,7 +329,7 @@ namespace G_Hoover.Desktop.ViewModels
             Message = _dialogService.ShowMessageBox(this, message);
         }
 
-        public ICommand StartCommand { get; private set; }
+        public IAsyncCommand StartCommand { get; private set; }
         public ICommand StopCommand { get; private set; }
         public ICommand PauseCommand { get; private set; }
         public ICommand ConnectionChangeCommand { get; private set; }
@@ -254,101 +349,125 @@ namespace G_Hoover.Desktop.ViewModels
         public Dictionary<string, string> MessagesResult { get; set; } //message dictionary
         public string CallerName { get; set; } //caller method
         public string SearchPhrase { get; set; } //phrase built in dialog window
+        public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
+        public WorkStatus WorkStatus { get; set; }
 
-        private bool pleaseWaitVisible;
+        private WindowState _curWindowState;
+        public WindowState CurWindowState
+        {
+            get => _curWindowState;
+            set
+            {
+                _curWindowState = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isBrowserFocused;
+        public bool IsBrowserFocused
+        {
+            get => _isBrowserFocused;
+            set
+            {
+                _isBrowserFocused = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _pleaseWaitVisible;
         public bool PleaseWaitVisible
         {
-            get => pleaseWaitVisible;
+            get => _pleaseWaitVisible;
             set
             {
-                pleaseWaitVisible = value;
+                _pleaseWaitVisible = value;
                 OnPropertyChanged();
             }
         }
-        private bool pauseBtnEnabled;
+        private bool _pauseBtnEnabled;
         public bool PauseBtnEnabled
         {
-            get => pauseBtnEnabled;
+            get => _pauseBtnEnabled;
             set
             {
-                pauseBtnEnabled = value;
+                _pauseBtnEnabled = value;
                 OnPropertyChanged();
             }
         }
 
-        private bool stopBtnEnabled;
+        private bool _stopBtnEnabled;
         public bool StopBtnEnabled
         {
-            get => stopBtnEnabled;
+            get => _stopBtnEnabled;
             set
             {
-                stopBtnEnabled = value;
+                _stopBtnEnabled = value;
                 OnPropertyChanged();
             }
         }
 
-        private bool uiButtonsEnabled;
+        private bool _uiButtonsEnabled;
         public bool UiButtonsEnabled
         {
-            get => uiButtonsEnabled;
+            get => _uiButtonsEnabled;
             set
             {
-                uiButtonsEnabled = value;
+                _uiButtonsEnabled = value;
                 OnPropertyChanged();
             }
         }
 
-        private string address;
+        private string _address;
         public string Address
         {
-            get => address;
+            get => _address;
             set
             {
-                address = value;
+                _address = value;
                 OnPropertyChanged();
             }
         }
 
-        private IWpfWebBrowser webBrowser;
+        private IWpfWebBrowser _webBrowser;
         public IWpfWebBrowser WebBrowser
         {
-            get => webBrowser;
+            get => _webBrowser;
             set
             {
-                webBrowser = value;
+                _webBrowser = value;
                 OnPropertyChanged();
             }
         }
 
-        private string network;
+        private string _network;
         public string Network
         {
-            get => network;
+            get => _network;
             set
             {
-                network = value;
+                _network = value;
                 OnPropertyChanged();
             }
         }
 
-        private string clicker;
+        private string _clicker;
         public string Clicker
         {
-            get => clicker;
+            get => _clicker;
             set
             {
-                clicker = value;
+                _clicker = value;
                 OnPropertyChanged();
             }
         }
 
-        private string status;
+        private string _status;
         public string Status
         {
-            get => status;
+            get => _status;
             set
             {
-                status = value;
+                _status = value;
                 OnPropertyChanged();
             }
         }

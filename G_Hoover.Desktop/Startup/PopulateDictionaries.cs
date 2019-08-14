@@ -32,6 +32,7 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_browserVM.OnBuildCommandAsync));
             methods.Add(nameof(_fileService.LoadPhraseAsync));
             methods.Add(nameof(_fileService.SavePhraseAsync));
+            methods.Add(nameof(_browserVM.OnStartCommandAsync));
 
             return methods;
         }

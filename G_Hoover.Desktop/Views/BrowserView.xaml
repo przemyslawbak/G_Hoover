@@ -11,7 +11,8 @@
              Left="0" Top="0"
              Name="Browser"
              DataContext="{Binding BrowserViewModel, Source={StaticResource ViewModelLocator}}"
-             md:DialogServiceViews.IsRegistered="True">
+             md:DialogServiceViews.IsRegistered="True"
+             WindowState="{Binding CurWindowState}">
     <Window.Resources>
         <ResourceDictionary>
             <BitmapImage x:Key="start" UriSource="pack://siteoforigin:,,,/Resources/start.png" />
@@ -146,7 +147,9 @@
         <DockPanel x:Name="browserViewRow" Grid.Row="1">
             <cefSharp:ChromiumWebBrowser
                 Address="{Binding Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                WebBrowser="{Binding WebBrowser, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                Focusable="{Binding IsBrowserFocused}"
+                WebBrowser="{Binding WebBrowser, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+/>
         </DockPanel>
         <DockPanel Grid.Row="1"
                    Background="Black"
