@@ -7,5 +7,7 @@ namespace G_Hoover.Services.Files
     {
         Task<List<string>> GetNewListFromFileAsync(string filePath);
         void RemoveOldLogs();
+        Task<string> LoadPhraseAsync();
+        Task SavePhraseAsync(string searchPhrase);
     }
 }

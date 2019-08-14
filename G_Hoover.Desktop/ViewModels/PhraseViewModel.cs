@@ -1,5 +1,6 @@
 ﻿using G_Hoover.Desktop.Commands;
 using MvvmDialogs;
+using System;
 using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
@@ -8,9 +9,20 @@ namespace G_Hoover.Desktop.ViewModels
     {
         private bool? dialogResult;
 
-        public PhraseViewModel()
+        public PhraseViewModel(string searchPhrase)
         {
             OkCommand = new DelegateCommand(Ok);
+
+            SplitPhrase(searchPhrase);
+        }
+
+        public void SplitPhrase(string searchPhrase)
+        {
+            if (searchPhrase.Contains("<name>"))
+            {
+                After = searchPhrase.Split(new[] { "<name>" }, StringSplitOptions.None)[1];
+                Before = searchPhrase.Split(new[] { "<name>" }, StringSplitOptions.None)[0];
+            }
         }
 
         public string Name { get; set; } = "<name>";
@@ -24,6 +36,7 @@ namespace G_Hoover.Desktop.ViewModels
                 _after = value;
                 OnPropertyChanged();
                 _text = Before + "<name>" + After;
+                OnPropertyChanged("ValidateInput");
             }
         }
 
@@ -36,6 +49,7 @@ namespace G_Hoover.Desktop.ViewModels
                 _before = value;
                 OnPropertyChanged();
                 _text = Before + "<name>" + After;
+                OnPropertyChanged("ValidateInput");
             }
         }
 
@@ -47,6 +61,14 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _text = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public bool ValidateInput
+        {
+            get
+            {
+                return !After.Contains("<name>") && !Before.Contains("<name>");
             }
         }
 
@@ -62,7 +84,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        private void Ok(object obj)
+        public void Ok(object obj)
         {
             if (!string.IsNullOrEmpty(Text))
             {

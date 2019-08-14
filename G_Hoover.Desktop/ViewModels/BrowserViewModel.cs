@@ -34,7 +34,7 @@ namespace G_Hoover.Desktop.ViewModels
             ConnectionChangeCommand = new DelegateCommand(OnConnectionChangeCommand);
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
             UploadCommand = new AsyncCommand(async () => await OnUploadCommandAsync());
-            BuildCommand = new DelegateCommand(OnBuildCommand);
+            BuildCommand = new AsyncCommand(async () => await OnBuildCommandAsync());
 
             NameList = new List<string>();
 
@@ -58,10 +58,16 @@ namespace G_Hoover.Desktop.ViewModels
         public async void InitializeBrowser()
         {
             StoppedConfiguration();
-
+            await LoadPhraseAsync();
             _fileService.RemoveOldLogs();
+
             await Task.Delay(5000);
             Address = "https://www.google.com/";
+        }
+
+        public async Task LoadPhraseAsync()
+        {
+            SearchPhrase = await _fileService.LoadPhraseAsync();
         }
 
         public void StoppedConfiguration()
@@ -93,7 +99,7 @@ namespace G_Hoover.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        public void OnBuildCommand(object obj)
+        public async Task OnBuildCommandAsync()
         {
             LoadDictionaries();
             CallerName = _messageService.GetCallerName();
@@ -106,7 +112,9 @@ namespace G_Hoover.Desktop.ViewModels
 
                 if (!string.IsNullOrEmpty(SearchPhrase))
                 {
-                    LogAndMessage(MessagesResult[CallerName]); //log
+                    await _fileService.SavePhraseAsync(SearchPhrase);
+
+                    LogAndMessage(MessagesResult[CallerName] + SearchPhrase); //log
                 }
                 else
                 {
@@ -115,7 +123,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                LogAndMessage(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[CallerName] + e.Message); //log
             }
 
         }
@@ -154,7 +162,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                LogAndMessage(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[CallerName] + e.Message); //log
             }
         }
 
@@ -207,7 +215,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
         {
-            var dialogViewModel = new PhraseViewModel();
+            var dialogViewModel = new PhraseViewModel(SearchPhrase);
 
             bool? success = showDialog(dialogViewModel);
             if (success == true)
@@ -232,7 +240,7 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand ConnectionChangeCommand { get; private set; }
         public ICommand ClickerChangeCommand { get; private set; }
         public IAsyncCommand UploadCommand { get; private set; }
-        public ICommand BuildCommand { get; private set; }
+        public IAsyncCommand BuildCommand { get; private set; }
 
         public bool ClickerInput { get; set; } //if click by input simulation
         public string CompletePhrase { get; set; } //search phrase builded

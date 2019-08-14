@@ -5,6 +5,7 @@
 
 #Specific solution folder
 **/log.txt
+**/phrase.txt
 
 #Google API
 *.AndroidManifest.xml

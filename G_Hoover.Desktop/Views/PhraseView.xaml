@@ -62,7 +62,8 @@
                 Command="{Binding OkCommand}"
                 IsDefault="True"
                 Margin="5"
-                Width="50"/>
+                Width="50"
+                IsEnabled="{Binding ValidateInput}"/>
             <Button
                 Content="Cancel"
                 IsCancel="True"

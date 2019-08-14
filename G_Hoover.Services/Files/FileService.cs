@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NLog;
 using G_Hoover.Services.Messages;
+using System.Text;
 
 namespace G_Hoover.Services.Files
 {
@@ -12,6 +13,7 @@ namespace G_Hoover.Services.Files
         private Logger _logger;
         private IMessageService _messageService;
         private readonly string _logFile = "../../../../log.txt";
+        private readonly string _phraseFile = "../../../../phrase.txt";
 
         public FileService(IMessageService messageService)
         {
@@ -81,6 +83,69 @@ namespace G_Hoover.Services.Files
                 if (File.Exists(_logFile))
                 {
                     File.Delete(_logFile);
+                }
+
+                _logger.Info(MessagesResult[CallerName] + CallerName); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, MessagesError[CallerName] + CallerName); //log
+            }
+        }
+
+        public async Task<string> LoadPhraseAsync()
+        {
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
+
+            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+
+            try
+            {
+                if (File.Exists(_phraseFile))
+                {
+                    using (StreamReader reader = File.OpenText(_phraseFile))
+                    {
+                        string fileText = await reader.ReadToEndAsync();
+
+                        _logger.Info(MessagesResult[CallerName] + CallerName); //log
+
+                        return fileText;
+                    }
+                }
+                else
+                {
+                    throw new Exception("File not found.");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, MessagesError[CallerName] + CallerName); //log
+
+                return string.Empty;
+            }
+        }
+
+        public async Task SavePhraseAsync(string searchPhrase)
+        {
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
+
+            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+
+            try
+            {
+                if (File.Exists(_phraseFile))
+                {
+                    File.Delete(_phraseFile);
+                }
+
+                using (var writer = File.OpenWrite(_phraseFile))
+                {
+                    using (var streamWriter = new StreamWriter(writer))
+                    {
+                        await streamWriter.WriteAsync(searchPhrase);
+                    }
                 }
 
                 _logger.Info(MessagesResult[CallerName] + CallerName); //log
