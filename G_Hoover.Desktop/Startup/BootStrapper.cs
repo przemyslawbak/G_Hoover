@@ -29,7 +29,7 @@ namespace G_Hoover.Desktop.Startup
             builder.RegisterType<BrowserView>().AsSelf();
             builder.RegisterType<BrowserViewModel>().AsSelf().SingleInstance();
             builder.RegisterType<PhraseView>().AsSelf();
-            builder.RegisterType<PhraseViewModel>().AsSelf().SingleInstance();
+            builder.RegisterType<PhraseViewModel>().AsSelf().SingleInstance().WithParameter(new NamedParameter("searchPhrase", ""));
             builder.RegisterType<PopulateDictionaries>().AsSelf().SingleInstance();
 
             return builder.Build();

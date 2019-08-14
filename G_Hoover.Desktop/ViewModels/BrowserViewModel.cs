@@ -96,7 +96,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void StartCrawling()
         {
-            throw new NotImplementedException();
+            //
         }
 
         public async Task OnBuildCommandAsync()

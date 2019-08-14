@@ -13,6 +13,8 @@ namespace G_Hoover.Desktop.ViewModels
         {
             OkCommand = new DelegateCommand(Ok);
 
+            Before = "";
+            After = "";
             SplitPhrase(searchPhrase);
         }
 
