@@ -26,13 +26,15 @@ namespace G_Hoover.Desktop.Startup
         private List<string> LoadMethods()
         {
             List<string> methods = new List<string>();
-            methods.Add(nameof(_fileService.GetNewListFromFileAsync));
-            methods.Add(nameof(_fileService.RemoveOldLogs));
-            methods.Add(nameof(_browserVM.OnUploadCommandAsync));
-            methods.Add(nameof(_browserVM.OnBuildCommandAsync));
-            methods.Add(nameof(_fileService.LoadPhraseAsync));
-            methods.Add(nameof(_fileService.SavePhraseAsync));
-            methods.Add(nameof(_browserVM.OnStartCommandAsync));
+            methods.Add(nameof(_fileService.GetNewListFromFileAsync)); //0
+            methods.Add(nameof(_fileService.RemoveOldLogs)); //1
+            methods.Add(nameof(_browserVM.OnUploadCommandAsync)); //2
+            methods.Add(nameof(_browserVM.OnBuildCommandAsync)); //3
+            methods.Add(nameof(_fileService.LoadPhraseAsync)); //4
+            methods.Add(nameof(_fileService.SavePhraseAsync)); //5
+            methods.Add(nameof(_browserVM.OnStartCommandAsync)); //6
+            methods.Add(nameof(_browserVM.CollectDataAsync)); //7
+            methods.Add(nameof(_browserVM.OnStopCommand)); //8
 
             return methods;
         }

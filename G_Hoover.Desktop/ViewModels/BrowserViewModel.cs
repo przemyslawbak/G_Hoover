@@ -10,6 +10,7 @@ using MvvmDialogs.FrameworkDialogs.OpenFile;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -121,49 +122,71 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task CollectDataAsync()
         {
-            if (NameList.Count > 0)
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
+
+            TokenSource = new CancellationTokenSource();
+            CancellationToken = TokenSource.Token;
+
+            _logger.Info(MessagesInfo[CallerName]); //log
+
+            StartedConfiguration();
+
+            Task task = Task.Run(async () =>
             {
-                StartedConfiguration();
+                CancellationToken.ThrowIfCancellationRequested();
 
                 await GetRecordAsync();
-            }
-            else
+
+                _logger.Info(MessagesResult[CallerName]); //log
+
+            }, TokenSource.Token);
+
+            try
             {
-                //no more phrases / finalization
+                await task;
+            }
+            catch (OperationCanceledException e)
+            {
+                _logger.Info(MessagesError[CallerName] + e.Message); //log
+            }
+            finally
+            {
+                PhraseNo++;
+
+                TokenSource.Dispose();
             }
         }
 
         public async Task GetRecordAsync()
         {
-            AudioTryCounter = 0; //reset audio counter
-            string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]); //search phrase
 
-            string nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
-
-            //PhraseNo++
-
-
-
-            /*
-            WebBrowser.Load("https://www.google.com/"); //load website
-
-
-            _pageLoadedEventHandler = async (sender, args) =>
+            if (NameList.Count > 0)
             {
-                if (args.IsLoading == false)
-                {
-                    WebBrowser.LoadingStateChanged -= _pageLoadedEventHandler;
-                            await WebBrowser.EvaluateScriptAsync(@"
-                            var arr = document.getElementsByTagName('input')[2].value = '" + phrase + @"';
-                            "); await Task.Delay(1000);
-                            await WebBrowser.EvaluateScriptAsync(@"
-                            var arr = document.getElementsByTagName('input')[3].click();
-                            ");
-                }
-            };
 
-                WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
-            */
+            }
+            else
+            {
+                //no more phrases / finalization
+            }
+
+            AudioTryCounter = 0;
+            string nextResult = string.Empty;
+            //string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
+
+            for (int i = 0; i < 100000; i++)
+            {
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    CancellationToken.ThrowIfCancellationRequested();
+                }
+
+                await Task.Delay(100);
+            }
+
+            await GetRecordAsync();
+
+            //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
         }
 
         private void ShowLess()
@@ -182,6 +205,47 @@ namespace G_Hoover.Desktop.ViewModels
             WebBrowser.Focus();
         }
 
+        public string GetFilePath()
+        {
+            var settings = new OpenFileDialogSettings
+            {
+                Title = "This Is The Title",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
+            };
+
+            bool? success = _dialogService.ShowOpenFileDialog(this, settings);
+            if (success == true)
+            {
+                return settings.FileName;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
+        {
+            var dialogViewModel = new PhraseViewModel(SearchPhrase);
+
+            bool? success = showDialog(dialogViewModel);
+            if (success == true)
+            {
+                return dialogViewModel.Text;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public void LogAndMessage(string message)
+        {
+            _logger.Info(message);
+            Message = _dialogService.ShowMessageBox(this, message);
+        }
+
         public async Task OnStartCommandAsync()
         {
             LoadDictionaries();
@@ -193,11 +257,11 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 await CollectDataAsync();
 
-                LogAndMessage(MessagesResult[CallerName] + SearchPhrase); //log
+                _logger.Info(MessagesResult[CallerName]); //log
             }
             catch (Exception e)
             {
-                LogAndMessage(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[CallerName] + e.Message); //log
             }
         }
 
@@ -285,48 +349,25 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnStopCommand(object obj)
         {
-            throw new NotImplementedException();
-        }
+            LoadDictionaries();
+            CallerName = _messageService.GetCallerName();
 
-        public string GetFilePath()
-        {
-            var settings = new OpenFileDialogSettings
-            {
-                Title = "This Is The Title",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
-            };
+            _logger.Info(MessagesInfo[CallerName]); //log
 
-            bool? success = _dialogService.ShowOpenFileDialog(this, settings);
-            if (success == true)
+            try
             {
-                return settings.FileName;
+                TokenSource.Cancel();
+
+                _logger.Info(MessagesResult[CallerName]);
             }
-            else
+            catch (Exception e)
             {
-                return string.Empty;
+                _logger.Error(MessagesError[CallerName] + e.Message);
             }
-        }
-
-        public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
-        {
-            var dialogViewModel = new PhraseViewModel(SearchPhrase);
-
-            bool? success = showDialog(dialogViewModel);
-            if (success == true)
+            finally
             {
-                return dialogViewModel.Text;
+                StoppedConfiguration();
             }
-            else
-            {
-                return string.Empty;
-            }
-        }
-
-        public void LogAndMessage(string message)
-        {
-            _logger.Info(message);
-            Message = _dialogService.ShowMessageBox(this, message);
         }
 
         public IAsyncCommand StartCommand { get; private set; }
@@ -350,6 +391,8 @@ namespace G_Hoover.Desktop.ViewModels
         public string CallerName { get; set; } //caller method
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
+        public CancellationTokenSource TokenSource { get; set; }
+        public CancellationToken CancellationToken { get; set; }
         public WorkStatus WorkStatus { get; set; }
 
         private WindowState _curWindowState;

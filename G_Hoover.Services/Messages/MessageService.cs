@@ -35,6 +35,8 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[4], "Loading phrase form the file. ");
             messages.Add(MethodList[5], "Saving new phrase to the file. ");
             messages.Add(MethodList[6], "Start collecting data. ");
+            messages.Add(MethodList[7], "CollectDataAsync Task started. ");
+            messages.Add(MethodList[8], "Clikced Stop button. ");
 
             return messages;
         }
@@ -48,7 +50,9 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[3], "New phrase: ");
             messages.Add(MethodList[4], "Loaded phrase. ");
             messages.Add(MethodList[5], "Phrase saved. ");
-            messages.Add(MethodList[6], "List of phrases is finished. ");
+            messages.Add(MethodList[6], "Finished collecting data. ");
+            messages.Add(MethodList[7], "GetRecordAsync completed. ");
+            messages.Add(MethodList[8], "TokenSource cancelled. ");
 
             return messages;
         }
@@ -63,6 +67,8 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[4], "Could not load phrase from the file. ");
             messages.Add(MethodList[5], "Could not save phrase to the file. ");
             messages.Add(MethodList[6], "Error when collecting data. ");
+            messages.Add(MethodList[7], "TokenSource cancelled. ");
+            messages.Add(MethodList[8], "Problem with token cancellation. ");
 
             return messages;
         }

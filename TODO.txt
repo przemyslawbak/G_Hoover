@@ -1,3 +1,5 @@
+pause -> service layer
+
 validate file txt + rows
 
 InitializeBrowser <- async void / Task
