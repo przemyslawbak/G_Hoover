@@ -78,6 +78,8 @@
   <ItemGroup>
     <Compile Include="Browser\BrowserService.cs" />
     <Compile Include="Browser\IBrowserService.cs" />
+    <Compile Include="Controls\ControlsService.cs" />
+    <Compile Include="Controls\IControlsService.cs" />
     <Compile Include="Files\FileService.cs" />
     <Compile Include="Files\IFileService.cs" />
     <Compile Include="Messages\IMessageService.cs" />

@@ -5,6 +5,7 @@ using G_Hoover.Desktop.Startup;
 using G_Hoover.Desktop.Views;
 using G_Hoover.Models;
 using G_Hoover.Services.Browser;
+using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
@@ -19,21 +20,21 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
-    public enum WorkStatus : byte { Start, Stop, Pause }
     public class BrowserViewModel : ViewModelBase
     {
         private readonly IFileService _fileService;
         private readonly IDialogService _dialogService;
         private readonly IBrowserService _browserService;
         private readonly IMessageService _messageService;
+        private readonly IControlsService _controlsService;
         private Logger _logger;
-        private EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
 
-        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IBrowserService browserService, IMessageService messageService)
+        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IBrowserService browserService, IMessageService messageService, IControlsService controlsService)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _browserService = browserService;
+            _controlsService = controlsService;
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
 
@@ -46,6 +47,7 @@ namespace G_Hoover.Desktop.ViewModels
             BuildCommand = new AsyncCommand(async () => await OnBuildCommandAsync());
 
             NameList = new List<string>();
+            UiControls = new UiPropertiesModel();
 
             LoadDictionaries();
             InitializeBrowser();
@@ -53,7 +55,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         private void LoadDictionaries()
         {
-            MessageDictionaries messages = _messageService.LoadDictionaries();
+            MessageDictionariesModel messages = _messageService.LoadDictionaries();
 
             MessagesInfo = messages.MessagesInfo;
             MessagesError = messages.MessagesError;
@@ -78,48 +80,22 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void PausedConfiguration()
         {
-            WorkStatus = WorkStatus.Pause;
-            Paused = true;
-            PleaseWaitVisible = false;
-            UiButtonsEnabled = true;
-            StopBtnEnabled = true;
-            PauseBtnEnabled = true;
+            UiControls = _controlsService.GetPausedConfiguration();
         }
 
         public void StoppedConfiguration()
         {
-            WorkStatus = WorkStatus.Stop;
-            Paused = false;
-            PleaseWaitVisible = false;
-            UiButtonsEnabled = true;
-            StopBtnEnabled = false;
-            PauseBtnEnabled = false;
+            UiControls = _controlsService.GetStoppedConfiguration();
         }
 
         public void StartedConfiguration()
         {
-            WorkStatus = WorkStatus.Start;
-            Paused = false;
-            PleaseWaitVisible = false;
-            UiButtonsEnabled = false;
-            StopBtnEnabled = true;
-            PauseBtnEnabled = true;
-            if (ClickerInput) //if input clicker
-            {
-                ShowAll();
-            }
-            else //if JavaScript clicker
-            {
-                ShowLess();
-            }
+            UiControls = _controlsService.GetStartedConfiguration();
         }
 
         public void PleaseWaitConfiguration()
         {
-            PleaseWaitVisible = true;
-            UiButtonsEnabled = false;
-            StopBtnEnabled = false;
-            PauseBtnEnabled = false;
+            UiControls = _controlsService.GetWaitConfiguration();
         }
 
         public async Task CollectDataAsync()
@@ -160,6 +136,14 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task GetRecordAsync()
         {
+            if (ClickerInput) //if input clicker
+            {
+                ShowAll();
+            }
+            else //if JavaScript clicker
+            {
+                ShowLess();
+            }
             AudioTryCounter = 0;
             string nextResult = string.Empty;
 
@@ -239,9 +223,8 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        public void LogAndMessage(string message)
+        public void DisplayMessage(string message)
         {
-            _logger.Info(message);
             Message = _dialogService.ShowMessageBox(this, message);
         }
 
@@ -404,15 +387,30 @@ namespace G_Hoover.Desktop.ViewModels
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
         public CancellationTokenSource TokenSource { get; set; } //for cancellation
         public CancellationToken CancellationToken { get; set; } //cancellation token
-        public WorkStatus WorkStatus { get; set; } //work status
+
+        private UiPropertiesModel _uiControls;
+        public UiPropertiesModel UiControls
+        {
+            get => _uiControls;
+            set
+            {
+                _uiControls = value;
+                Paused = _uiControls.Paused;
+                PleaseWaitVisible = _uiControls.PleaseWaitVisible;
+                UiButtonsEnabled = _uiControls.UiButtonsEnabled;
+                StopBtnEnabled = _uiControls.StopBtnEnabled;
+                PauseBtnEnabled = _uiControls.PauseBtnEnabled;
+                OnPropertyChanged();
+            }
+        }
 
         private bool _paused;
         public bool Paused
         {
-            get => _paused;
+            get => UiControls.Paused;
             set
             {
-                _paused = value;
+                UiControls.Paused = value;
                 OnPropertyChanged();
             }
         }
@@ -452,10 +450,10 @@ namespace G_Hoover.Desktop.ViewModels
         private bool _pauseBtnEnabled;
         public bool PauseBtnEnabled
         {
-            get => _pauseBtnEnabled;
+            get => UiControls.PauseBtnEnabled;
             set
             {
-                _pauseBtnEnabled = value;
+                UiControls.PauseBtnEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -463,10 +461,10 @@ namespace G_Hoover.Desktop.ViewModels
         private bool _stopBtnEnabled;
         public bool StopBtnEnabled
         {
-            get => _stopBtnEnabled;
+            get => UiControls.StopBtnEnabled;
             set
             {
-                _stopBtnEnabled = value;
+                UiControls.StopBtnEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -474,10 +472,10 @@ namespace G_Hoover.Desktop.ViewModels
         private bool _uiButtonsEnabled;
         public bool UiButtonsEnabled
         {
-            get => _uiButtonsEnabled;
+            get => UiControls.UiButtonsEnabled;
             set
             {
-                _uiButtonsEnabled = value;
+                UiControls.UiButtonsEnabled = value;
                 OnPropertyChanged();
             }
         }

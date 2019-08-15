@@ -15,6 +15,6 @@ namespace G_Hoover.Services.Messages
         Dictionary<string, string> GetMessagesResult();
         Dictionary<string, string> GetDisplayMessage();
         List<string> MethodList { get; set; }
-        MessageDictionaries LoadDictionaries();
+        MessageDictionariesModel LoadDictionaries();
     }
 }

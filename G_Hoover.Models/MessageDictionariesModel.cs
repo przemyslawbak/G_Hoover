@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace G_Hoover.Models
 {
-    public class MessageDictionaries
+    public class MessageDictionariesModel
     {
         public Dictionary<string, string> MessagesInfo { get; set; }
         public Dictionary<string, string> MessagesError { get; set; }

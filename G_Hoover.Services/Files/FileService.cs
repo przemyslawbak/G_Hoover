@@ -25,7 +25,7 @@ namespace G_Hoover.Services.Files
         }
         private void LoadDictionaries()
         {
-            MessageDictionaries messages = _messageService.LoadDictionaries();
+            MessageDictionariesModel messages = _messageService.LoadDictionaries();
 
             MessagesInfo = messages.MessagesInfo;
             MessagesError = messages.MessagesError;
@@ -154,7 +154,7 @@ namespace G_Hoover.Services.Files
             }
         }
 
-        private void OnDictionariesLoaded(MessageDictionaries obj)
+        private void OnDictionariesLoaded(MessageDictionariesModel obj)
         {
             MessagesInfo = obj.MessagesInfo;
             MessagesError = obj.MessagesError;

@@ -76,9 +76,9 @@ namespace G_Hoover.Services.Messages
             return messages;
         }
 
-        public MessageDictionaries LoadDictionaries()
+        public MessageDictionariesModel LoadDictionaries()
         {
-            MessageDictionaries messages = new MessageDictionaries()
+            MessageDictionariesModel messages = new MessageDictionariesModel()
             {
                 MessagesDisplay = GetDisplayMessage(),
                 MessagesError = GetMessagesError(),

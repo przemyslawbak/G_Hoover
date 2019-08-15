@@ -2,6 +2,7 @@
 using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Desktop.Views;
 using G_Hoover.Services.Browser;
+using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
@@ -17,6 +18,9 @@ namespace G_Hoover.Desktop.Startup
         public static IContainer BootStrap()
         {
             var builder = new ContainerBuilder();
+
+            builder.RegisterType<ControlsService>()
+              .As<IControlsService>().SingleInstance();
 
             builder.RegisterType<DialogService>()
               .As<IDialogService>().SingleInstance();
