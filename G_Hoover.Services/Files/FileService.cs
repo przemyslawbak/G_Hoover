@@ -23,6 +23,7 @@ namespace G_Hoover.Services.Files
 
             LoadDictionaries();
         }
+
         private void LoadDictionaries()
         {
             MessageDictionariesModel messages = _messageService.LoadDictionaries();

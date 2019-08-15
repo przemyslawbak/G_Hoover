@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "G_Hoover.Tests", "G_Hoover.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Models", "G_Hoover.Models\G_Hoover.Models.csproj", "{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Events", "G_Hoover.Events\G_Hoover.Events.csproj", "{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,14 @@ Global
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Release|x64.ActiveCfg = Release|Any CPU
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Release|x64.Build.0 = Release|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

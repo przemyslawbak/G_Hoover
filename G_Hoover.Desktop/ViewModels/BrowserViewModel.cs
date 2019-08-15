@@ -3,6 +3,7 @@ using CefSharp.Wpf;
 using G_Hoover.Desktop.Commands;
 using G_Hoover.Desktop.Startup;
 using G_Hoover.Desktop.Views;
+using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Browser;
 using G_Hoover.Services.Controls;
@@ -11,6 +12,7 @@ using G_Hoover.Services.Messages;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
 using NLog;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -27,16 +29,23 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IBrowserService _browserService;
         private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
-        private Logger _logger;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly Logger _logger;
 
-        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IBrowserService browserService, IMessageService messageService, IControlsService controlsService)
+        public BrowserViewModel(IFileService fileService,
+            IDialogService dialogService,
+            IBrowserService browserService,
+            IMessageService messageService,
+            IControlsService controlsService,
+            IEventAggregator eventAggregator)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _browserService = browserService;
             _controlsService = controlsService;
-            _logger = LogManager.GetCurrentClassLogger();
+            _eventAggregator = eventAggregator;
             _messageService = messageService;
+            _logger = LogManager.GetCurrentClassLogger();
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);
@@ -48,6 +57,8 @@ namespace G_Hoover.Desktop.ViewModels
 
             NameList = new List<string>();
             UiControls = new UiPropertiesModel();
+
+            _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
 
             LoadDictionaries();
             InitializeBrowser();
@@ -80,22 +91,22 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void PausedConfiguration()
         {
-            UiControls = _controlsService.GetPausedConfiguration();
+            _controlsService.GetPausedConfiguration();
         }
 
         public void StoppedConfiguration()
         {
-            UiControls = _controlsService.GetStoppedConfiguration();
+            _controlsService.GetStoppedConfiguration();
         }
 
         public void StartedConfiguration()
         {
-            UiControls = _controlsService.GetStartedConfiguration();
+            _controlsService.GetStartedConfiguration();
         }
 
         public void PleaseWaitConfiguration()
         {
-            UiControls = _controlsService.GetWaitConfiguration();
+            _controlsService.GetWaitConfiguration();
         }
 
         public async Task CollectDataAsync()
@@ -148,7 +159,7 @@ namespace G_Hoover.Desktop.ViewModels
             string nextResult = string.Empty;
 
             while (Paused)
-                Thread.Sleep(100);
+                Thread.Sleep(50);
 
             if (CancellationToken.IsCancellationRequested)
             {
@@ -226,6 +237,11 @@ namespace G_Hoover.Desktop.ViewModels
         public void DisplayMessage(string message)
         {
             Message = _dialogService.ShowMessageBox(this, message);
+        }
+
+        private void OnUpdateControls(UiPropertiesModel obj)
+        {
+            UiControls = obj;
         }
 
         public async Task OnStartCommandAsync()
@@ -316,16 +332,6 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        public void OnClickerChangeCommand(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnConnectionChangeCommand(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
         public void OnPauseCommand(object obj)
         {
             if (Paused == true)
@@ -344,24 +350,17 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnStopCommand(object obj)
         {
-            string callerName = nameof(OnStopCommand);
+            _controlsService.ExecuteStopButton();
+        }
 
-            _logger.Info(MessagesInfo[callerName]); //log
+        public void OnClickerChangeCommand(object obj)
+        {
+            throw new NotImplementedException();
+        }
 
-            try
-            {
-                TokenSource.Cancel();
-
-                _logger.Info(MessagesResult[callerName]); //log
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-            finally
-            {
-                StoppedConfiguration();
-            }
+        public void OnConnectionChangeCommand(object obj)
+        {
+            throw new NotImplementedException();
         }
 
         public IAsyncCommand StartCommand { get; private set; }

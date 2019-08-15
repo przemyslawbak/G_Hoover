@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B62BC99E-B5C6-483F-B534-6324220FAA6B}</ProjectGuid>
+    <ProjectGuid>{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>G_Hoover.Events</RootNamespace>
@@ -47,8 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoadDictionariesEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UpdateControlsEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

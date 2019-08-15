@@ -58,6 +58,9 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="Prism, Version=7.2.0.1367, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Prism.Core.7.2.0.1367\lib\net45\Prism.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -90,6 +93,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\G_Hoover.Events\G_Hoover.Events.csproj">
+      <Project>{6f004db1-bada-47bb-ab1e-52aa8602e9cc}</Project>
+      <Name>G_Hoover.Events</Name>
+    </ProjectReference>
     <ProjectReference Include="..\G_Hoover.Models\G_Hoover.Models.csproj">
       <Project>{91bb241a-3a6a-4ac3-87a7-eb8ba775e7c6}</Project>
       <Name>G_Hoover.Models</Name>

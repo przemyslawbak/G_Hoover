@@ -4,9 +4,10 @@ namespace G_Hoover.Services.Controls
 {
     public interface IControlsService
     {
-        UiPropertiesModel GetPausedConfiguration();
-        UiPropertiesModel GetStoppedConfiguration();
-        UiPropertiesModel GetStartedConfiguration();
-        UiPropertiesModel GetWaitConfiguration();
+        void GetPausedConfiguration();
+        void GetStoppedConfiguration();
+        void GetStartedConfiguration();
+        void GetWaitConfiguration();
+        void ExecuteStopButton();
     }
 }

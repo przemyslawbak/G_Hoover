@@ -3,13 +3,67 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Messages;
+using NLog;
+using Prism.Events;
 
 namespace G_Hoover.Services.Controls
 {
     public class ControlsService : IControlsService
     {
-        public UiPropertiesModel GetPausedConfiguration()
+        private readonly Logger _logger;
+        private readonly IMessageService _messageService;
+        private readonly IEventAggregator _eventAggregator;
+
+        public ControlsService(IMessageService messageService, IEventAggregator eventAggregator)
+        {
+            _logger = LogManager.GetCurrentClassLogger();
+            _messageService = messageService;
+            _eventAggregator = eventAggregator;
+
+            LoadDictionaries();
+        }
+
+        private void LoadDictionaries()
+        {
+            MessageDictionariesModel messages = _messageService.LoadDictionaries();
+
+            MessagesInfo = messages.MessagesInfo;
+            MessagesError = messages.MessagesError;
+            MessagesResult = messages.MessagesResult;
+            MessagesDisplay = messages.MessagesDisplay;
+        }
+
+        public Dictionary<string, string> MessagesInfo { get; set; }
+        public Dictionary<string, string> MessagesError { get; set; }
+        public Dictionary<string, string> MessagesResult { get; set; }
+        public Dictionary<string, string> MessagesDisplay { get; set; }
+
+        public void ExecuteStopButton()
+        {
+            string callerName = nameof(ExecuteStopButton);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                //TokenSource.Cancel();
+
+                _logger.Info(MessagesResult[callerName]); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+            finally
+            {
+                GetStoppedConfiguration();
+            }
+        }
+
+        public void GetPausedConfiguration()
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
@@ -20,10 +74,10 @@ namespace G_Hoover.Services.Controls
                 PauseBtnEnabled = true,
             };
 
-            return uiModel;
+            _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
-        public UiPropertiesModel GetStartedConfiguration()
+        public void GetStartedConfiguration()
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
@@ -34,10 +88,10 @@ namespace G_Hoover.Services.Controls
                 PauseBtnEnabled = true,
             };
 
-            return uiModel;
+            _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
-        public UiPropertiesModel GetStoppedConfiguration()
+        public void GetStoppedConfiguration()
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
@@ -48,10 +102,10 @@ namespace G_Hoover.Services.Controls
                 PauseBtnEnabled = false,
             };
 
-            return uiModel;
+            _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
-        public UiPropertiesModel GetWaitConfiguration()
+        public void GetWaitConfiguration()
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
@@ -62,7 +116,7 @@ namespace G_Hoover.Services.Controls
                 PauseBtnEnabled = false,
             };
 
-            return uiModel;
+            _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
     }
 }
