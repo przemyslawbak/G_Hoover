@@ -47,7 +47,7 @@ namespace G_Hoover.Desktop.ViewModels
             _messageService = messageService;
             _logger = LogManager.GetCurrentClassLogger();
 
-            StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
+            StartCommand = new DelegateCommand(OnStartCommandAsync);
             StopCommand = new DelegateCommand(OnStopCommand);
             PauseCommand = new DelegateCommand(OnPauseCommand);
             ConnectionChangeCommand = new DelegateCommand(OnConnectionChangeCommand);
@@ -173,6 +173,27 @@ namespace G_Hoover.Desktop.ViewModels
 
                 //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
 
+                /*
+            WebBrowser.Load("https://www.google.com/"); //load website
+
+
+            _pageLoadedEventHandler = async (sender, args) =>
+            {
+                if (args.IsLoading == false)
+                {
+                    WebBrowser.LoadingStateChanged -= _pageLoadedEventHandler;
+                            await WebBrowser.EvaluateScriptAsync(@"
+                            var arr = document.getElementsByTagName('input')[2].value = '" + phrase + @"';
+                            "); await Task.Delay(1000);
+                            await WebBrowser.EvaluateScriptAsync(@"
+                            var arr = document.getElementsByTagName('input')[3].click();
+                            ");
+                }
+            };
+
+                WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
+            */
+
                 PhraseNo++;
 
                 await GetRecordAsync();
@@ -244,27 +265,9 @@ namespace G_Hoover.Desktop.ViewModels
             UiControls = obj;
         }
 
-        public async Task OnStartCommandAsync()
+        public void OnStartCommandAsync(object obj)
         {
-            string callerName = nameof(OnStartCommandAsync);
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                await CollectDataAsync();
-
-                _logger.Info(MessagesResult[callerName]); //log
-
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-            finally
-            {
-                StoppedConfiguration();
-            }
+            _controlsService.ExecuteStartButton();
         }
 
         public async Task OnBuildCommandAsync()
@@ -296,40 +299,9 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnUploadCommandAsync()
         {
-            string callerName = nameof(OnUploadCommandAsync);
-            NameList.Clear();
+            FilePath = GetFilePath();
 
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                FilePath = GetFilePath();
-
-                if (!string.IsNullOrEmpty(FilePath))
-                {
-                    PleaseWaitConfiguration(); //ui
-                    NameList = await _fileService.GetNewListFromFileAsync(FilePath); //load collection
-                    StoppedConfiguration(); //ui
-
-                    if (NameList.Count > 0)
-                    {
-                        PhraseNo = 0;
-                        _logger.Info(MessagesResult[callerName]); //log
-                    }
-                    else
-                    {
-                        throw new Exception("Empty file.");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Cancelled.");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
+            await _controlsService.ExecuteUploadButtonAsync(FilePath);
         }
 
         public void OnPauseCommand(object obj)
@@ -352,7 +324,7 @@ namespace G_Hoover.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        public IAsyncCommand StartCommand { get; private set; }
+        public ICommand StartCommand { get; private set; }
         public ICommand StopCommand { get; private set; }
         public ICommand PauseCommand { get; private set; }
         public ICommand ConnectionChangeCommand { get; private set; }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using NLog;
 using Prism.Events;
@@ -16,10 +17,12 @@ namespace G_Hoover.Services.Controls
         private readonly Logger _logger;
         private readonly IMessageService _messageService;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IFileService _fileService;
 
-        public ControlsService(IMessageService messageService, IEventAggregator eventAggregator)
+        public ControlsService(IMessageService messageService, IEventAggregator eventAggregator, IFileService fileService)
         {
             _logger = LogManager.GetCurrentClassLogger();
+            _fileService = fileService;
             _messageService = messageService;
             _eventAggregator = eventAggregator;
 
@@ -105,7 +108,7 @@ namespace G_Hoover.Services.Controls
 
             try
             {
-                //TokenSource.Cancel();
+                TokenSource.Cancel(); //browser service
 
                 _logger.Info(MessagesResult[callerName]); //log
             }
@@ -149,6 +152,69 @@ namespace G_Hoover.Services.Controls
             catch (Exception e)
             {
                 _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+        }
+
+        public void ExecuteStartButton()
+        {
+            string callerName = nameof(ExecuteStartButton);
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                await CollectDataAsync(); //browser service
+
+                _logger.Info(MessagesResult[callerName]); //log
+
+
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+            finally
+            {
+                GetStoppedConfiguration();
+            }
+        }
+
+        public async Task<List<string>> ExecuteUploadButtonAsync(string filePath)
+        {
+            string callerName = nameof(ExecuteUploadButtonAsync);
+            List<string> nameList = new List<string>();
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    GetWaitConfiguration(); //ui
+                    nameList = await _fileService.GetNewListFromFileAsync(filePath); //load collection
+                    GetStoppedConfiguration(); //ui
+
+                    if (nameList.Count > 0)
+                    {
+                        _logger.Info(MessagesResult[callerName]); //log
+
+                        return nameList;
+                    }
+                    else
+                    {
+                        throw new Exception("Empty file.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Cancelled.");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+
+                return new List<string>();
             }
         }
     }
