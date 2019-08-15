@@ -58,6 +58,9 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -133,9 +136,7 @@
     <Resource Include="Resources\start.png" />
     <Resource Include="Resources\stop.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="Views\BrowserView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -147,6 +148,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\G_Hoover.Models\G_Hoover.Models.csproj">
+      <Project>{91bb241a-3a6a-4ac3-87a7-eb8ba775e7c6}</Project>
+      <Name>G_Hoover.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\G_Hoover.Services\G_Hoover.Services.csproj">
       <Project>{a68921a8-fa6c-4813-9ba7-de14f326beaf}</Project>
       <Name>G_Hoover.Services</Name>

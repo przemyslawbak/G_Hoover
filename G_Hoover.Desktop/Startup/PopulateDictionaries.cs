@@ -7,9 +7,9 @@ namespace G_Hoover.Desktop.Startup
 {
     class PopulateDictionaries
     {
-        IMessageService _messageService;
-        FileService _fileService;
-        BrowserViewModel _browserVM;
+        private readonly IMessageService _messageService;
+        private readonly FileService _fileService;
+        private readonly BrowserViewModel _browserVM;
 
         public PopulateDictionaries(IMessageService messageService)
         {

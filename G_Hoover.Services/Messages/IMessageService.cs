@@ -1,4 +1,5 @@
-﻿using System;
+﻿using G_Hoover.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,8 @@ namespace G_Hoover.Services.Messages
         Dictionary<string, string> GetMessagesInfo();
         Dictionary<string, string> GetMessagesError();
         Dictionary<string, string> GetMessagesResult();
-        string GetCallerName([CallerMemberName] string caller = null);
+        Dictionary<string, string> GetDisplayMessage();
         List<string> MethodList { get; set; }
+        MessageDictionaries LoadDictionaries();
     }
 }

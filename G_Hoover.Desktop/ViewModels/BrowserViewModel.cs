@@ -1,7 +1,9 @@
 ﻿using CefSharp;
 using CefSharp.Wpf;
 using G_Hoover.Desktop.Commands;
+using G_Hoover.Desktop.Startup;
 using G_Hoover.Desktop.Views;
+using G_Hoover.Models;
 using G_Hoover.Services.Browser;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
@@ -27,13 +29,13 @@ namespace G_Hoover.Desktop.ViewModels
         private Logger _logger;
         private EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
 
-        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IMessageService messageService, IBrowserService browserService)
+        public BrowserViewModel(IFileService fileService, IDialogService dialogService, IBrowserService browserService, IMessageService messageService)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _browserService = browserService;
-            _messageService = messageService;
             _logger = LogManager.GetCurrentClassLogger();
+            _messageService = messageService;
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);
@@ -45,21 +47,18 @@ namespace G_Hoover.Desktop.ViewModels
 
             NameList = new List<string>();
 
+            LoadDictionaries();
             InitializeBrowser();
         }
 
-        /// <summary>
-        /// loads message dictionaries from MessageService
-        /// </summary>
-        public void LoadDictionaries()
+        private void LoadDictionaries()
         {
-            MessagesInfo = new Dictionary<string, string>();
-            MessagesError = new Dictionary<string, string>();
-            MessagesResult = new Dictionary<string, string>();
+            MessageDictionaries messages = _messageService.LoadDictionaries();
 
-            MessagesInfo = _messageService.GetMessagesInfo();
-            MessagesError = _messageService.GetMessagesError();
-            MessagesResult = _messageService.GetMessagesResult();
+            MessagesInfo = messages.MessagesInfo;
+            MessagesError = messages.MessagesError;
+            MessagesResult = messages.MessagesResult;
+            MessagesDisplay = messages.MessagesDisplay;
         }
 
         public async void InitializeBrowser()
@@ -122,13 +121,10 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task CollectDataAsync()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
-
             TokenSource = new CancellationTokenSource();
             CancellationToken = TokenSource.Token;
-
-            _logger.Info(MessagesInfo[CallerName]); //log
+            string callerName = nameof(CollectDataAsync);
+            _logger.Info(MessagesInfo[callerName]); //log
 
             StartedConfiguration();
 
@@ -138,7 +134,7 @@ namespace G_Hoover.Desktop.ViewModels
 
                 await GetRecordAsync();
 
-                _logger.Info(MessagesResult[CallerName]); //log
+                _logger.Info(MessagesResult[callerName]); //log
 
             }, TokenSource.Token);
 
@@ -148,7 +144,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
             catch (OperationCanceledException e)
             {
-                _logger.Info(MessagesError[CallerName] + e.Message); //log
+                _logger.Info(MessagesError[callerName] + e.Message); //log
             }
             finally
             {
@@ -248,29 +244,25 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnStartCommandAsync()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
-
-            _logger.Info(MessagesInfo[CallerName]); //log
+            string callerName = nameof(OnStartCommandAsync);
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
                 await CollectDataAsync();
 
-                _logger.Info(MessagesResult[CallerName]); //log
+                _logger.Info(MessagesResult[callerName]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
         }
 
         public async Task OnBuildCommandAsync()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
-
-            _logger.Info(MessagesInfo[CallerName]); //log
+            string callerName = nameof(OnBuildCommandAsync);
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -280,7 +272,7 @@ namespace G_Hoover.Desktop.ViewModels
                 {
                     await _fileService.SavePhraseAsync(SearchPhrase);
 
-                    LogAndMessage(MessagesResult[CallerName] + SearchPhrase); //log
+                    _logger.Info(MessagesResult[callerName] + SearchPhrase); //log
                 }
                 else
                 {
@@ -289,18 +281,17 @@ namespace G_Hoover.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
 
         }
 
         public async Task OnUploadCommandAsync()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
+            string callerName = nameof(OnUploadCommandAsync);
             NameList.Clear();
 
-            _logger.Info(MessagesInfo[CallerName]); //log
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -314,7 +305,7 @@ namespace G_Hoover.Desktop.ViewModels
 
                     if (NameList.Count > 0)
                     {
-                        LogAndMessage(MessagesResult[CallerName]); //log
+                        _logger.Info(MessagesResult[callerName]); //log
                     }
                     else
                     {
@@ -328,7 +319,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[CallerName] + e.Message); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
         }
 
@@ -349,20 +340,17 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnStopCommand(object obj)
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
-
-            _logger.Info(MessagesInfo[CallerName]); //log
+            _logger.Info(MessagesInfo[nameof(OnStopCommand)]); //log
 
             try
             {
                 TokenSource.Cancel();
 
-                _logger.Info(MessagesResult[CallerName]);
+                _logger.Info(MessagesResult[nameof(OnStopCommand)]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[CallerName] + e.Message);
+                _logger.Error(MessagesError[nameof(OnStopCommand)] + e.Message); //log
             }
             finally
             {
@@ -388,7 +376,7 @@ namespace G_Hoover.Desktop.ViewModels
         public Dictionary<string, string> MessagesInfo { get; set; } //message dictionary
         public Dictionary<string, string> MessagesError { get; set; } //message dictionary
         public Dictionary<string, string> MessagesResult { get; set; } //message dictionary
-        public string CallerName { get; set; } //caller method
+        public Dictionary<string, string> MessagesDisplay { get; set; } //message dictionary
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
         public CancellationTokenSource TokenSource { get; set; }

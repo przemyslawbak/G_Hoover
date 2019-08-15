@@ -1,29 +1,16 @@
-﻿using System;
+﻿using G_Hoover.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace G_Hoover.Services.Messages
 {
     public class MessageService : IMessageService
     {
+
         public MessageService()
         {
             MethodList = new List<string>();
         }
         public List<string> MethodList { get; set; }
-
-        /// <summary>
-        /// returns name of the caller
-        /// </summary>
-        /// <param name="caller">caller name</param>
-        /// <returns>caller name</returns>
-        public string GetCallerName([CallerMemberName] string caller = null)
-        {
-            return caller;
-        }
 
         public Dictionary<string, string> GetMessagesInfo()
         {
@@ -69,6 +56,35 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[6], "Error when collecting data. ");
             messages.Add(MethodList[7], "TokenSource cancelled. ");
             messages.Add(MethodList[8], "Problem with token cancellation. ");
+
+            return messages;
+        }
+
+        public Dictionary<string, string> GetDisplayMessage()
+        {
+            Dictionary<string, string> messages = new Dictionary<string, string>();
+            messages.Add(MethodList[0], "");
+            messages.Add(MethodList[1], "");
+            messages.Add(MethodList[2], "");
+            messages.Add(MethodList[3], "");
+            messages.Add(MethodList[4], "");
+            messages.Add(MethodList[5], "");
+            messages.Add(MethodList[6], "");
+            messages.Add(MethodList[7], "");
+            messages.Add(MethodList[8], "");
+
+            return messages;
+        }
+
+        public MessageDictionaries LoadDictionaries()
+        {
+            MessageDictionaries messages = new MessageDictionaries()
+            {
+                MessagesDisplay = GetDisplayMessage(),
+                MessagesError = GetMessagesError(),
+                MessagesInfo = GetMessagesInfo(),
+                MessagesResult = GetMessagesResult()
+            };
 
             return messages;
         }

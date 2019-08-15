@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NLog;
 using G_Hoover.Services.Messages;
 using System.Text;
+using G_Hoover.Models;
 
 namespace G_Hoover.Services.Files
 {
@@ -19,30 +20,30 @@ namespace G_Hoover.Services.Files
         {
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
+
+            LoadDictionaries();
         }
+        private void LoadDictionaries()
+        {
+            MessageDictionaries messages = _messageService.LoadDictionaries();
+
+            MessagesInfo = messages.MessagesInfo;
+            MessagesError = messages.MessagesError;
+            MessagesResult = messages.MessagesResult;
+            MessagesDisplay = messages.MessagesDisplay;
+        }
+
         public Dictionary<string, string> MessagesInfo { get; set; }
         public Dictionary<string, string> MessagesError { get; set; }
         public Dictionary<string, string> MessagesResult { get; set; }
-        public string CallerName { get; set; }
-
-        public void LoadDictionaries()
-        {
-            MessagesInfo = new Dictionary<string, string>();
-            MessagesError = new Dictionary<string, string>();
-            MessagesResult = new Dictionary<string, string>();
-
-            MessagesInfo = _messageService.GetMessagesInfo();
-            MessagesError = _messageService.GetMessagesError();
-            MessagesResult = _messageService.GetMessagesResult();
-        }
+        public Dictionary<string, string> MessagesDisplay { get; set; }
 
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
+            string callerName = nameof(GetNewListFromFileAsync);
             List<string> list = new List<string>();
 
-            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+            _logger.Info(MessagesInfo[callerName] + callerName); //log
 
             try
             {
@@ -57,13 +58,13 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                _logger.Info(MessagesResult[CallerName] + CallerName); //log
+                _logger.Info(MessagesResult[callerName] + callerName); //log
 
                 return list;
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[CallerName] + e.Message + CallerName); //log
+                _logger.Error(MessagesError[callerName] + e.Message + callerName); //log
 
                 list.Clear();
 
@@ -73,10 +74,9 @@ namespace G_Hoover.Services.Files
 
         public void RemoveOldLogs()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
+            string callerName = nameof(RemoveOldLogs);
 
-            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+            _logger.Info(MessagesInfo[callerName] + callerName); //log
 
             try
             {
@@ -85,20 +85,19 @@ namespace G_Hoover.Services.Files
                     File.Delete(_logFile);
                 }
 
-                _logger.Info(MessagesResult[CallerName] + CallerName); //log
+                _logger.Info(MessagesResult[callerName] + callerName); //log
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[CallerName] + CallerName); //log
+                _logger.Error(e, MessagesError[callerName] + callerName); //log
             }
         }
 
         public async Task<string> LoadPhraseAsync()
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
+            string callerName = nameof(LoadPhraseAsync);
 
-            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+            _logger.Info(MessagesInfo[callerName] + callerName); //log
 
             try
             {
@@ -108,7 +107,7 @@ namespace G_Hoover.Services.Files
                     {
                         string fileText = await reader.ReadToEndAsync();
 
-                        _logger.Info(MessagesResult[CallerName] + CallerName); //log
+                        _logger.Info(MessagesResult[callerName] + callerName); //log
 
                         return fileText;
                     }
@@ -120,7 +119,7 @@ namespace G_Hoover.Services.Files
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[CallerName] + CallerName); //log
+                _logger.Error(e, MessagesError[callerName] + callerName); //log
 
                 return string.Empty;
             }
@@ -128,10 +127,9 @@ namespace G_Hoover.Services.Files
 
         public async Task SavePhraseAsync(string searchPhrase)
         {
-            LoadDictionaries();
-            CallerName = _messageService.GetCallerName();
+            string callerName = nameof(SavePhraseAsync);
 
-            _logger.Info(MessagesInfo[CallerName] + CallerName); //log
+            _logger.Info(MessagesInfo[callerName] + callerName); //log
 
             try
             {
@@ -148,12 +146,19 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                _logger.Info(MessagesResult[CallerName] + CallerName); //log
+                _logger.Info(MessagesResult[callerName] + callerName); //log
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[CallerName] + CallerName); //log
+                _logger.Error(e, MessagesError[callerName] + callerName); //log
             }
+        }
+
+        private void OnDictionariesLoaded(MessageDictionaries obj)
+        {
+            MessagesInfo = obj.MessagesInfo;
+            MessagesError = obj.MessagesError;
+            MessagesResult = obj.MessagesResult;
         }
     }
 }

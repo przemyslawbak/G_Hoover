@@ -1,5 +1,7 @@
 pause -> service layer
 
+app.config update -> https://stackoverflow.com/a/1357453
+
 validate file txt + rows
 
 InitializeBrowser <- async void / Task
