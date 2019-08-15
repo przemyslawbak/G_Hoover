@@ -334,18 +334,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnPauseCommand(object obj)
         {
-            if (Paused == true)
-            {
-                StartedConfiguration();
-                Paused = false;
-                //and browser service here;
-            }
-            else
-            {
-                PausedConfiguration();
-                Paused = true;
-                //and browser service here;
-            }
+            _controlsService.ExecutePauseButton(Paused);
         }
 
         public void OnStopCommand(object obj)

@@ -37,6 +37,7 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_browserVM.OnStartCommandAsync)); //6
             methods.Add(nameof(_browserVM.CollectDataAsync)); //7
             methods.Add(nameof(_controlsService.ExecuteStopButton)); //8
+            methods.Add(nameof(_controlsService.ExecutePauseButton)); //9
 
             return methods;
         }

@@ -9,5 +9,6 @@ namespace G_Hoover.Services.Controls
         void GetStartedConfiguration();
         void GetWaitConfiguration();
         void ExecuteStopButton();
+        void ExecutePauseButton(bool paused);
     }
 }

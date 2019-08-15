@@ -41,28 +41,6 @@ namespace G_Hoover.Services.Controls
         public Dictionary<string, string> MessagesResult { get; set; }
         public Dictionary<string, string> MessagesDisplay { get; set; }
 
-        public void ExecuteStopButton()
-        {
-            string callerName = nameof(ExecuteStopButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                //TokenSource.Cancel();
-
-                _logger.Info(MessagesResult[callerName]); //log
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-            finally
-            {
-                GetStoppedConfiguration();
-            }
-        }
-
         public void GetPausedConfiguration()
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
@@ -117,6 +95,61 @@ namespace G_Hoover.Services.Controls
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
+        }
+
+        public void ExecuteStopButton()
+        {
+            string callerName = nameof(ExecuteStopButton);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                //TokenSource.Cancel();
+
+                _logger.Info(MessagesResult[callerName]); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+            finally
+            {
+                GetStoppedConfiguration();
+            }
+        }
+
+        public void ExecutePauseButton(bool paused)
+        {
+            string callerName = nameof(ExecuteStopButton);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                if (paused == true)
+                {
+                    GetStartedConfiguration();
+
+                    paused = false;
+
+                    //and browser service here;
+                }
+                else
+                {
+                    GetPausedConfiguration();
+
+                    paused = true;
+
+                    //and browser service here;
+                }
+
+                _logger.Info(MessagesResult[callerName] + paused); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
         }
     }
 }

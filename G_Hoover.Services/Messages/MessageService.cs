@@ -24,6 +24,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[6], "Start collecting data. ");
             messages.Add(MethodList[7], "CollectDataAsync Task started. ");
             messages.Add(MethodList[8], "Clikced Stop button. ");
+            messages.Add(MethodList[9], "Clikced Pause button. ");
 
             return messages;
         }
@@ -40,6 +41,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[6], "Finished collecting data. ");
             messages.Add(MethodList[7], "GetRecordAsync completed. ");
             messages.Add(MethodList[8], "TokenSource cancelled. ");
+            messages.Add(MethodList[9], "Paused property changed to ");
 
             return messages;
         }
@@ -56,6 +58,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[6], "Error when collecting data. ");
             messages.Add(MethodList[7], "TokenSource cancelled. ");
             messages.Add(MethodList[8], "Problem with token cancellation. ");
+            messages.Add(MethodList[9], "Failed to pause the program. ");
 
             return messages;
         }
