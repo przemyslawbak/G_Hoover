@@ -79,8 +79,9 @@ namespace G_Hoover.Desktop.ViewModels
         public void PausedConfiguration()
         {
             WorkStatus = WorkStatus.Pause;
+            Paused = true;
             PleaseWaitVisible = false;
-            UiButtonsEnabled = false;
+            UiButtonsEnabled = true;
             StopBtnEnabled = true;
             PauseBtnEnabled = true;
         }
@@ -88,6 +89,7 @@ namespace G_Hoover.Desktop.ViewModels
         public void StoppedConfiguration()
         {
             WorkStatus = WorkStatus.Stop;
+            Paused = false;
             PleaseWaitVisible = false;
             UiButtonsEnabled = true;
             StopBtnEnabled = false;
@@ -97,6 +99,7 @@ namespace G_Hoover.Desktop.ViewModels
         public void StartedConfiguration()
         {
             WorkStatus = WorkStatus.Start;
+            Paused = false;
             PleaseWaitVisible = false;
             UiButtonsEnabled = false;
             StopBtnEnabled = true;
@@ -121,10 +124,11 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task CollectDataAsync()
         {
-            TokenSource = new CancellationTokenSource();
-            CancellationToken = TokenSource.Token;
             string callerName = nameof(CollectDataAsync);
             _logger.Info(MessagesInfo[callerName]); //log
+
+            TokenSource = new CancellationTokenSource();
+            CancellationToken = TokenSource.Token;
 
             StartedConfiguration();
 
@@ -156,33 +160,32 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task GetRecordAsync()
         {
+            AudioTryCounter = 0;
+            string nextResult = string.Empty;
 
-            if (NameList.Count > 0)
+            while (Paused)
+                Thread.Sleep(100);
+
+            if (CancellationToken.IsCancellationRequested)
             {
+                CancellationToken.ThrowIfCancellationRequested();
+            }
 
+            if (NameList.Count > PhraseNo)
+            {
+                await Task.Delay(1000);
+                //string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
+
+                //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
+
+                PhraseNo++;
+
+                await GetRecordAsync();
             }
             else
             {
                 //no more phrases / finalization
             }
-
-            AudioTryCounter = 0;
-            string nextResult = string.Empty;
-            //string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
-
-            for (int i = 0; i < 100000; i++)
-            {
-                if (CancellationToken.IsCancellationRequested)
-                {
-                    CancellationToken.ThrowIfCancellationRequested();
-                }
-
-                await Task.Delay(100);
-            }
-
-            await GetRecordAsync();
-
-            //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
         }
 
         private void ShowLess()
@@ -252,10 +255,16 @@ namespace G_Hoover.Desktop.ViewModels
                 await CollectDataAsync();
 
                 _logger.Info(MessagesResult[callerName]); //log
+
+
             }
             catch (Exception e)
             {
                 _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+            finally
+            {
+                StoppedConfiguration();
             }
         }
 
@@ -305,6 +314,7 @@ namespace G_Hoover.Desktop.ViewModels
 
                     if (NameList.Count > 0)
                     {
+                        PhraseNo = 0;
                         _logger.Info(MessagesResult[callerName]); //log
                     }
                     else
@@ -335,22 +345,35 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnPauseCommand(object obj)
         {
-            throw new NotImplementedException();
+            if (Paused == true)
+            {
+                StartedConfiguration();
+                Paused = false;
+                //and browser service here;
+            }
+            else
+            {
+                PausedConfiguration();
+                Paused = true;
+                //and browser service here;
+            }
         }
 
         public void OnStopCommand(object obj)
         {
-            _logger.Info(MessagesInfo[nameof(OnStopCommand)]); //log
+            string callerName = nameof(OnStopCommand);
+
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
                 TokenSource.Cancel();
 
-                _logger.Info(MessagesResult[nameof(OnStopCommand)]); //log
+                _logger.Info(MessagesResult[callerName]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[nameof(OnStopCommand)] + e.Message); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
             finally
             {
@@ -379,9 +402,20 @@ namespace G_Hoover.Desktop.ViewModels
         public Dictionary<string, string> MessagesDisplay { get; set; } //message dictionary
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
-        public CancellationTokenSource TokenSource { get; set; }
-        public CancellationToken CancellationToken { get; set; }
-        public WorkStatus WorkStatus { get; set; }
+        public CancellationTokenSource TokenSource { get; set; } //for cancellation
+        public CancellationToken CancellationToken { get; set; } //cancellation token
+        public WorkStatus WorkStatus { get; set; } //work status
+
+        private bool _paused;
+        public bool Paused
+        {
+            get => _paused;
+            set
+            {
+                _paused = value;
+                OnPropertyChanged();
+            }
+        }
 
         private WindowState _curWindowState;
         public WindowState CurWindowState

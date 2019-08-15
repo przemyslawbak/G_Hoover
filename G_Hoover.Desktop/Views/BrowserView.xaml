@@ -155,6 +155,10 @@
                    Background="Black"
                    Opacity="0.3"
                    Visibility="{Binding PleaseWaitVisible, Converter={StaticResource BoolToVis}}"/>
+        <DockPanel Grid.Row="1"
+                   Background="Black"
+                   Opacity="0.3"
+                   Visibility="{Binding Paused, Converter={StaticResource BoolToVis}}"/>
         <Label
             Background="#F4F4F4"
                 Content="Please wait..."
@@ -166,5 +170,16 @@
             BorderBrush="Gray"
             BorderThickness="1"
             Visibility="{Binding PleaseWaitVisible, Converter={StaticResource BoolToVis}}"/>
+        <Label
+            Background="#F4F4F4"
+                Content="Paused..."
+                FontSize="15"
+				 Grid.Row="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+            Padding="20"
+            BorderBrush="Gray"
+            BorderThickness="1"
+            Visibility="{Binding Paused, Converter={StaticResource BoolToVis}}"/>
     </Grid>
 </Window>

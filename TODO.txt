@@ -1,5 +1,7 @@
 pause -> service layer
 
+add messages in VM
+
 app.config update -> https://stackoverflow.com/a/1357453
 
 validate file txt + rows
@@ -7,3 +9,5 @@ validate file txt + rows
 InitializeBrowser <- async void / Task
 
 Current status -> event handler dla Message(??)
+
+browser -> display records how many / of total
