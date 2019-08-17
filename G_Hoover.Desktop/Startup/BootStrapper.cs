@@ -6,6 +6,7 @@ using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
+using G_Hoover.Services.Scrap;
 using MvvmDialogs;
 using Prism.Events;
 
@@ -23,6 +24,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<EventAggregator>()
               .As<IEventAggregator>().SingleInstance();
+
+            builder.RegisterType<ScrapService>()
+              .As<IScrapService>().SingleInstance();
 
             builder.RegisterType<ControlsService>()
               .As<IControlsService>().SingleInstance();

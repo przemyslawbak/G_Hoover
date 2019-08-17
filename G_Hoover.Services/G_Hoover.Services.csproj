@@ -91,6 +91,8 @@
     <Compile Include="Messages\IMessageService.cs" />
     <Compile Include="Messages\MessageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scrap\IScrapService.cs" />
+    <Compile Include="Scrap\ScrapService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,4 +1,5 @@
-
+//input clicks in ScrapService
+split ContinueCrawling method
 
 --
 app.config update -> https://stackoverflow.com/a/1357453
@@ -7,12 +8,12 @@ validate file txt + rows
 
 InitializeBrowser <- async void / Task
 
-Current status -> event handler dla Message(??)
+Current status -> event handler(??)
 
 browser -> display records how many / of total
 
-save file path -> load file at startup
+save file path, phraseno -> load file at startup
 
 log methods in VM?
 
-add messages in VM
+add messages in VM, messages in service methods

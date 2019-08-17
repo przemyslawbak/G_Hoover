@@ -1,8 +1,10 @@
-﻿using CefSharp.Wpf;
+﻿using CefSharp;
+using CefSharp.Wpf;
 using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Messages;
+using G_Hoover.Services.Scrap;
 using NLog;
 using Prism.Events;
 using System;
@@ -19,13 +21,19 @@ namespace G_Hoover.Services.Browsing
         private readonly Logger _logger;
         private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
+        private readonly IScrapService _scrapService;
         private readonly IEventAggregator _eventAggregator;
+        EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
 
-        public BrowsingService(IMessageService messageService, IControlsService controlsService, IEventAggregator eventAggregator)
+        public BrowsingService(IMessageService messageService,
+            IControlsService controlsService,
+            IEventAggregator eventAggregator,
+            IScrapService scrapService)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
             _controlsService = controlsService;
+            _scrapService = scrapService;
             _eventAggregator = eventAggregator;
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
@@ -56,12 +64,15 @@ namespace G_Hoover.Services.Browsing
         public bool Stopped { get; set; } //is stopped by the user?
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string SearchPhrase { get; set; } //phrase built in dialog window
+        public IWpfWebBrowser WebBrowser { get; set; }
+        public bool LoadingPage { get; set; }
 
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             string callerName = nameof(CollectDataAsync);
             _logger.Info(MessagesInfo[callerName]); //log
 
+            WebBrowser = webBrowser;
             SearchPhrase = searchPhrase;
             NameList = nameList;
             TokenSource = new CancellationTokenSource();
@@ -112,10 +123,10 @@ namespace G_Hoover.Services.Browsing
 
             if (NameList.Count > PhraseNo)
             {
-                await Task.Delay(1000);
+                await Task.Delay(100);
                 string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
 
-                //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
+                nextResult = await ContinueCrawling(phrase);
 
                 PhraseNo++;
 
@@ -125,6 +136,51 @@ namespace G_Hoover.Services.Browsing
             {
                 //no more phrases / finalization
             }
+        }
+
+        public async Task<string> ContinueCrawling(string phrase)
+        {
+            LoadingPage = true;
+
+            WebBrowser.Load("https://www.google.com/");
+
+            _pageLoadedEventHandler = async (sender, args) =>
+            {
+                if (args.IsLoading == false)
+                {
+                    WebBrowser.LoadingStateChanged -= _pageLoadedEventHandler;
+
+                    while (Paused)
+                        Thread.Sleep(50);
+
+                    await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
+
+                    while (Paused)
+                        Thread.Sleep(50);
+
+                    await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
+
+                    bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+                    if (isCaptcha)
+                    {
+                        //resolve
+                    }
+                    else
+                    {
+                        //collect
+                    }
+
+                    LoadingPage = false; //finished crawling
+                }
+            };
+
+            WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
+
+            while (LoadingPage)
+                await Task.Delay(50); //if still crawling
+
+            return string.Empty;
         }
 
         private void CheckConditions()
