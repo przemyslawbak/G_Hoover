@@ -58,6 +58,7 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="Prism, Version=7.2.0.1367, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Core.7.2.0.1367\lib\net45\Prism.dll</HintPath>
     </Reference>
@@ -79,8 +80,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Browser\BrowserService.cs" />
-    <Compile Include="Browser\IBrowserService.cs" />
+    <Compile Include="Browsing\BrowsingService.cs" />
+    <Compile Include="Browsing\IBrowsingService.cs" />
+    <Compile Include="Buttons\ButtonsService.cs" />
+    <Compile Include="Buttons\IButtonsService.cs" />
     <Compile Include="Controls\ControlsService.cs" />
     <Compile Include="Controls\IControlsService.cs" />
     <Compile Include="Files\FileService.cs" />

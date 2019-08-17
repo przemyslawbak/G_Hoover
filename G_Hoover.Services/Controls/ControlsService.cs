@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using NLog;
@@ -17,12 +19,12 @@ namespace G_Hoover.Services.Controls
         private readonly Logger _logger;
         private readonly IMessageService _messageService;
         private readonly IEventAggregator _eventAggregator;
-        private readonly IFileService _fileService;
 
-        public ControlsService(IMessageService messageService, IEventAggregator eventAggregator, IFileService fileService)
+        public ControlsService(IMessageService messageService,
+            IEventAggregator eventAggregator,
+            IFileService fileService)
         {
             _logger = LogManager.GetCurrentClassLogger();
-            _fileService = fileService;
             _messageService = messageService;
             _eventAggregator = eventAggregator;
 
@@ -53,6 +55,7 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = true,
                 StopBtnEnabled = true,
                 PauseBtnEnabled = true,
+                Stopped = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
@@ -67,6 +70,7 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = false,
                 StopBtnEnabled = true,
                 PauseBtnEnabled = true,
+                Stopped = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
@@ -81,6 +85,7 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = true,
                 StopBtnEnabled = false,
                 PauseBtnEnabled = false,
+                Stopped = true
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
@@ -95,127 +100,28 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = false,
                 StopBtnEnabled = false,
                 PauseBtnEnabled = false,
+                Stopped = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
-        public void ExecuteStopButton()
+        public void ShowLessBrowser()
         {
-            string callerName = nameof(ExecuteStopButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
+            BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
-                TokenSource.Cancel(); //browser service
-
-                _logger.Info(MessagesResult[callerName]); //log
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-            finally
-            {
-                GetStoppedConfiguration();
-            }
+                WindowState = WindowState.Normal,
+                IsBrowserFocused = false
+            };
         }
 
-        public void ExecutePauseButton(bool paused)
+        public void ShowMoreBrowser()
         {
-            string callerName = nameof(ExecuteStopButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
+            BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
-                if (paused == true)
-                {
-                    GetStartedConfiguration();
-
-                    paused = false;
-
-                    //and browser service here;
-                }
-                else
-                {
-                    GetPausedConfiguration();
-
-                    paused = true;
-
-                    //and browser service here;
-                }
-
-                _logger.Info(MessagesResult[callerName] + paused); //log
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-        }
-
-        public void ExecuteStartButton()
-        {
-            string callerName = nameof(ExecuteStartButton);
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                await CollectDataAsync(); //browser service
-
-                _logger.Info(MessagesResult[callerName]); //log
-
-
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-            finally
-            {
-                GetStoppedConfiguration();
-            }
-        }
-
-        public async Task<List<string>> ExecuteUploadButtonAsync(string filePath)
-        {
-            string callerName = nameof(ExecuteUploadButtonAsync);
-            List<string> nameList = new List<string>();
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-
-                if (!string.IsNullOrEmpty(filePath))
-                {
-                    GetWaitConfiguration(); //ui
-                    nameList = await _fileService.GetNewListFromFileAsync(filePath); //load collection
-                    GetStoppedConfiguration(); //ui
-
-                    if (nameList.Count > 0)
-                    {
-                        _logger.Info(MessagesResult[callerName]); //log
-
-                        return nameList;
-                    }
-                    else
-                    {
-                        throw new Exception("Empty file.");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Cancelled.");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
-
-                return new List<string>();
-            }
+                WindowState = WindowState.Maximized,
+                IsBrowserFocused = true
+            };
         }
     }
 }

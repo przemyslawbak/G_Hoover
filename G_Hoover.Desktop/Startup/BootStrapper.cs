@@ -1,7 +1,8 @@
 ﻿using Autofac;
 using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Desktop.Views;
-using G_Hoover.Services.Browser;
+using G_Hoover.Services.Browsing;
+using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
@@ -35,8 +36,11 @@ namespace G_Hoover.Desktop.Startup
             builder.RegisterType<MessageService>()
               .As<IMessageService>().SingleInstance();
 
-            builder.RegisterType<BrowserService>()
-              .As<IBrowserService>().SingleInstance();
+            builder.RegisterType<BrowsingService>()
+              .As<IBrowsingService>().SingleInstance();
+
+            builder.RegisterType<ButtonsService>()
+              .As<IButtonsService>().SingleInstance();
 
             builder.RegisterType<BrowserView>().AsSelf();
             builder.RegisterType<BrowserViewModel>().AsSelf().SingleInstance();

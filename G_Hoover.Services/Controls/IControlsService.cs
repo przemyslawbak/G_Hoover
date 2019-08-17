@@ -10,9 +10,7 @@ namespace G_Hoover.Services.Controls
         void GetStoppedConfiguration();
         void GetStartedConfiguration();
         void GetWaitConfiguration();
-        void ExecuteStopButton();
-        void ExecutePauseButton(bool paused);
-        void ExecuteStartButton();
-        Task<List<string>> ExecuteUploadButtonAsync(string filePath);
+        void ShowLessBrowser();
+        void ShowMoreBrowser();
     }
 }

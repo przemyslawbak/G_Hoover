@@ -25,6 +25,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[7], "CollectDataAsync Task started. ");
             messages.Add(MethodList[8], "Clikced Stop button. ");
             messages.Add(MethodList[9], "Clikced Pause button. ");
+            messages.Add(MethodList[10], "Clikced Build button. ");
 
             return messages;
         }
@@ -42,6 +43,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[7], "GetRecordAsync completed. ");
             messages.Add(MethodList[8], "TokenSource cancelled. ");
             messages.Add(MethodList[9], "Paused property changed to ");
+            messages.Add(MethodList[10], "Phrase built and saved to the file. ");
 
             return messages;
         }
@@ -59,6 +61,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[7], "TokenSource cancelled. ");
             messages.Add(MethodList[8], "Problem with token cancellation. ");
             messages.Add(MethodList[9], "Failed to pause the program. ");
+            messages.Add(MethodList[10], "Failed create new phrase. ");
 
             return messages;
         }
@@ -75,6 +78,8 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[6], "");
             messages.Add(MethodList[7], "");
             messages.Add(MethodList[8], "");
+            messages.Add(MethodList[9], "");
+            messages.Add(MethodList[10], "");
 
             return messages;
         }

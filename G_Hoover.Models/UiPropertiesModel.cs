@@ -13,5 +13,6 @@ namespace G_Hoover.Models
         public bool UiButtonsEnabled { get; set; }
         public bool StopBtnEnabled { get; set; }
         public bool PauseBtnEnabled { get; set; }
+        public bool Stopped { get; set; }
     }
 }
