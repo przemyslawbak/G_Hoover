@@ -160,6 +160,8 @@
                    Opacity="0.3"
                    Visibility="{Binding Paused, Converter={StaticResource BoolToVis}}"/>
         <Label
+            Width="150"
+            HorizontalContentAlignment="Center"
             Background="#F4F4F4"
                 Content="Please wait..."
                 FontSize="15"
@@ -171,6 +173,8 @@
             BorderThickness="1"
             Visibility="{Binding PleaseWaitVisible, Converter={StaticResource BoolToVis}}"/>
         <Label
+            Width="150"
+            HorizontalContentAlignment="Center"
             Background="#F4F4F4"
                 Content="Paused..."
                 FontSize="15"

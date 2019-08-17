@@ -95,7 +95,7 @@ namespace G_Hoover.Services.Controls
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
-                Paused = true,
+                Paused = false,
                 PleaseWaitVisible = true,
                 UiButtonsEnabled = false,
                 StopBtnEnabled = false,
