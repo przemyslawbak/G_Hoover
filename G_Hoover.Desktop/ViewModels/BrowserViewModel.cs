@@ -197,8 +197,8 @@ namespace G_Hoover.Desktop.ViewModels
             set
             {
                 _browserControls = value;
-                _curWindowState = _browserControls.WindowState;
-                _isBrowserFocused = _browserControls.IsBrowserFocused;
+                CurWindowState = _browserControls.WindowState;
+                IsBrowserFocused = _browserControls.IsBrowserFocused;
                 OnPropertyChanged();
             }
         }

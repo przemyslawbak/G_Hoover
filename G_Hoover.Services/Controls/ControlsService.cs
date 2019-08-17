@@ -113,6 +113,8 @@ namespace G_Hoover.Services.Controls
                 WindowState = WindowState.Normal,
                 IsBrowserFocused = false
             };
+
+            _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }
 
         public void ShowMoreBrowser()
@@ -122,6 +124,8 @@ namespace G_Hoover.Services.Controls
                 WindowState = WindowState.Maximized,
                 IsBrowserFocused = true
             };
+
+            _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }
     }
 }
