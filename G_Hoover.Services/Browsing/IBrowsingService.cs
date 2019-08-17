@@ -6,7 +6,8 @@ namespace G_Hoover.Services.Browsing
 {
     public interface IBrowsingService
     {
-        Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser);
+        Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase);
         void CancelCollectData();
+        void UpdateSearchPhrase(string searchPhrase);
     }
 }

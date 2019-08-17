@@ -16,7 +16,7 @@ namespace G_Hoover.Services.Messages
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
             messages.Add(MethodList[0], "Uploading data from the file. ");
-            messages.Add(MethodList[1], "Deleting old log.txt file. ");
+            messages.Add(MethodList[1], "Deleting old log file. ");
             messages.Add(MethodList[2], "Clicked upload button. ");
             messages.Add(MethodList[3], "Clicked phrase builder button. ");
             messages.Add(MethodList[4], "Loading phrase form the file. ");

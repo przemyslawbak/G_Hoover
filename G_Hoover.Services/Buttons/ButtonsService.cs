@@ -97,14 +97,14 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser)
+        public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             string callerName = nameof(ExecuteStartButtonAsync);
             _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
-                await _browserService.CollectDataAsync(nameList, webBrowser); //browser service
+                await _browserService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
 
                 _logger.Info(MessagesResult[callerName]); //log
 
@@ -174,6 +174,8 @@ namespace G_Hoover.Services.Buttons
                 if (!string.IsNullOrEmpty(searchPhrase))
                 {
                     await _fileService.SavePhraseAsync(searchPhrase); //file
+
+                    _browserService.UpdateSearchPhrase(searchPhrase);
 
                     _logger.Info(MessagesResult[callerName] + searchPhrase); //log
                 }

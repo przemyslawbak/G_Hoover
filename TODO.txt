@@ -1,16 +1,6 @@
-tomorrow: move OnBuildCommandAsync, CollectDataAsync, GetRecordAsync
 
-tomorrow: move ShowLess??, ShowAll??, GetFilePath??, ShowDialog??
 
 --
-bug when loading data from file
-
-ControlsService layer??
-
-pause -> service layer
-
-add messages in VM
-
 app.config update -> https://stackoverflow.com/a/1357453
 
 validate file txt + rows
@@ -20,3 +10,9 @@ InitializeBrowser <- async void / Task
 Current status -> event handler dla Message(??)
 
 browser -> display records how many / of total
+
+save file path -> load file at startup
+
+log methods in VM?
+
+add messages in VM

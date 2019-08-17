@@ -55,12 +55,14 @@ namespace G_Hoover.Services.Browsing
         public bool Paused { get; set; } //is paused by the user?
         public bool Stopped { get; set; } //is stopped by the user?
         public List<string> NameList { get; set; } //list of phrases loaded from the file
+        public string SearchPhrase { get; set; } //phrase built in dialog window
 
-        public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser)
+        public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             string callerName = nameof(CollectDataAsync);
             _logger.Info(MessagesInfo[callerName]); //log
 
+            SearchPhrase = searchPhrase;
             NameList = nameList;
             TokenSource = new CancellationTokenSource();
             CancellationToken = TokenSource.Token;
@@ -111,7 +113,7 @@ namespace G_Hoover.Services.Browsing
             if (NameList.Count > PhraseNo)
             {
                 await Task.Delay(1000);
-                //string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
+                string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
 
                 //nextResult = await _browserService.ContinueCrawling(WebBrowser, phrase);
 
@@ -165,6 +167,11 @@ namespace G_Hoover.Services.Browsing
             {
                 TokenSource.Cancel(); //browser service
             }
+        }
+
+        public void UpdateSearchPhrase(string searchPhrase)
+        {
+            SearchPhrase = searchPhrase;
         }
     }
 }

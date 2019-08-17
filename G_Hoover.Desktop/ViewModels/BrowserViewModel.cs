@@ -83,7 +83,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnStartCommandAsync()
         {
-            await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser);
+            await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase);
         }
 
         public async Task OnBuildCommandAsync()
