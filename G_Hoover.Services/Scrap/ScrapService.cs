@@ -39,31 +39,53 @@ namespace G_Hoover.Services.Scrap
             return isCaptcha;
         }
 
-        public async Task CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
+        public async Task<bool> CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
         {
-            if (!clickerInput)
+            try
             {
-                await webBrowser.EvaluateScriptAsync(@"
+                if (!clickerInput)
+                {
+                    await webBrowser.EvaluateScriptAsync(@"
                            var arr = document.getElementsByTagName('input')[3].click();
                            ");
+                }
+                else
+                {
+                    //input clicks
+                }
+
+                return true;
             }
-            else
+            catch (Exception e)
             {
-                //input clicks
+                //log
+
+                return false;
             }
         }
 
-        public async Task EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
+        public async Task<bool> EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
         {
-            if (!clickerInput)
+            try
             {
-                await webBrowser.EvaluateScriptAsync(@"
+                if (!clickerInput)
+                {
+                    await webBrowser.EvaluateScriptAsync(@"
                            var arr = document.getElementsByTagName('input')[2].value = '" + phrase + @"';
                            ");
+                }
+                else
+                {
+                    //input clicks
+                }
+
+                return true;
             }
-            else
+            catch (Exception e)
             {
-                //input clicks
+                //log
+
+                return false;
             }
         }
     }

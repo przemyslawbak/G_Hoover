@@ -1,5 +1,6 @@
 //input clicks in ScrapService
-split ContinueCrawling method
+
+async (sender, args) - not anonymus
 
 --
 app.config update -> https://stackoverflow.com/a/1357453

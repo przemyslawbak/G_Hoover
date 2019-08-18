@@ -24,6 +24,7 @@ namespace G_Hoover.Services.Browsing
         private readonly IScrapService _scrapService;
         private readonly IEventAggregator _eventAggregator;
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
+        EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
 
         public BrowsingService(IMessageService messageService,
             IControlsService controlsService,
@@ -56,7 +57,6 @@ namespace G_Hoover.Services.Browsing
         public Dictionary<string, string> MessagesResult { get; set; }
         public Dictionary<string, string> MessagesDisplay { get; set; }
         public int PhraseNo { get; set; } //number of currently checked phrase
-        public bool ClickerInput { get; set; } //if click by input simulation
         public CancellationTokenSource TokenSource { get; set; } //for cancellation
         public CancellationToken CancellationToken { get; set; } //cancellation token
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
@@ -65,7 +65,17 @@ namespace G_Hoover.Services.Browsing
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public IWpfWebBrowser WebBrowser { get; set; }
-        public bool LoadingPage { get; set; }
+
+        private bool _clickerInput;
+        public bool ClickerInput //if click by input simulation
+        {
+            get => _clickerInput;
+            set
+            {
+                _clickerInput = value;
+                CheckConditions();
+            }
+        }
 
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
@@ -108,6 +118,7 @@ namespace G_Hoover.Services.Browsing
 
         public async Task GetRecordAsync()
         {
+            //log getting record async
             CheckConditions();
 
             AudioTryCounter = 0;
@@ -128,7 +139,16 @@ namespace G_Hoover.Services.Browsing
 
                 nextResult = await ContinueCrawling(phrase);
 
-                PhraseNo++;
+                if (!string.IsNullOrEmpty(nextResult))
+                {
+                    //log result ok
+
+                    PhraseNo++;
+                }
+                else
+                {
+                    //log error (string empty)
+                }
 
                 await GetRecordAsync();
             }
@@ -140,7 +160,13 @@ namespace G_Hoover.Services.Browsing
 
         public async Task<string> ContinueCrawling(string phrase)
         {
-            LoadingPage = true;
+            //log start taking new record
+
+            bool clickSearch = false;
+            bool isCaptcha = false;
+            string result = "";
+
+            bool loadingPage = true;
 
             WebBrowser.Load("https://www.google.com/");
 
@@ -153,45 +179,116 @@ namespace G_Hoover.Services.Browsing
                     while (Paused)
                         Thread.Sleep(50);
 
-                    await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
+                    bool phraseEntered = await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
 
                     while (Paused)
                         Thread.Sleep(50);
 
-                    await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
-
-                    bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
-
-                    if (isCaptcha)
+                    //if phrase entered correctly
+                    if (phraseEntered)
                     {
-                        //resolve
+                        clickSearch = await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
                     }
                     else
                     {
-                        //collect
+                        loadingPage = false; //return string.Empty;
                     }
 
-                    LoadingPage = false; //finished crawling
+                    while (Paused)
+                        Thread.Sleep(50);
+
+                    //if button clicked correctly
+                    if (clickSearch)
+                    {
+                        isCaptcha = await CheckResultPageAsync();
+                    }
+                    else
+                    {
+                        loadingPage = false; //return string.Empty;
+                    }
+
+                    while (Paused)
+                        Thread.Sleep(50);
+
+                    //if found captcha
+                    if (!isCaptcha)
+                    {
+                        //collect result => await _scrapService.
+
+                        //log success later on
+                    }
+                    else
+                    {
+                        //resolve / ClickerInput / checkconditions => await _scrapService.
+                        //after resolving?? return empty, update counter for captcha ++ and try again??
+                    }
+
+                    await Task.Delay(1000);
+
+                    loadingPage = false; //finished crawling
                 }
             };
 
             WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
 
-            while (LoadingPage)
+            while (loadingPage)
                 await Task.Delay(50); //if still crawling
+
+            //log string.Empty;
 
             return string.Empty;
         }
 
+        private async Task<bool> CheckResultPageAsync()
+        {
+            //log checking for captcha
+
+            bool isCaptcha = false;
+
+            bool loadingPage = true;
+
+            _resultLoadedEventHandler = async (sender, args) =>
+            {
+                if (args.IsLoading == false)
+                {
+                    isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+                    if (!isCaptcha)
+                    {
+                        //log result not found
+                    }
+                    else
+                    {
+                        //log error found
+                    }
+
+                    loadingPage = false;
+                }
+            };
+
+            WebBrowser.LoadingStateChanged += _resultLoadedEventHandler;
+
+            while (loadingPage)
+                await Task.Delay(50); //if still crawling
+
+            return isCaptcha;
+        }
+
         private void CheckConditions()
         {
-            if (ClickerInput) //if input clicker
+            //log CheckConditions called
+
+            if (!ClickerInput) //if input clicker
             {
-                ShowAll();
+                //log result ClickerInput = false & Stopped = ?
+
+                _controlsService.ShowLessBrowser();
             }
             else //if JavaScript clicker
             {
-                ShowLess();
+                //log result ClickerInput = true & Stopped = ?
+
+                _controlsService.ShowMoreBrowser();
             }
 
             if (Stopped)
@@ -203,18 +300,10 @@ namespace G_Hoover.Services.Browsing
 
         public void OnUpdateControls(UiPropertiesModel obj)
         {
+            //log
+
             Paused = obj.Paused;
             Stopped = obj.Stopped;
-        }
-
-        public void ShowLess()
-        {
-            _controlsService.ShowLessBrowser();
-        }
-
-        public void ShowAll()
-        {
-            _controlsService.ShowMoreBrowser();
         }
 
         public void CancelCollectData()
