@@ -41,10 +41,10 @@ namespace G_Hoover.Services.Files
 
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
-            string callerName = nameof(GetNewListFromFileAsync);
             List<string> list = new List<string>();
+            string callerName = nameof(GetNewListFromFileAsync);
 
-            _logger.Info(MessagesInfo[callerName] + callerName); //log
+            _logger.Info(MessagesInfo[callerName] + filePath); //log
 
             try
             {
@@ -59,13 +59,13 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                _logger.Info(MessagesResult[callerName] + callerName); //log
+                _logger.Info(MessagesResult[callerName] + list.Count); //log
 
                 return list;
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message + callerName); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
 
                 list.Clear();
 
@@ -77,7 +77,7 @@ namespace G_Hoover.Services.Files
         {
             string callerName = nameof(RemoveOldLogs);
 
-            _logger.Info(MessagesInfo[callerName] + callerName); //log
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -86,11 +86,11 @@ namespace G_Hoover.Services.Files
                     File.Delete(_logFile);
                 }
 
-                _logger.Info(MessagesResult[callerName] + callerName); //log
+                _logger.Info(MessagesResult[callerName]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[callerName] + callerName); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
         }
 
@@ -98,7 +98,7 @@ namespace G_Hoover.Services.Files
         {
             string callerName = nameof(LoadPhraseAsync);
 
-            _logger.Info(MessagesInfo[callerName] + callerName); //log
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -108,7 +108,7 @@ namespace G_Hoover.Services.Files
                     {
                         string fileText = await reader.ReadToEndAsync();
 
-                        _logger.Info(MessagesResult[callerName] + callerName); //log
+                        _logger.Info(MessagesResult[callerName] + fileText); //log
 
                         return fileText;
                     }
@@ -120,7 +120,7 @@ namespace G_Hoover.Services.Files
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[callerName] + callerName); //log
+                _logger.Error(e, MessagesError[callerName]); //log
 
                 return string.Empty;
             }
@@ -130,7 +130,7 @@ namespace G_Hoover.Services.Files
         {
             string callerName = nameof(SavePhraseAsync);
 
-            _logger.Info(MessagesInfo[callerName] + callerName); //log
+            _logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -147,11 +147,11 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                _logger.Info(MessagesResult[callerName] + callerName); //log
+                _logger.Info(MessagesResult[callerName]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(e, MessagesError[callerName] + callerName); //log
+                _logger.Error(e, MessagesError[callerName]); //log
             }
         }
 

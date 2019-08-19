@@ -74,9 +74,9 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecutePauseButton(bool paused)
         {
-            string callerName = nameof(ExecuteStopButton);
+            string callerName = nameof(ExecutePauseButton);
 
-            _logger.Info(MessagesInfo[callerName]); //log
+            _logger.Info(MessagesInfo[callerName] + paused); //log
 
             try
             {
@@ -100,7 +100,8 @@ namespace G_Hoover.Services.Buttons
         public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             string callerName = nameof(ExecuteStartButtonAsync);
-            _logger.Info(MessagesInfo[callerName]); //log
+
+            _logger.Info(MessagesInfo[callerName] + nameList.Count + ";" + searchPhrase); //log
 
             try
             {
@@ -122,10 +123,10 @@ namespace G_Hoover.Services.Buttons
 
         public async Task<List<string>> ExecuteUploadButtonAsync(string filePath)
         {
-            string callerName = nameof(ExecuteUploadButtonAsync);
             List<string> nameList = new List<string>();
+            string callerName = nameof(ExecuteUploadButtonAsync);
 
-            _logger.Info(MessagesInfo[callerName]); //log
+            _logger.Info(MessagesInfo[callerName] + filePath); //log
 
             try
             {
@@ -140,7 +141,7 @@ namespace G_Hoover.Services.Buttons
                     {
                         _browserService.CancelCollectData(); //cancel
 
-                        _logger.Info(MessagesResult[callerName]); //log
+                        _logger.Info(MessagesResult[callerName] + nameList.Count); //log
 
                         return nameList;
                     }
@@ -165,6 +166,7 @@ namespace G_Hoover.Services.Buttons
         public async Task ExecuteBuildButtonAsync(string searchPhrase)
         {
             string callerName = nameof(ExecuteBuildButtonAsync);
+
             _logger.Info(MessagesInfo[callerName]); //log
 
             try

@@ -15,17 +15,20 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesInfo()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Uploading data from the file. ");
-            messages.Add(MethodList[1], "Deleting old log file. ");
-            messages.Add(MethodList[2], "Clicked upload button. ");
-            messages.Add(MethodList[3], "Clicked phrase builder button. ");
-            messages.Add(MethodList[4], "Loading phrase form the file. ");
-            messages.Add(MethodList[5], "Saving new phrase to the file. ");
-            messages.Add(MethodList[6], "Start collecting data. ");
-            messages.Add(MethodList[7], "CollectDataAsync Task started. ");
-            messages.Add(MethodList[8], "Clikced Stop button. ");
-            messages.Add(MethodList[9], "Clikced Pause button. ");
-            messages.Add(MethodList[10], "Clikced Build button. ");
+            messages.Add(MethodList[0], MethodList[0] + " called. ");
+            messages.Add(MethodList[1], MethodList[1] + " called. ");
+            messages.Add(MethodList[2], MethodList[2] + " called. ");
+            messages.Add(MethodList[3], MethodList[3] + " called. ");
+            messages.Add(MethodList[4], MethodList[4] + " called. ");
+            messages.Add(MethodList[5], MethodList[5] + " called. ");
+            messages.Add(MethodList[6], MethodList[6] + " called. ");
+            messages.Add(MethodList[7], MethodList[7] + " called. ");
+            messages.Add(MethodList[8], MethodList[8] + " called. ");
+            messages.Add(MethodList[9], MethodList[9] + " called. ");
+            messages.Add(MethodList[10], MethodList[10] + " called. ");
+            messages.Add(MethodList[11], MethodList[11] + " called. ");
+            messages.Add(MethodList[12], MethodList[12] + " called. ");
+            messages.Add(MethodList[13], MethodList[13] + " called. ");
 
             return messages;
         }
@@ -33,17 +36,20 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesResult()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Uploaded List<string> from the file. ");
-            messages.Add(MethodList[1], "Removed old log.txt file. ");
-            messages.Add(MethodList[2], "Data uploaded successfully. ");
-            messages.Add(MethodList[3], "New phrase: ");
-            messages.Add(MethodList[4], "Loaded phrase. ");
-            messages.Add(MethodList[5], "Phrase saved. ");
-            messages.Add(MethodList[6], "Finished collecting data. ");
-            messages.Add(MethodList[7], "GetRecordAsync completed. ");
-            messages.Add(MethodList[8], "TokenSource cancelled. ");
-            messages.Add(MethodList[9], "Paused property changed to ");
-            messages.Add(MethodList[10], "Phrase built and saved to the file. ");
+            messages.Add(MethodList[0], MethodList[0] + " completed. ");
+            messages.Add(MethodList[1], MethodList[1] + " completed. ");
+            messages.Add(MethodList[2], MethodList[2] + " completed. ");
+            messages.Add(MethodList[3], MethodList[3] + " completed. ");
+            messages.Add(MethodList[4], MethodList[4] + " completed. ");
+            messages.Add(MethodList[5], MethodList[5] + " completed. ");
+            messages.Add(MethodList[6], MethodList[6] + " completed. ");
+            messages.Add(MethodList[7], MethodList[7] + " completed. ");
+            messages.Add(MethodList[8], MethodList[8] + " completed. ");
+            messages.Add(MethodList[9], MethodList[9] + " completed. ");
+            messages.Add(MethodList[10], MethodList[10] + " completed. ");
+            messages.Add(MethodList[11], MethodList[11] + " completed. ");
+            messages.Add(MethodList[12], MethodList[12] + " completed. ");
+            messages.Add(MethodList[13], MethodList[13] + " completed. ");
 
             return messages;
         }
@@ -51,17 +57,20 @@ namespace G_Hoover.Services.Messages
         public Dictionary<string, string> GetMessagesError()
         {
             Dictionary<string, string> messages = new Dictionary<string, string>();
-            messages.Add(MethodList[0], "Error when reading data from the file. ");
-            messages.Add(MethodList[1], "Could not delete old log.txt. ");
-            messages.Add(MethodList[2], "Could not upload data from the file. ");
-            messages.Add(MethodList[3], "Could not build the phrase. ");
-            messages.Add(MethodList[4], "Could not load phrase from the file. ");
-            messages.Add(MethodList[5], "Could not save phrase to the file. ");
-            messages.Add(MethodList[6], "Error when collecting data. ");
-            messages.Add(MethodList[7], "TokenSource cancelled. ");
-            messages.Add(MethodList[8], "Problem with token cancellation. ");
-            messages.Add(MethodList[9], "Failed to pause the program. ");
-            messages.Add(MethodList[10], "Failed create new phrase. ");
+            messages.Add(MethodList[0], MethodList[0] + " exception. ");
+            messages.Add(MethodList[1], MethodList[1] + " exception. ");
+            messages.Add(MethodList[2], MethodList[2] + " exception. ");
+            messages.Add(MethodList[3], MethodList[3] + " exception. ");
+            messages.Add(MethodList[4], MethodList[4] + " exception. ");
+            messages.Add(MethodList[5], MethodList[5] + " exception. ");
+            messages.Add(MethodList[6], MethodList[6] + " exception. ");
+            messages.Add(MethodList[7], MethodList[7] + " task cancelled. ");
+            messages.Add(MethodList[8], MethodList[8] + " exception. ");
+            messages.Add(MethodList[9], MethodList[9] + " exception. ");
+            messages.Add(MethodList[10], MethodList[10] + " empty string. ");
+            messages.Add(MethodList[11], MethodList[11] + " empty string. ");
+            messages.Add(MethodList[12], MethodList[12] + " completed. ");
+            messages.Add(MethodList[13], MethodList[13] + " completed. ");
 
             return messages;
         }
@@ -80,6 +89,9 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[8], "");
             messages.Add(MethodList[9], "");
             messages.Add(MethodList[10], "");
+            messages.Add(MethodList[11], "");
+            messages.Add(MethodList[12], "");
+            messages.Add(MethodList[13], "");
 
             return messages;
         }

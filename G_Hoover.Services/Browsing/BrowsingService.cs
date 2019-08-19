@@ -79,14 +79,14 @@ namespace G_Hoover.Services.Browsing
 
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
-            string callerName = nameof(CollectDataAsync);
-            _logger.Info(MessagesInfo[callerName]); //log
-
             WebBrowser = webBrowser;
             SearchPhrase = searchPhrase;
             NameList = nameList;
             TokenSource = new CancellationTokenSource();
             CancellationToken = TokenSource.Token;
+            string callerName = nameof(CollectDataAsync);
+
+            _logger.Info(MessagesInfo[callerName] + nameList.Count + ";" + searchPhrase); //log
 
             _controlsService.GetStartedConfiguration(); //ui
 
@@ -96,7 +96,7 @@ namespace G_Hoover.Services.Browsing
 
                 await GetRecordAsync();
 
-                _logger.Info(MessagesResult[callerName]); //log
+                _logger.Info(MessagesResult[callerName] + TokenSource.IsCancellationRequested); //log
 
             }, TokenSource.Token);
 
@@ -106,7 +106,7 @@ namespace G_Hoover.Services.Browsing
             }
             catch (OperationCanceledException e)
             {
-                _logger.Info(MessagesError[callerName] + e.Message); //log
+                _logger.Error(MessagesError[callerName] + e.Message); //log
             }
             finally
             {
@@ -118,7 +118,10 @@ namespace G_Hoover.Services.Browsing
 
         public async Task GetRecordAsync()
         {
-            //log getting record async
+            string callerName = nameof(GetRecordAsync);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
             CheckConditions();
 
             AudioTryCounter = 0;
@@ -141,13 +144,13 @@ namespace G_Hoover.Services.Browsing
 
                 if (!string.IsNullOrEmpty(nextResult))
                 {
-                    //log result ok
+                    _logger.Info(MessagesResult[callerName] + PhraseNo); //log
 
                     PhraseNo++;
                 }
                 else
                 {
-                    //log error (string empty)
+                    _logger.Error(MessagesError[callerName]); //log
                 }
 
                 await GetRecordAsync();
@@ -160,7 +163,9 @@ namespace G_Hoover.Services.Browsing
 
         public async Task<string> ContinueCrawling(string phrase)
         {
-            //log start taking new record
+            string callerName = nameof(ContinueCrawling);
+
+            _logger.Info(MessagesInfo[callerName] + phrase); //log
 
             bool clickSearch = false;
             bool isCaptcha = false;
@@ -215,7 +220,7 @@ namespace G_Hoover.Services.Browsing
                     {
                         //collect result => await _scrapService.
 
-                        //log success later on
+                        _logger.Info(MessagesResult[callerName]); //log
                     }
                     else
                     {
@@ -234,18 +239,18 @@ namespace G_Hoover.Services.Browsing
             while (loadingPage)
                 await Task.Delay(50); //if still crawling
 
-            //log string.Empty;
+            _logger.Error(MessagesError[callerName]); //log
 
             return string.Empty;
         }
 
-        private async Task<bool> CheckResultPageAsync()
+        public async Task<bool> CheckResultPageAsync()
         {
-            //log checking for captcha
-
-            bool isCaptcha = false;
-
             bool loadingPage = true;
+            bool isCaptcha = false;
+            string callerName = nameof(CheckResultPageAsync);
+
+            _logger.Info(MessagesInfo[callerName]); //log
 
             _resultLoadedEventHandler = async (sender, args) =>
             {
@@ -255,11 +260,11 @@ namespace G_Hoover.Services.Browsing
 
                     if (!isCaptcha)
                     {
-                        //log result not found
+                        _logger.Info(MessagesResult[callerName] + isCaptcha); //log
                     }
                     else
                     {
-                        //log error found
+                        _logger.Info(MessagesError[callerName] + isCaptcha); //log
                     }
 
                     loadingPage = false;
@@ -274,19 +279,21 @@ namespace G_Hoover.Services.Browsing
             return isCaptcha;
         }
 
-        private void CheckConditions()
+        public void CheckConditions()
         {
-            //log CheckConditions called
+            string callerName = nameof(CheckConditions);
+
+            _logger.Info(MessagesInfo[callerName]); //log
 
             if (!ClickerInput) //if input clicker
             {
-                //log result ClickerInput = false & Stopped = ?
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ";" + Stopped); //log
 
                 _controlsService.ShowLessBrowser();
             }
             else //if JavaScript clicker
             {
-                //log result ClickerInput = true & Stopped = ?
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ";" + Stopped); //log
 
                 _controlsService.ShowMoreBrowser();
             }
@@ -300,8 +307,6 @@ namespace G_Hoover.Services.Browsing
 
         public void OnUpdateControls(UiPropertiesModel obj)
         {
-            //log
-
             Paused = obj.Paused;
             Stopped = obj.Stopped;
         }
