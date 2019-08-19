@@ -9,8 +9,6 @@ using NLog;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -86,7 +84,7 @@ namespace G_Hoover.Services.Browsing
             CancellationToken = TokenSource.Token;
             string callerName = nameof(CollectDataAsync);
 
-            _logger.Info(MessagesInfo[callerName] + nameList.Count + ";" + searchPhrase); //log
+            _logger.Info(MessagesInfo[callerName] + nameList.Count + ". " + searchPhrase); //log
 
             _controlsService.GetStartedConfiguration(); //ui
 
@@ -287,13 +285,13 @@ namespace G_Hoover.Services.Browsing
 
             if (!ClickerInput) //if input clicker
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ";" + Stopped); //log
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped); //log
 
                 _controlsService.ShowLessBrowser();
             }
             else //if JavaScript clicker
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ";" + Stopped); //log
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped); //log
 
                 _controlsService.ShowMoreBrowser();
             }

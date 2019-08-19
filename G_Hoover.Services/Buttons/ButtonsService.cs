@@ -101,7 +101,7 @@ namespace G_Hoover.Services.Buttons
         {
             string callerName = nameof(ExecuteStartButtonAsync);
 
-            _logger.Info(MessagesInfo[callerName] + nameList.Count + ";" + searchPhrase); //log
+            _logger.Info(MessagesInfo[callerName] + nameList.Count + ". " + searchPhrase); //log
 
             try
             {
