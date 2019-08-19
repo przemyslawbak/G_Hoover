@@ -73,6 +73,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="Tor">
+      <HintPath>..\..\..\..\..\G_Hoover_BETA\CefSharpWPF\TorDll\Tor.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

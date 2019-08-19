@@ -117,7 +117,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnConnectionChangeCommand(object obj)
         {
-            throw new NotImplementedException();
+            _buttonService.ExecuteConnectionButton(WebBrowser);
         }
 
         public string GetFilePath()

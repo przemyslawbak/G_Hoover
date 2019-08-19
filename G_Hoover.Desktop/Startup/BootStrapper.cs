@@ -3,6 +3,7 @@ using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Desktop.Views;
 using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Buttons;
+using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
@@ -27,6 +28,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
+
+            builder.RegisterType<ConnectionService>()
+              .As<IConnectionService>().SingleInstance();
 
             builder.RegisterType<ControlsService>()
               .As<IControlsService>().SingleInstance();

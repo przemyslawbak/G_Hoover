@@ -78,12 +78,17 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Tor">
+      <HintPath>..\..\..\..\..\G_Hoover_BETA\CefSharpWPF\TorDll\Tor.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Browsing\BrowsingService.cs" />
     <Compile Include="Browsing\IBrowsingService.cs" />
     <Compile Include="Buttons\ButtonsService.cs" />
     <Compile Include="Buttons\IButtonsService.cs" />
+    <Compile Include="Connection\ConnectionService.cs" />
+    <Compile Include="Connection\IConnectionService.cs" />
     <Compile Include="Controls\ControlsService.cs" />
     <Compile Include="Controls\IControlsService.cs" />
     <Compile Include="Files\FileService.cs" />

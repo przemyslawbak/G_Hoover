@@ -2,6 +2,7 @@
 using CefSharp.Wpf;
 using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
@@ -23,6 +24,7 @@ namespace G_Hoover.Services.Browsing
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
         private readonly IFileService _fileService;
+        private readonly IConnectionService _connectionService;
         private readonly IEventAggregator _eventAggregator;
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
@@ -31,13 +33,15 @@ namespace G_Hoover.Services.Browsing
             IControlsService controlsService,
             IEventAggregator eventAggregator,
             IScrapService scrapService,
-            IFileService fileService)
+            IFileService fileService,
+            IConnectionService connectionService)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
             _controlsService = controlsService;
             _scrapService = scrapService;
             _fileService = fileService;
+            _connectionService = connectionService;
             _eventAggregator = eventAggregator;
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
@@ -69,6 +73,8 @@ namespace G_Hoover.Services.Browsing
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
         public bool NewDataRecorded { get; set; } //did received data last time?
+        public bool SearchViaTor { get; set; } //if Tor network in use
+        public bool LoadingPage { get; set; } //if page is now loading
 
         private bool _clickerInput;
         public bool ClickerInput //if click by input simulation
@@ -77,7 +83,7 @@ namespace G_Hoover.Services.Browsing
             set
             {
                 _clickerInput = value;
-                CheckConditions();
+                VerifyClickerInputAsync();
             }
         }
 
@@ -86,6 +92,7 @@ namespace G_Hoover.Services.Browsing
             WebBrowser = webBrowser;
             SearchPhrase = searchPhrase;
             NameList = nameList;
+            NewDataRecorded = true;
             TokenSource = new CancellationTokenSource();
             CancellationToken = TokenSource.Token;
             string callerName = nameof(CollectDataAsync);
@@ -130,7 +137,7 @@ namespace G_Hoover.Services.Browsing
 
             _logger.Info(MessagesInfo[callerName]); //log
 
-            CheckConditions();
+            await CheckConditionsAsync();
 
             AudioTryCounter = 0;
             string nextResult = string.Empty;
@@ -171,6 +178,7 @@ namespace G_Hoover.Services.Browsing
 
         public async Task<string> ContinueCrawling(string phrase)
         {
+            LoadingPage = true;
             bool clickSearch = false;
             bool isCaptcha = false;
             ResultObjectModel result = new ResultObjectModel();
@@ -178,9 +186,6 @@ namespace G_Hoover.Services.Browsing
             string callerName = nameof(ContinueCrawling);
 
             _logger.Info(MessagesInfo[callerName] + phrase); //log
-
-
-            bool loadingPage = true;
 
             WebBrowser.Load("https://www.google.com/");
 
@@ -205,7 +210,7 @@ namespace G_Hoover.Services.Browsing
                     }
                     else
                     {
-                        loadingPage = false; //return string.Empty;
+                        LoadingPage = false; //return string.Empty;
                     }
 
                     while (Paused)
@@ -218,7 +223,7 @@ namespace G_Hoover.Services.Browsing
                     }
                     else
                     {
-                        loadingPage = false; //return string.Empty;
+                        LoadingPage = false; //return string.Empty;
                     }
 
                     while (Paused)
@@ -233,7 +238,7 @@ namespace G_Hoover.Services.Browsing
                         {
                             NewDataRecorded = false;
 
-                            loadingPage = false; //return string.Empty;
+                            LoadingPage = false; //return string.Empty;
                         }
                         else
                         {
@@ -243,7 +248,7 @@ namespace G_Hoover.Services.Browsing
 
                             await _fileService.SaveNewResult(stringResult);
 
-                            loadingPage = false; //return updated string result
+                            LoadingPage = false; //return updated string result
                         }
 
                         _logger.Info(MessagesResult[callerName]); //log
@@ -256,13 +261,13 @@ namespace G_Hoover.Services.Browsing
 
                     await Task.Delay(1000);
 
-                    loadingPage = false; //finished crawling
+                    LoadingPage = false; //finished crawling
                 }
             };
 
             WebBrowser.LoadingStateChanged += _pageLoadedEventHandler;
 
-            while (loadingPage)
+            while (LoadingPage)
                 await Task.Delay(50); //if still crawling
 
             _logger.Error(MessagesError[callerName]); //log
@@ -270,7 +275,7 @@ namespace G_Hoover.Services.Browsing
             return stringResult;
         }
 
-        private string CombineStringResult(ResultObjectModel result)
+        public string CombineStringResult(ResultObjectModel result)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(NameList[PhraseNo]);
@@ -328,35 +333,85 @@ namespace G_Hoover.Services.Browsing
             return isCaptcha;
         }
 
-        public void CheckConditions()
+        public async Task CheckConditionsAsync()
         {
-            string callerName = nameof(CheckConditions);
+            string callerName = nameof(CheckConditionsAsync);
 
             _logger.Info(MessagesInfo[callerName]); //log
 
-            if (!ClickerInput) //if input clicker
+            try
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped + ". " + NewDataRecorded); //log
+                VerifyClickerInputAsync();
 
-                _controlsService.ShowLessBrowser();
+                VerifyStopped();
+
+                await VerifyNewDataRecordedAsync();
+
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped + ". " + NewDataRecorded); //log
             }
-            else //if JavaScript clicker
+            catch (Exception e)
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped + ". " + NewDataRecorded); //log
-
-                _controlsService.ShowMoreBrowser();
+                _logger.Info(MessagesError[callerName] + e.Message); //log
             }
+        }
 
+        public async Task VerifyNewDataRecordedAsync()
+        {
+            if (!NewDataRecorded)
+            {
+                if (!ClickerInput)
+                {
+                    ClickerInput = true;
+                }
+                else if (!SearchViaTor)
+                {
+                    await ChangeConnectionTypeAsync(WebBrowser);
+                }
+                else
+                {
+                    await ChangeConnectionTypeAsync(WebBrowser);
+                    PhraseNo++;
+                    NewDataRecorded = true;
+                    ClickerInput = false;
+                }
+            }
+        }
+
+        public void VerifyStopped()
+        {
             if (Stopped)
             {
                 PhraseNo = 0;
                 Stopped = false;
             }
+        }
 
-            if (NewDataRecorded)
+        public void VerifyClickerInputAsync()
+        {
+            if (!ClickerInput) //if input clicker
             {
-                // 1) change ClickerInput 2) SearchViaTor 3) PhraseNo ++, NewDataRecorded = true;
+                _controlsService.ShowLessBrowser();
             }
+            else //if JavaScript clicker
+            {
+                _controlsService.ShowMoreBrowser();
+            }
+        }
+
+        public async Task ChangeConnectionTypeAsync(IWpfWebBrowser webBrowser)
+        {
+            if (!SearchViaTor)
+            {
+                await _connectionService.ConfigureBrowserTor(webBrowser);
+                SearchViaTor = true;
+            }
+            else
+            {
+                await _connectionService.ConfigureBrowserDirect(webBrowser);
+                SearchViaTor = false;
+            }
+
+            LoadingPage = false; //return string.Empty;
         }
 
         public void OnUpdateControls(UiPropertiesModel obj)

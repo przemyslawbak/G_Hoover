@@ -171,8 +171,6 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-
-
                 if (!string.IsNullOrEmpty(searchPhrase))
                 {
                     await _fileService.SavePhraseAsync(searchPhrase); //file
@@ -185,6 +183,22 @@ namespace G_Hoover.Services.Buttons
                 {
                     throw new Exception("Incorrect phrase.");
                 }
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+        }
+
+        public void ExecuteConnectionButton(IWpfWebBrowser webBrowser)
+        {
+            string callerName = nameof(ExecuteBuildButtonAsync);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                _browserService.ChangeConnectionTypeAsync(webBrowser);
             }
             catch (Exception e)
             {

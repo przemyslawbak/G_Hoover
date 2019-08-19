@@ -165,7 +165,7 @@ namespace G_Hoover.Services.Files
 
         public async Task SaveNewResult(string stringResult)
         {
-            using (TextWriter csvLineBuilder = new StreamWriter("data.txt", true))
+            using (TextWriter csvLineBuilder = new StreamWriter(_resultFile, true))
             {
                 await csvLineBuilder.WriteLineAsync(stringResult);
             }
