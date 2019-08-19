@@ -163,15 +163,8 @@ namespace G_Hoover.Desktop.ViewModels
         public IAsyncCommand UploadCommand { get; private set; }
         public IAsyncCommand BuildCommand { get; private set; }
 
-        public string CompletePhrase { get; set; } //search phrase builded
-        public bool SearchViaTor { get; set; } //if searching when using Tor network
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string FilePath { get; set; } //path of uploaded file
-        public MessageBoxResult Message { get; set; } //error messages
-        public Dictionary<string, string> MessagesInfo { get; set; } //message dictionary
-        public Dictionary<string, string> MessagesError { get; set; } //message dictionary
-        public Dictionary<string, string> MessagesResult { get; set; } //message dictionary
-        public Dictionary<string, string> MessagesDisplay { get; set; } //message dictionary
         public string SearchPhrase { get; set; } //phrase built in dialog window
 
         private UiPropertiesModel _uiControls;
