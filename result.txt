@@ -1,5 +1,0 @@
-https://developer.yahoo.com/weather/|<div class="ellip">Weather - Yahoo Developer Network</div>|https://developer.yahoo.com/weather/
-|<div class="ellip">Google 新聞</div>|https://news.google.com.tw/
-google maps api key|<div class="ellip">Get an API Key | Maps Embed API | Google Developers</div>|https://developers.google.com/maps/.../embed/get-api-key
-|<div class="ellip">Google 新聞</div>|https://news.google.com.tw/
-https://developer.yahoo.com/weather/|<div class="ellip">Weather - Yahoo Developer Network</div>|https://developer.yahoo.com/weather/

@@ -6,6 +6,8 @@
 #Specific solution folder
 **/log.txt
 **/phrase.txt
+**/result.txt
+**/Tor.dll
 
 #Google API
 *.AndroidManifest.xml
