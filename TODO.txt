@@ -1,3 +1,5 @@
+//BrowsingService: 1) change ClickerInput 2) SearchViaTor 3) PhraseNo ++, NewDataRecorded = true;
+
 //input clicks in ScrapService
 
 async (sender, args) - not anonymus
@@ -18,3 +20,7 @@ save file path, phraseno -> load file at startup
 log methods in VM?
 
 add messages in VM, messages in service methods
+
+ScrapService when collecting URL, take anchor instead of string??
+
+manage save result file -> deleting

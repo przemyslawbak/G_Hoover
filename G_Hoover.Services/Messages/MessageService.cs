@@ -64,7 +64,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[4], MethodList[4] + " exception. ");
             messages.Add(MethodList[5], MethodList[5] + " exception. ");
             messages.Add(MethodList[6], MethodList[6] + " exception. ");
-            messages.Add(MethodList[7], MethodList[7] + " task cancelled. ");
+            messages.Add(MethodList[7], MethodList[7] + " exception. ");
             messages.Add(MethodList[8], MethodList[8] + " exception. ");
             messages.Add(MethodList[9], MethodList[9] + " exception. ");
             messages.Add(MethodList[10], MethodList[10] + " empty string. ");

@@ -88,5 +88,59 @@ namespace G_Hoover.Services.Scrap
                 return false;
             }
         }
+
+        public async Task<string> GetHeaderAsync(IWpfWebBrowser webBrowser)
+        {
+            string header = "";
+
+            Task<JavascriptResponse> findHeader = webBrowser.EvaluateScriptAsync(@"
+			(function() {
+				var results = document.getElementsByClassName('srg')[0];
+                    var result = results.getElementsByClassName('g')[0];
+                    var header = result.getElementsByTagName('h3')[0];
+                    return header.innerHTML;
+				}
+			)();");
+
+            await findHeader.ContinueWith(t =>
+            {
+                if (!t.IsFaulted)
+                {
+                    var response = t.Result;
+                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
+                    header = Convert.ToString(response.Result);
+                }
+            }
+            );
+
+            return header;
+        }
+
+        public async Task<string> GetUrl(IWpfWebBrowser webBrowser)
+        {
+            string url = "";
+
+            Task<JavascriptResponse> findUrl = webBrowser.EvaluateScriptAsync(@"
+			(function() {
+				var results = document.getElementsByClassName('srg')[0];
+                    var result = results.getElementsByClassName('g')[0];
+                    var url = result.getElementsByTagName('cite')[0];
+                    return url.innerHTML;
+				}
+			)();");
+
+            await findUrl.ContinueWith(t =>
+            {
+                if (!t.IsFaulted)
+                {
+                    var response = t.Result;
+                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
+                    url = Convert.ToString(response.Result);
+                }
+            }
+            );
+
+            return url;
+        }
     }
 }

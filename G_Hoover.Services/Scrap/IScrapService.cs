@@ -8,5 +8,7 @@ namespace G_Hoover.Services.Scrap
         Task<bool> EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase);
         Task<bool> CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser);
         Task<bool> CheckForRecaptchaAsync(IWpfWebBrowser webBrowser);
+        Task<string> GetHeaderAsync(IWpfWebBrowser webBrowser);
+        Task<string> GetUrl(IWpfWebBrowser webBrowser);
     }
 }

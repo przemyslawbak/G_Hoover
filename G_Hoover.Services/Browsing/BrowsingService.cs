@@ -3,12 +3,14 @@ using CefSharp.Wpf;
 using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Controls;
+using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using G_Hoover.Services.Scrap;
 using NLog;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +22,7 @@ namespace G_Hoover.Services.Browsing
         private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
+        private readonly IFileService _fileService;
         private readonly IEventAggregator _eventAggregator;
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
@@ -27,12 +30,14 @@ namespace G_Hoover.Services.Browsing
         public BrowsingService(IMessageService messageService,
             IControlsService controlsService,
             IEventAggregator eventAggregator,
-            IScrapService scrapService)
+            IScrapService scrapService,
+            IFileService fileService)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
             _controlsService = controlsService;
             _scrapService = scrapService;
+            _fileService = fileService;
             _eventAggregator = eventAggregator;
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
@@ -62,7 +67,8 @@ namespace G_Hoover.Services.Browsing
         public bool Stopped { get; set; } //is stopped by the user?
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string SearchPhrase { get; set; } //phrase built in dialog window
-        public IWpfWebBrowser WebBrowser { get; set; }
+        public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
+        public bool NewDataRecorded { get; set; } //did received data last time?
 
         private bool _clickerInput;
         public bool ClickerInput //if click by input simulation
@@ -103,6 +109,10 @@ namespace G_Hoover.Services.Browsing
                 await task;
             }
             catch (OperationCanceledException e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+            catch (Exception e)
             {
                 _logger.Error(MessagesError[callerName] + e.Message); //log
             }
@@ -161,13 +171,14 @@ namespace G_Hoover.Services.Browsing
 
         public async Task<string> ContinueCrawling(string phrase)
         {
+            bool clickSearch = false;
+            bool isCaptcha = false;
+            ResultObjectModel result = new ResultObjectModel();
+            string stringResult = "";
             string callerName = nameof(ContinueCrawling);
 
             _logger.Info(MessagesInfo[callerName] + phrase); //log
 
-            bool clickSearch = false;
-            bool isCaptcha = false;
-            string result = "";
 
             bool loadingPage = true;
 
@@ -216,7 +227,24 @@ namespace G_Hoover.Services.Browsing
                     //if found captcha
                     if (!isCaptcha)
                     {
-                        //collect result => await _scrapService.
+                        result = await CollectResults();
+
+                        if (string.IsNullOrEmpty(result.Url) && string.IsNullOrEmpty(result.Header))
+                        {
+                            NewDataRecorded = false;
+
+                            loadingPage = false; //return string.Empty;
+                        }
+                        else
+                        {
+                            NewDataRecorded = true;
+
+                            stringResult = CombineStringResult(result);
+
+                            await _fileService.SaveNewResult(stringResult);
+
+                            loadingPage = false; //return updated string result
+                        }
 
                         _logger.Info(MessagesResult[callerName]); //log
                     }
@@ -239,7 +267,30 @@ namespace G_Hoover.Services.Browsing
 
             _logger.Error(MessagesError[callerName]); //log
 
-            return string.Empty;
+            return stringResult;
+        }
+
+        private string CombineStringResult(ResultObjectModel result)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(NameList[PhraseNo]);
+            sb.Append("|");
+            sb.Append(result.Header);
+            sb.Append("|");
+            sb.Append(result.Url);
+
+            return sb.ToString();
+        }
+
+        public async Task<ResultObjectModel> CollectResults()
+        {
+            ResultObjectModel result = new ResultObjectModel();
+
+            result.Header = await _scrapService.GetHeaderAsync(WebBrowser);
+
+            result.Url = await _scrapService.GetUrl(WebBrowser);
+
+            return result;
         }
 
         public async Task<bool> CheckResultPageAsync()
@@ -285,13 +336,13 @@ namespace G_Hoover.Services.Browsing
 
             if (!ClickerInput) //if input clicker
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped); //log
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped + ". " + NewDataRecorded); //log
 
                 _controlsService.ShowLessBrowser();
             }
             else //if JavaScript clicker
             {
-                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped); //log
+                _logger.Info(MessagesResult[callerName] + ClickerInput + ". " + Stopped + ". " + NewDataRecorded); //log
 
                 _controlsService.ShowMoreBrowser();
             }
@@ -300,6 +351,11 @@ namespace G_Hoover.Services.Browsing
             {
                 PhraseNo = 0;
                 Stopped = false;
+            }
+
+            if (NewDataRecorded)
+            {
+                // 1) change ClickerInput 2) SearchViaTor 3) PhraseNo ++, NewDataRecorded = true;
             }
         }
 
@@ -313,7 +369,7 @@ namespace G_Hoover.Services.Browsing
         {
             if (TokenSource != null)
             {
-                TokenSource.Cancel(); //browser service
+                TokenSource.Cancel(); //cancel browsing
             }
         }
 

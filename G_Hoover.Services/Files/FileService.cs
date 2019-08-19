@@ -15,6 +15,7 @@ namespace G_Hoover.Services.Files
         private IMessageService _messageService;
         private readonly string _logFile = "../../../../log.txt";
         private readonly string _phraseFile = "../../../../phrase.txt";
+        private readonly string _resultFile = "../../../../result.txt";
 
         public FileService(IMessageService messageService)
         {
@@ -160,6 +161,14 @@ namespace G_Hoover.Services.Files
             MessagesInfo = obj.MessagesInfo;
             MessagesError = obj.MessagesError;
             MessagesResult = obj.MessagesResult;
+        }
+
+        public async Task SaveNewResult(string stringResult)
+        {
+            using (TextWriter csvLineBuilder = new StreamWriter("data.txt", true))
+            {
+                await csvLineBuilder.WriteLineAsync(stringResult);
+            }
         }
     }
 }
