@@ -1,4 +1,4 @@
-
+tomorrow: ResolveCaptcha ctd.
 
 //input clicks in ScrapService
 
@@ -30,3 +30,9 @@ add messages in VM, messages in service methods
 ScrapService when collecting URL, take anchor instead of string??
 
 manage save result file -> deleting
+
+disble mouse for ClickerInput
+
+get new IP button
+
+remove ShowDialog<PhraseView>

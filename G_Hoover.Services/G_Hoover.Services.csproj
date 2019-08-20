@@ -81,6 +81,9 @@
     <Reference Include="Tor">
       <HintPath>..\..\..\..\..\G_Hoover_BETA\CefSharpWPF\TorDll\Tor.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsInput, Version=1.0.4.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulator.1.0.4.0\lib\net20\WindowsInput.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Browsing\BrowseService.cs" />
@@ -93,6 +96,8 @@
     <Compile Include="Controls\IControlsService.cs" />
     <Compile Include="Files\FileService.cs" />
     <Compile Include="Files\IFileService.cs" />
+    <Compile Include="Input\IInputService.cs" />
+    <Compile Include="Input\InputService.cs" />
     <Compile Include="Messages\IMessageService.cs" />
     <Compile Include="Messages\MessageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -39,6 +39,13 @@ namespace G_Hoover.Services.Connection
             });
         }
 
+        public void GetNewBrowsingIp(IWpfWebBrowser webBrowser)
+        {
+            Cef.GetGlobalCookieManager().DeleteCookies("", "");
+
+            InitializeTor();
+        }
+
         private void InitializeTor()
         {
             Process[] previous = Process.GetProcessesByName("tor");

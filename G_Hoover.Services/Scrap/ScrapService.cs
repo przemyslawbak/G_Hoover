@@ -5,11 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using CefSharp;
 using CefSharp.Wpf;
+using G_Hoover.Services.Input;
 
 namespace G_Hoover.Services.Scrap
 {
     public class ScrapService : IScrapService
     {
+        IInputService _inputService;
+
+        public ScrapService(IInputService inputService)
+        {
+            _inputService = inputService;
+        }
+
         public async Task<bool> CheckForRecaptchaAsync(IWpfWebBrowser webBrowser)
         {
             bool isCaptcha = false;
@@ -39,7 +47,31 @@ namespace G_Hoover.Services.Scrap
             return isCaptcha;
         }
 
-        public async Task<bool> CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
+        public async Task ClickAudioChallangeIcon(bool clickerInput)
+        {
+            if (!clickerInput)
+            {
+                //not applicable yet
+            }
+            else
+            {
+                await _inputService.AudioChallangeInputAsync();
+            }
+        }
+
+        public async Task ClickCheckboxIcon(bool clickerInput)
+        {
+            if (!clickerInput)
+            {
+                //not applicable yet
+            }
+            else
+            {
+                await _inputService.ClickCheckboxInputAsync();
+            }
+        }
+
+        public async Task CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
         {
             try
             {
@@ -51,20 +83,16 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //input clicks
+                    //input clicks -> cancellation token?
                 }
-
-                return true;
             }
             catch (Exception e)
             {
                 //log
-
-                return false;
             }
         }
 
-        public async Task<bool> EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
+        public async Task EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
         {
             try
             {
@@ -76,16 +104,12 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //input clicks
+                    //input clicks -> cancellation token?
                 }
-
-                return true;
             }
             catch (Exception e)
             {
                 //log
-
-                return false;
             }
         }
 
@@ -141,6 +165,13 @@ namespace G_Hoover.Services.Scrap
             );
 
             return url;
+        }
+
+        public async Task TurnOffAlerts(IWpfWebBrowser webBrowser)
+        {
+            await webBrowser.EvaluateScriptAsync(@"
+			window.alert = function(){}
+			");
         }
     }
 }

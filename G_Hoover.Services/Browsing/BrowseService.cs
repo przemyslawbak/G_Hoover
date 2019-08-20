@@ -143,8 +143,7 @@ namespace G_Hoover.Services.Browsing
         {
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
             LoadingPage = true;
-            bool clickedSearch = false;
-            bool isCaptchadetected = false;
+            bool isCaptchaDetected = false;
             bool result = false;
 
             WebBrowser.Load("https://www.google.com/");
@@ -157,35 +156,21 @@ namespace G_Hoover.Services.Browsing
 
                     try
                     {
-                        SleepIfPausedOrWait(); //pause
+                        Pause(); //if pause
 
-                        bool phraseEntered = await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
+                        await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
 
-                        SleepIfPausedOrWait(); //pause
+                        Pause(); //if pause
 
-                        if (phraseEntered)
-                        {
-                            clickedSearch = await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
-                        }
-                        else
-                        {
-                            throw new Exception("Error when entering phrase");
-                        }
+                        await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
 
-                        SleepIfPausedOrWait(); //pause
+                        Pause(); //if pause
 
-                        if (clickedSearch)
-                        {
-                            isCaptchadetected = await CheckResultPageAsync();
-                        }
-                        else
-                        {
-                            throw new Exception("Error when clicking search button");
-                        }
+                        isCaptchaDetected = await CheckResultPageAsync();
 
-                        SleepIfPausedOrWait(); //pause
+                        Pause(); //if pause
 
-                        if (!isCaptchadetected)
+                        if (!isCaptchaDetected)
                         {
                             result = await GetAndSaveResultAsync();
                         }
@@ -194,7 +179,7 @@ namespace G_Hoover.Services.Browsing
                             throw new Exception("Captcha detected");
                         }
 
-                        SleepIfPausedOrWait(); //pause
+                        Pause(); //if pause
 
                         if (result)
                         {
@@ -219,7 +204,7 @@ namespace G_Hoover.Services.Browsing
 
                             ClickerInput = true;
 
-                            //resolve
+                            await ResolveCaptcha();
 
                             ClickerInput = false;
                         }
@@ -239,6 +224,26 @@ namespace G_Hoover.Services.Browsing
 
             while (LoadingPage)
                 await Task.Delay(50); //if still crawling
+        }
+
+        public async Task ResolveCaptcha()
+        {
+            CheckClickerConditions();
+
+            await _scrapService.TurnOffAlerts(WebBrowser);
+
+            if (SearchViaTor)
+            {
+                _connectionService.GetNewBrowsingIp(WebBrowser);
+            }
+            else
+            {
+                await _scrapService.ClickCheckboxIcon(ClickerInput);
+
+                await _scrapService.ClickAudioChallangeIcon(ClickerInput);
+
+                //solve audio challenge RozwiarzAudioChallengeAsync
+            }
         }
 
         public async Task<bool> GetAndSaveResultAsync()
@@ -261,7 +266,7 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
-        public void SleepIfPausedOrWait()
+        public void Pause()
         {
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
