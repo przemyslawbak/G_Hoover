@@ -118,7 +118,6 @@ namespace G_Hoover.Services.Browsing
 
         public async Task LoopCollectingAsync()
         {
-            string stringResult = "";
 
             CheckClickerConditions();
 
@@ -129,7 +128,7 @@ namespace G_Hoover.Services.Browsing
 
             if (NameList.Count > PhraseNo)
             {
-                stringResult = await GetNewRecordAsync();
+                await GetNewRecordAsync();
 
                 await LoopCollectingAsync(); //loop
             }
@@ -140,14 +139,13 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
-        public async Task<string> GetNewRecordAsync()
+        public async Task GetNewRecordAsync()
         {
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
-            ResultObjectModel result = new ResultObjectModel();
             LoadingPage = true;
-            bool clickSearch = false;
-            bool isCaptcha = false;
-            string stringResult = "";
+            bool clickedSearch = false;
+            bool isCaptchadetected = false;
+            bool result = false;
 
             WebBrowser.Load("https://www.google.com/");
 
@@ -159,59 +157,52 @@ namespace G_Hoover.Services.Browsing
 
                     try
                     {
-                        while (Paused || PleaseWaitVisible)
-                            Thread.Sleep(50);
+                        SleepIfPausedOrWait(); //pause
 
                         bool phraseEntered = await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
 
-                        while (Paused || PleaseWaitVisible)
-                            Thread.Sleep(50);
+                        SleepIfPausedOrWait(); //pause
 
-                        //if phrase entered correctly
                         if (phraseEntered)
                         {
-                            clickSearch = await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
+                            clickedSearch = await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
                         }
                         else
                         {
                             throw new Exception("Error when entering phrase");
                         }
 
-                        while (Paused || PleaseWaitVisible)
-                            Thread.Sleep(50);
+                        SleepIfPausedOrWait(); //pause
 
-                        //if button clicked correctly
-                        if (clickSearch)
+                        if (clickedSearch)
                         {
-                            isCaptcha = await CheckResultPageAsync();
+                            isCaptchadetected = await CheckResultPageAsync();
                         }
                         else
                         {
                             throw new Exception("Error when clicking search button");
                         }
 
-                        while (Paused || PleaseWaitVisible)
-                            Thread.Sleep(50);
+                        SleepIfPausedOrWait(); //pause
 
-                        //if found captcha
-                        if (!isCaptcha)
+                        if (!isCaptchadetected)
                         {
-                            result = await CollectResultsAsync();
-
-                            if (string.IsNullOrEmpty(result.Url) && string.IsNullOrEmpty(result.Header))
-                            {
-                                throw new Exception("Result was empty");
-                            }
-                            else
-                            {
-                                await _fileService.SaveNewResult(result, NameList[PhraseNo]);
-
-                                PhraseNo++; //move to next
-                            }
+                            result = await GetAndSaveResultAsync();
                         }
                         else
                         {
                             throw new Exception("Captcha detected");
+                        }
+
+                        SleepIfPausedOrWait(); //pause
+
+                        if (result)
+                        {
+                            //log ok
+                        }
+                        else
+                        {
+                            throw new Exception("Result was empty");
                         }
                     }
                     catch (Exception e)
@@ -224,9 +215,13 @@ namespace G_Hoover.Services.Browsing
                         }
                         else if (e.Message == "Captcha detected")
                         {
-                            //resolve / ClickerInput / checkconditions => await _scrapService.
-                            //after resolving?? return empty, update counter for captcha ++ and try again??
                             //log
+
+                            ClickerInput = true;
+
+                            //resolve
+
+                            ClickerInput = false;
                         }
                         else
                         {
@@ -244,8 +239,32 @@ namespace G_Hoover.Services.Browsing
 
             while (LoadingPage)
                 await Task.Delay(50); //if still crawling
+        }
 
-            return stringResult;
+        public async Task<bool> GetAndSaveResultAsync()
+        {
+            ResultObjectModel result = new ResultObjectModel();
+
+            result = await CollectResultsAsync();
+
+            if (string.IsNullOrEmpty(result.Url) && string.IsNullOrEmpty(result.Header))
+            {
+                return false;
+            }
+            else
+            {
+                await _fileService.SaveNewResult(result, NameList[PhraseNo]);
+
+                PhraseNo++; //move to next
+
+                return true;
+            }
+        }
+
+        public void SleepIfPausedOrWait()
+        {
+            while (Paused || PleaseWaitVisible)
+                Thread.Sleep(50);
         }
 
         public void ResolveEmptyString()

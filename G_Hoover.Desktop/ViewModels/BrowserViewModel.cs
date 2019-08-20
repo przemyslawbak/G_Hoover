@@ -162,7 +162,6 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand ClickerChangeCommand { get; private set; }
         public IAsyncCommand UploadCommand { get; private set; }
         public IAsyncCommand BuildCommand { get; private set; }
-
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string FilePath { get; set; } //path of uploaded file
         public string SearchPhrase { get; set; } //phrase built in dialog window
