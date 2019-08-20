@@ -45,7 +45,7 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_browseService.LoopCollectingAsync)); //10
             methods.Add(nameof(_browseService.GetNewRecordAsync)); //11
             methods.Add(nameof(_browseService.CheckResultPageAsync)); //12
-            methods.Add(nameof(_browseService.CheckConditions)); //13
+            methods.Add(nameof(_browseService.CheckClickerConditions)); //13
             methods.Add(nameof(_buttonsService.ExecuteConnectionButtonAsync)); //14
 
             return methods;

@@ -8,9 +8,9 @@ namespace G_Hoover.Services.Buttons
     {
         void ExecuteStopButton();
         void ExecutePauseButton(bool paused);
-        Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase);
+        Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase, bool paused);
         Task<List<string>> ExecuteUploadButtonAsync(string filePath);
         Task ExecuteBuildButtonAsync(string searchPhrase);
-        Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser);
+        Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused);
     }
 }

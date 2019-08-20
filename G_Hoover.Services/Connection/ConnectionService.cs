@@ -11,9 +11,9 @@ namespace G_Hoover.Services.Connection
 {
     public class ConnectionService : IConnectionService
     {
-        public async Task ConfigureBrowserDirect(IWpfWebBrowser webBrowser)
+        public void ConfigureBrowserDirect(IWpfWebBrowser webBrowser)
         {
-            await Cef.UIThreadTaskFactory.StartNew(delegate
+            Cef.UIThreadTaskFactory.StartNew(delegate
             {
                 var rc = webBrowser.GetBrowser().GetHost().RequestContext;
                 var v = new Dictionary<string, object>();
@@ -24,11 +24,11 @@ namespace G_Hoover.Services.Connection
             });
         }
 
-        public async Task ConfigureBrowserTor(IWpfWebBrowser webBrowser)
+        public void ConfigureBrowserTor(IWpfWebBrowser webBrowser)
         {
             InitializeTor();
 
-            await Cef.UIThreadTaskFactory.StartNew(delegate
+            Cef.UIThreadTaskFactory.StartNew(delegate
             {
                 var rc = webBrowser.GetBrowser().GetHost().RequestContext;
                 var v = new Dictionary<string, object>();

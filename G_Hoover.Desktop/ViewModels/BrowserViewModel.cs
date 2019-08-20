@@ -83,7 +83,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnStartCommandAsync()
         {
-            await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase);
+            await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase, Paused);
         }
 
         public async Task OnBuildCommandAsync()
@@ -117,7 +117,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnConnectionChangeCommandAsync()
         {
-            await _buttonService.ExecuteConnectionButtonAsync(WebBrowser);
+            await _buttonService.ExecuteConnectionButtonAsync(WebBrowser, Paused);
         }
 
         public string GetFilePath()

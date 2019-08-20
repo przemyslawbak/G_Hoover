@@ -62,7 +62,6 @@ namespace G_Hoover.Services.Browsing
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
-        public bool NewDataRecorded { get; set; } //did received data last time?
         public bool SearchViaTor { get; set; } //if Tor network in use
         public bool LoadingPage { get; set; } //if page is now loading
 
@@ -89,8 +88,6 @@ namespace G_Hoover.Services.Browsing
                 NameList = nameList;
             }
 
-            _controlsService.GetStartedConfiguration(); //ui
-
             Task task = Task.Run(async () =>
             {
                 await LoopCollectingAsync();
@@ -115,27 +112,30 @@ namespace G_Hoover.Services.Browsing
 
                 PhraseNo = 0;
             }
+
+            StopTokenSource = null;
         }
 
         public async Task LoopCollectingAsync()
         {
             string stringResult = "";
 
-            CheckConditions();
+            CheckClickerConditions();
 
             if (StopCancellationToken.IsCancellationRequested)
             {
                 StopCancellationToken.ThrowIfCancellationRequested();
             }
 
-            stringResult = await GetNewRecordAsync();
-
             if (NameList.Count > PhraseNo)
             {
+                stringResult = await GetNewRecordAsync();
+
                 await LoopCollectingAsync(); //loop
             }
             else
             {
+                CancelCollectData();
                 //finish
             }
         }
@@ -208,21 +208,31 @@ namespace G_Hoover.Services.Browsing
 
                                 await _fileService.SaveNewResult(stringResult);
 
-                                PhraseNo++;
+                                PhraseNo++; //move to next
                             }
                         }
                         else
                         {
-                            throw new Exception("Captcha found");
-                            //resolve / ClickerInput / checkconditions => await _scrapService.
-                            //after resolving?? return empty, update counter for captcha ++ and try again??
+                            throw new Exception("Captcha detected");
                         }
                     }
                     catch (Exception e)
                     {
                         if (e.Message == "Result was empty")
                         {
+                            //log
 
+                            await ResolveEmptyStringAsync();
+                        }
+                        else if (e.Message == "Captcha detected")
+                        {
+                            //resolve / ClickerInput / checkconditions => await _scrapService.
+                            //after resolving?? return empty, update counter for captcha ++ and try again??
+                            //log
+                        }
+                        else
+                        {
+                            //log
                         }
                     }
                     finally
@@ -238,6 +248,24 @@ namespace G_Hoover.Services.Browsing
                 await Task.Delay(50); //if still crawling
 
             return stringResult;
+        }
+
+        public async Task ResolveEmptyStringAsync()
+        {
+            if (!ClickerInput)
+            {
+                ClickerInput = true;
+            }
+            else if (!SearchViaTor)
+            {
+                ChangeConnectionType(WebBrowser);
+            }
+            else
+            {
+                PhraseNo++; //move to next
+                ChangeConnectionType(WebBrowser);
+                ClickerInput = false;
+            }
         }
 
         public string CombineStringResult(ResultObjectModel result)
@@ -287,16 +315,16 @@ namespace G_Hoover.Services.Browsing
 
             return isCaptcha;
         }
-        public async Task ChangeConnectionTypeAsync(IWpfWebBrowser webBrowser)
+        public void ChangeConnectionType(IWpfWebBrowser webBrowser)
         {
             if (!SearchViaTor)
             {
-                await _connectionService.ConfigureBrowserTor(webBrowser);
+                _connectionService.ConfigureBrowserTor(webBrowser);
                 SearchViaTor = true;
             }
             else
             {
-                await _connectionService.ConfigureBrowserDirect(webBrowser);
+                _connectionService.ConfigureBrowserDirect(webBrowser);
                 SearchViaTor = false;
             }
         }
@@ -333,20 +361,9 @@ namespace G_Hoover.Services.Browsing
             SearchPhrase = searchPhrase;
         }
 
-        public void CheckConditions()
+        public void CheckClickerConditions()
         {
             VerifyClickerInput();
-        }
-
-        public UiPropertiesModel GetStatus()
-        {
-            UiPropertiesModel uiStatus = new UiPropertiesModel()
-            {
-                Stopped = Stopped,
-                Paused = Paused
-            };
-
-            return uiStatus;
         }
     }
 }

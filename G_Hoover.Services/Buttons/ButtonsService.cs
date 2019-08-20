@@ -97,7 +97,7 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
+        public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase, bool paused)
         {
             string callerName = nameof(ExecuteStartButtonAsync);
 
@@ -105,7 +105,12 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-                await _browseService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
+                _controlsService.GetStartedConfiguration(); //ui
+
+                if (!paused)
+                {
+                    await _browseService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
+                }
 
                 _logger.Info(MessagesResult[callerName]); //log
 
@@ -117,7 +122,10 @@ namespace G_Hoover.Services.Buttons
             }
             finally
             {
-                _controlsService.GetStoppedConfiguration(); //ui
+                if (!paused)
+                {
+                    _controlsService.GetStoppedConfiguration(); //ui
+                }
             }
         }
 
@@ -194,7 +202,7 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser)
+        public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
             string callerName = nameof(ExecuteBuildButtonAsync);
 
@@ -202,21 +210,19 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-                UiPropertiesModel uiStatus = _browseService.GetStatus();
+                _controlsService.GetWaitConfiguration();
 
-                _controlsService.GetWaitConfiguration(); //ui
-
-                await _browseService.ChangeConnectionTypeAsync(webBrowser);
+                _browseService.ChangeConnectionType(webBrowser);
 
                 await Task.Delay(1000);
 
-                if (uiStatus.Stopped)
-                {
-                    _controlsService.GetStoppedConfiguration(); //ui
-                }
-                else if (uiStatus.Paused)
+                if (paused)
                 {
                     _controlsService.GetPausedConfiguration(); //ui
+                }
+                else
+                {
+                    _controlsService.GetStoppedConfiguration(); //ui
                 }
             }
             catch (Exception e)

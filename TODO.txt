@@ -1,14 +1,14 @@
 
 
-async (sender, args) - not anonymus??
-
-how to update Network, Clicker, Status in VM??
-
 //input clicks in ScrapService
 
 if captcha:
 //resolve / ClickerInput / checkconditions => await _scrapService.
 //after resolving?? return empty, update counter for captcha ++ and try again??
+
+testing: async (sender, args) - not anonymus??
+
+how to update Network, Clicker, Status in VM??
 
 --
 app.config update -> https://stackoverflow.com/a/1357453

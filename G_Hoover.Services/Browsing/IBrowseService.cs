@@ -10,7 +10,6 @@ namespace G_Hoover.Services.Browsing
         void CancelCollectData();
         Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase);
         void UpdateSearchPhrase(string searchPhrase);
-        Task ChangeConnectionTypeAsync(IWpfWebBrowser webBrowser);
-        UiPropertiesModel GetStatus();
+        void ChangeConnectionType(IWpfWebBrowser webBrowser);
     }
 }
