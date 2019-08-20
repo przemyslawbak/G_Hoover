@@ -10,6 +10,6 @@ namespace G_Hoover.Services.Files
         void RemoveOldLogs();
         Task<string> LoadPhraseAsync();
         Task SavePhraseAsync(string searchPhrase);
-        Task SaveNewResult(string stringResult);
+        Task SaveNewResult(ResultObjectModel result, string phrase);
     }
 }

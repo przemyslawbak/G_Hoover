@@ -204,9 +204,7 @@ namespace G_Hoover.Services.Browsing
                             }
                             else
                             {
-                                stringResult = CombineStringResult(result);
-
-                                await _fileService.SaveNewResult(stringResult);
+                                await _fileService.SaveNewResult(result, NameList[PhraseNo]);
 
                                 PhraseNo++; //move to next
                             }
@@ -222,7 +220,7 @@ namespace G_Hoover.Services.Browsing
                         {
                             //log
 
-                            await ResolveEmptyStringAsync();
+                            ResolveEmptyString();
                         }
                         else if (e.Message == "Captcha detected")
                         {
@@ -250,7 +248,7 @@ namespace G_Hoover.Services.Browsing
             return stringResult;
         }
 
-        public async Task ResolveEmptyStringAsync()
+        public void ResolveEmptyString()
         {
             if (!ClickerInput)
             {
@@ -266,18 +264,6 @@ namespace G_Hoover.Services.Browsing
                 ChangeConnectionType(WebBrowser);
                 ClickerInput = false;
             }
-        }
-
-        public string CombineStringResult(ResultObjectModel result)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(NameList[PhraseNo]);
-            sb.Append("|");
-            sb.Append(result.Header);
-            sb.Append("|");
-            sb.Append(result.Url);
-
-            return sb.ToString();
         }
 
         public async Task<ResultObjectModel> CollectResultsAsync()

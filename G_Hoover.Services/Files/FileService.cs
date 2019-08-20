@@ -156,19 +156,33 @@ namespace G_Hoover.Services.Files
             }
         }
 
-        private void OnDictionariesLoaded(MessageDictionariesModel obj)
+        public void OnDictionariesLoaded(MessageDictionariesModel obj)
         {
             MessagesInfo = obj.MessagesInfo;
             MessagesError = obj.MessagesError;
             MessagesResult = obj.MessagesResult;
         }
 
-        public async Task SaveNewResult(string stringResult)
+        public async Task SaveNewResult(ResultObjectModel result, string phrase)
         {
+            string stringResult = CombineStringResult(result, phrase);
+
             using (TextWriter csvLineBuilder = new StreamWriter(_resultFile, true))
             {
                 await csvLineBuilder.WriteLineAsync(stringResult);
             }
+        }
+
+        public string CombineStringResult(ResultObjectModel result, string phrase)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(phrase);
+            sb.Append("|");
+            sb.Append(result.Header);
+            sb.Append("|");
+            sb.Append(result.Url);
+
+            return sb.ToString();
         }
     }
 }
