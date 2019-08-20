@@ -19,18 +19,18 @@ namespace G_Hoover.Services.Buttons
         private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
         private readonly IFileService _fileService;
-        private readonly IBrowsingService _browserService;
+        private readonly IBrowseService _browseService;
 
         public ButtonsService(IMessageService messageService,
             IControlsService controlService,
             IFileService fileService,
-            IBrowsingService browserService)
+            IBrowseService browseService)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _controlsService = controlService;
             _fileService = fileService;
             _messageService = messageService;
-            _browserService = browserService;
+            _browseService = browseService;
 
             LoadDictionaries();
         }
@@ -58,7 +58,7 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-                _browserService.CancelCollectData(); //cancel
+                _browseService.CancelCollectData(); //cancel
 
                 _logger.Info(MessagesResult[callerName]); //log
             }
@@ -105,7 +105,7 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-                await _browserService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
+                await _browseService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
 
                 _logger.Info(MessagesResult[callerName]); //log
 
@@ -134,12 +134,16 @@ namespace G_Hoover.Services.Buttons
                 if (!string.IsNullOrEmpty(filePath))
                 {
                     _controlsService.GetWaitConfiguration(); //ui
+
                     nameList = await _fileService.GetNewListFromFileAsync(filePath); //file
+
+                    await Task.Delay(1000);
+
                     _controlsService.GetStoppedConfiguration(); //ui
 
                     if (nameList.Count > 0)
                     {
-                        _browserService.CancelCollectData(); //cancel
+                        _browseService.CancelCollectData(); //cancel
 
                         _logger.Info(MessagesResult[callerName] + nameList.Count); //log
 
@@ -175,7 +179,7 @@ namespace G_Hoover.Services.Buttons
                 {
                     await _fileService.SavePhraseAsync(searchPhrase); //file
 
-                    _browserService.UpdateSearchPhrase(searchPhrase);
+                    _browseService.UpdateSearchPhrase(searchPhrase);
 
                     _logger.Info(MessagesResult[callerName] + searchPhrase); //log
                 }
@@ -190,7 +194,7 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public void ExecuteConnectionButton(IWpfWebBrowser webBrowser)
+        public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser)
         {
             string callerName = nameof(ExecuteBuildButtonAsync);
 
@@ -198,7 +202,22 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
-                _browserService.ChangeConnectionTypeAsync(webBrowser);
+                UiPropertiesModel uiStatus = _browseService.GetStatus();
+
+                _controlsService.GetWaitConfiguration(); //ui
+
+                await _browseService.ChangeConnectionTypeAsync(webBrowser);
+
+                await Task.Delay(1000);
+
+                if (uiStatus.Stopped)
+                {
+                    _controlsService.GetStoppedConfiguration(); //ui
+                }
+                else if (uiStatus.Paused)
+                {
+                    _controlsService.GetPausedConfiguration(); //ui
+                }
             }
             catch (Exception e)
             {

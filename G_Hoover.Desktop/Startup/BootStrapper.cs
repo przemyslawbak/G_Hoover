@@ -29,6 +29,9 @@ namespace G_Hoover.Desktop.Startup
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
 
+            builder.RegisterType<BrowseService>()
+              .As<IBrowseService>().SingleInstance();
+
             builder.RegisterType<ConnectionService>()
               .As<IConnectionService>().SingleInstance();
 
@@ -43,9 +46,6 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<MessageService>()
               .As<IMessageService>().SingleInstance();
-
-            builder.RegisterType<BrowsingService>()
-              .As<IBrowsingService>().SingleInstance();
 
             builder.RegisterType<ButtonsService>()
               .As<IButtonsService>().SingleInstance();

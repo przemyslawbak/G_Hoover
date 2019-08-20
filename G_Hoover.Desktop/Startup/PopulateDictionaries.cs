@@ -14,7 +14,7 @@ namespace G_Hoover.Desktop.Startup
         private readonly FileService _fileService;
         private readonly ControlsService _controlsService;
         private readonly ButtonsService _buttonsService;
-        private readonly BrowsingService _browsingService;
+        private readonly BrowseService _browseService;
         private readonly BrowserViewModel _browserVM;
 
         public PopulateDictionaries(IMessageService messageService)
@@ -39,14 +39,14 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_fileService.LoadPhraseAsync)); //4
             methods.Add(nameof(_fileService.SavePhraseAsync)); //5
             methods.Add(nameof(_buttonsService.ExecuteStartButtonAsync)); //6
-            methods.Add(nameof(_browsingService.CollectDataAsync)); //7
+            methods.Add(nameof(_browseService.CollectDataAsync)); //7
             methods.Add(nameof(_buttonsService.ExecuteStopButton)); //8
             methods.Add(nameof(_buttonsService.ExecutePauseButton)); //9
-            methods.Add(nameof(_browsingService.GetRecordAsync)); //10
-            methods.Add(nameof(_browsingService.ContinueCrawling)); //11
-            methods.Add(nameof(_browsingService.CheckResultPageAsync)); //12
-            methods.Add(nameof(_browsingService.CheckConditionsAsync)); //13
-            methods.Add(nameof(_buttonsService.ExecuteConnectionButton)); //14
+            methods.Add(nameof(_browseService.LoopCollectingAsync)); //10
+            methods.Add(nameof(_browseService.GetNewRecordAsync)); //11
+            methods.Add(nameof(_browseService.CheckResultPageAsync)); //12
+            methods.Add(nameof(_browseService.CheckConditions)); //13
+            methods.Add(nameof(_buttonsService.ExecuteConnectionButtonAsync)); //14
 
             return methods;
         }

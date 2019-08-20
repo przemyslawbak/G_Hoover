@@ -45,7 +45,7 @@ namespace G_Hoover.Desktop.ViewModels
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);
             PauseCommand = new DelegateCommand(OnPauseCommand);
-            ConnectionChangeCommand = new DelegateCommand(OnConnectionChangeCommand);
+            ConnectionChangeCommand = new AsyncCommand(async () => await OnConnectionChangeCommandAsync());
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
             UploadCommand = new AsyncCommand(async () => await OnUploadCommandAsync());
             BuildCommand = new AsyncCommand(async () => await OnBuildCommandAsync());
@@ -115,9 +115,9 @@ namespace G_Hoover.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        public void OnConnectionChangeCommand(object obj)
+        public async Task OnConnectionChangeCommandAsync()
         {
-            _buttonService.ExecuteConnectionButton(WebBrowser);
+            await _buttonService.ExecuteConnectionButtonAsync(WebBrowser);
         }
 
         public string GetFilePath()

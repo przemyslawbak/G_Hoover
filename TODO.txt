@@ -1,4 +1,4 @@
-bug: start + pause + change connection => goes crazy
+
 
 async (sender, args) - not anonymus??
 
