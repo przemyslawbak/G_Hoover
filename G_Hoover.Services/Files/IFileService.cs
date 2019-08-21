@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSCore.Codecs.WAV;
 using CSCore.SoundIn;
 using G_Hoover.Models;
+using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace G_Hoover.Services.Files
 {
@@ -15,5 +16,6 @@ namespace G_Hoover.Services.Files
         Task SaveNewResult(ResultObjectModel result, string phrase);
         WaveWriter CreateNewWaveWriter(WasapiCapture capture);
         bool CheckAudioFile();
+        string GetAudioFilePath();
     }
 }

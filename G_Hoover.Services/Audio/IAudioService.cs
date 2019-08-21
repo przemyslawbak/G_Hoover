@@ -4,6 +4,7 @@ namespace G_Hoover.Services.Audio
 {
     public interface IAudioService
     {
-        Task RecordAudioSample();
+        Task RecordAudioSampleAsync();
+        Task<string> ProcessAudioSampleAsync();
     }
 }

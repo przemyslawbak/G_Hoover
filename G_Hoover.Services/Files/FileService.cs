@@ -8,6 +8,7 @@ using System.Text;
 using G_Hoover.Models;
 using CSCore.Codecs.WAV;
 using CSCore.SoundIn;
+using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace G_Hoover.Services.Files
 {
@@ -210,6 +211,11 @@ namespace G_Hoover.Services.Files
             {
                 return false;
             }
+        }
+
+        public string GetAudioFilePath()
+        {
+            return _audioFile;
         }
     }
 }

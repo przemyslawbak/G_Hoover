@@ -58,10 +58,9 @@ namespace G_Hoover.Services.Browsing
         public Dictionary<string, string> MessagesResult { get; set; }
         public Dictionary<string, string> MessagesDisplay { get; set; }
         public int PhraseNo { get; set; } //number of currently checked phrase
-        public int AudioTrials { get; set; } //number of currently audio challenge trials
+        public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
         public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
         public CancellationToken StopCancellationToken { get; set; } //cancellation token
-        public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
         public bool Paused { get; set; } //is paused by the user?
         public bool Stopped { get; set; } //is stopped by the user?
         public bool PleaseWaitVisible { get; set; } //is work in progress?
@@ -283,7 +282,7 @@ namespace G_Hoover.Services.Browsing
                 }
                 else
                 {
-                    await RecordAudioSampleAsync();
+                    await RecordAndProcessAudioAsync();
 
                     AudioTrials++;
                 }
@@ -294,11 +293,17 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
-        public async Task RecordAudioSampleAsync()
+        public async Task RecordAndProcessAudioAsync()
         {
             await _scrapService.ClickPlayIcon(ClickerInput);
 
-            await _audioService.RecordAudioSample();
+            await _audioService.RecordAudioSampleAsync();
+
+            string audioResult = await _audioService.ProcessAudioSampleAsync();
+
+            //ifs for audioResult:
+            //- get new audio challenge (input klicks)
+            //- send result (input klicks)
         }
 
         public async Task<bool> GetAndSaveResultAsync()
