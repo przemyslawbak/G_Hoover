@@ -8,6 +8,7 @@
 **/phrase.txt
 **/result.txt
 **/Tor.dll
+**/App.config
 
 #Google API
 *.AndroidManifest.xml
