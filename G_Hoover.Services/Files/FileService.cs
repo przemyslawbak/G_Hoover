@@ -6,6 +6,8 @@ using NLog;
 using G_Hoover.Services.Messages;
 using System.Text;
 using G_Hoover.Models;
+using CSCore.Codecs.WAV;
+using CSCore.SoundIn;
 
 namespace G_Hoover.Services.Files
 {
@@ -16,6 +18,7 @@ namespace G_Hoover.Services.Files
         private readonly string _logFile = "../../../../log.txt";
         private readonly string _phraseFile = "../../../../phrase.txt";
         private readonly string _resultFile = "../../../../result.txt";
+        private readonly string _audioFile = "../../../../dump.wav";
 
         public FileService(IMessageService messageService)
         {
@@ -183,6 +186,30 @@ namespace G_Hoover.Services.Files
             sb.Append(result.Url);
 
             return sb.ToString();
+        }
+
+        public WaveWriter CreateNewWaveWriter(WasapiCapture capture)
+        {
+            if (File.Exists(_audioFile))
+            {
+                File.Delete(_audioFile);
+            }
+
+            WaveWriter writer = new WaveWriter(_audioFile, capture.WaveFormat);
+
+            return writer;
+        }
+
+        public bool CheckAudioFile()
+        {
+            if (new FileInfo(_audioFile).Length > 10000)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

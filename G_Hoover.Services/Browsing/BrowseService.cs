@@ -296,11 +296,9 @@ namespace G_Hoover.Services.Browsing
 
         public async Task RecordAudioSampleAsync()
         {
-            string key = ""; //TODO: key from App.config
-
             await _scrapService.ClickPlayIcon(ClickerInput);
 
-            await _audioService.RecordAudioSample(key);
+            await _audioService.RecordAudioSample();
         }
 
         public async Task<bool> GetAndSaveResultAsync()

@@ -55,6 +55,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore, Version=1.2.1.2, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSCore.1.2.1.2\lib\net35-client\CSCore.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CognitiveServices.Speech.csharp, Version=1.6.0.28, Culture=neutral, PublicKeyToken=d2e6dcccb609e663, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CognitiveServices.Speech.1.6.0\lib\net461\Microsoft.CognitiveServices.Speech.csharp.dll</HintPath>
     </Reference>
@@ -95,6 +98,7 @@
     <Compile Include="Browsing\IBrowseService.cs" />
     <Compile Include="Buttons\ButtonsService.cs" />
     <Compile Include="Buttons\IButtonsService.cs" />
+    <Compile Include="Config\AppConfig.cs" />
     <Compile Include="Connection\ConnectionService.cs" />
     <Compile Include="Connection\IConnectionService.cs" />
     <Compile Include="Controls\ControlsService.cs" />
