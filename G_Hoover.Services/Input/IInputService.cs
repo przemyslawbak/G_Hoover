@@ -6,5 +6,6 @@ namespace G_Hoover.Services.Input
     {
         Task ClickCheckboxInputAsync();
         Task AudioChallangeInputAsync();
+        Task ClickPlayInputAsync();
     }
 }

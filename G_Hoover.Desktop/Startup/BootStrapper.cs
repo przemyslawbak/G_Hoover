@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using G_Hoover.Desktop.ViewModels;
 using G_Hoover.Desktop.Views;
+using G_Hoover.Services.Audio;
 using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Connection;
@@ -29,6 +30,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
+
+            builder.RegisterType<AudioService>()
+              .As<IAudioService>().SingleInstance();
 
             builder.RegisterType<InputService>()
               .As<IInputService>().SingleInstance();

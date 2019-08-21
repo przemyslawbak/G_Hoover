@@ -36,3 +36,7 @@ disble mouse for ClickerInput
 get new IP button
 
 remove ShowDialog<PhraseView>
+
+logging with  private void LogError("Incorrect phrase."); etc
+
+JS input for clicking recaptcha??

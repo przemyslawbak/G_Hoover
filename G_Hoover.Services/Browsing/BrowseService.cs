@@ -8,6 +8,7 @@ using CefSharp;
 using CefSharp.Wpf;
 using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Audio;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
@@ -26,16 +27,19 @@ namespace G_Hoover.Services.Browsing
         private readonly IScrapService _scrapService;
         private readonly IFileService _fileService;
         private readonly IConnectionService _connectionService;
+        private readonly IAudioService _audioService;
         private readonly IEventAggregator _eventAggregator;
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
+        private readonly int _audioTrialsLimit = 3;
 
         public BrowseService(IMessageService messageService,
             IControlsService controlsService,
             IEventAggregator eventAggregator,
             IScrapService scrapService,
             IFileService fileService,
-            IConnectionService connectionService)
+            IConnectionService connectionService,
+            IAudioService audioService)
         {
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
@@ -43,6 +47,7 @@ namespace G_Hoover.Services.Browsing
             _scrapService = scrapService;
             _fileService = fileService;
             _connectionService = connectionService;
+            _audioService = audioService;
             _eventAggregator = eventAggregator;
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
@@ -53,6 +58,7 @@ namespace G_Hoover.Services.Browsing
         public Dictionary<string, string> MessagesResult { get; set; }
         public Dictionary<string, string> MessagesDisplay { get; set; }
         public int PhraseNo { get; set; } //number of currently checked phrase
+        public int AudioTrials { get; set; } //number of currently audio challenge trials
         public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
         public CancellationToken StopCancellationToken { get; set; } //cancellation token
         public int AudioTryCounter { get; set; } //how many times was solved audio captcha for one phrase
@@ -156,19 +162,19 @@ namespace G_Hoover.Services.Browsing
 
                     try
                     {
-                        Pause(); //if pause
+                        Pause(); //if paused
 
                         await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
 
-                        Pause(); //if pause
+                        Pause(); //if paused
 
                         await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
 
-                        Pause(); //if pause
+                        Pause(); //if paused
 
-                        isCaptchaDetected = await CheckResultPageAsync();
+                        isCaptchaDetected = await CheckForCaptcha();
 
-                        Pause(); //if pause
+                        Pause(); //if paused
 
                         if (!isCaptchaDetected)
                         {
@@ -179,7 +185,7 @@ namespace G_Hoover.Services.Browsing
                             throw new Exception("Captcha detected");
                         }
 
-                        Pause(); //if pause
+                        Pause(); //if paused
 
                         if (result)
                         {
@@ -228,6 +234,8 @@ namespace G_Hoover.Services.Browsing
 
         public async Task ResolveCaptcha()
         {
+            AudioTrials = 0;
+
             CheckClickerConditions();
 
             await _scrapService.TurnOffAlerts(WebBrowser);
@@ -238,12 +246,61 @@ namespace G_Hoover.Services.Browsing
             }
             else
             {
+                Pause(); //if paused
+
                 await _scrapService.ClickCheckboxIcon(ClickerInput);
+
+                Pause(); //if paused
+
+                await Task.Delay(5000); //wait for pics to load JS pics
 
                 await _scrapService.ClickAudioChallangeIcon(ClickerInput);
 
-                //solve audio challenge RozwiarzAudioChallengeAsync
+                await ResolveAudioChallengeAsync();
             }
+        }
+
+        public async Task ResolveAudioChallengeAsync()
+        {
+            Pause(); //if paused
+
+            await Task.Delay(5000); //wait to load JS window
+
+            bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+            if (isCaptcha)
+            {
+                if (AudioTrials == _audioTrialsLimit)
+                {
+                    if (SearchViaTor)
+                    {
+                        _connectionService.GetNewBrowsingIp(WebBrowser);
+                    }
+                    else
+                    {
+                        ChangeConnectionType(WebBrowser);
+                    }
+                }
+                else
+                {
+                    await RecordAudioSampleAsync();
+
+                    AudioTrials++;
+                }
+            }
+            else
+            {
+                //log that no more captcha
+            }
+        }
+
+        public async Task RecordAudioSampleAsync()
+        {
+            string key = ""; //TODO: key from App.config
+
+            await _scrapService.ClickPlayIcon(ClickerInput);
+
+            await _audioService.RecordAudioSample(key);
         }
 
         public async Task<bool> GetAndSaveResultAsync()
@@ -301,7 +358,7 @@ namespace G_Hoover.Services.Browsing
             return result;
         }
 
-        public async Task<bool> CheckResultPageAsync()
+        public async Task<bool> CheckForCaptcha()
         {
             bool loadingPage = true;
             bool isCaptcha = false;

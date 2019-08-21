@@ -39,6 +39,11 @@ namespace G_Hoover.Services.Input
             await MouseLeftButtonClick(83, 212);
         }
 
+        public async Task ClickPlayInputAsync()
+        {
+            await MouseLeftButtonClick(300, 200);
+        }
+
         public async Task MouseLeftButtonClick(int posX, int posY)
         {
             //add randomity

@@ -51,7 +51,7 @@ namespace G_Hoover.Services.Scrap
         {
             if (!clickerInput)
             {
-                //not applicable yet
+                //TODO: find the way to do it with JS
             }
             else
             {
@@ -63,11 +63,23 @@ namespace G_Hoover.Services.Scrap
         {
             if (!clickerInput)
             {
-                //not applicable yet
+                //TODO: find the way to do it with JS
             }
             else
             {
                 await _inputService.ClickCheckboxInputAsync();
+            }
+        }
+
+        public async Task ClickPlayIcon(bool clickerInput)
+        {
+            if (!clickerInput)
+            {
+                //TODO: find the way to do it with JS
+            }
+            else
+            {
+                await _inputService.ClickPlayInputAsync();
             }
         }
 
@@ -83,7 +95,7 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //input clicks -> cancellation token?
+                    //TODO: input clicks -> cancellation token?
                 }
             }
             catch (Exception e)
@@ -104,7 +116,7 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //input clicks -> cancellation token?
+                    //TODO: input clicks -> cancellation token?
                 }
             }
             catch (Exception e)

@@ -13,5 +13,6 @@ namespace G_Hoover.Services.Scrap
         Task TurnOffAlerts(IWpfWebBrowser webBrowser);
         Task ClickCheckboxIcon(bool clickerInput);
         Task ClickAudioChallangeIcon(bool clickerInput);
+        Task ClickPlayIcon(bool clickerInput);
     }
 }
