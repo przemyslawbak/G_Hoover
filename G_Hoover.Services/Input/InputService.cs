@@ -23,7 +23,7 @@ namespace G_Hoover.Services.Input
             _rndX = new Random();
             _rndY = new Random();
             _corrX = 0;
-            _corrY = 0;
+            _corrY = 55;
         }
 
         [DllImport("User32.dll")]

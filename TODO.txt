@@ -1,4 +1,7 @@
-tomorrow: ResolveCaptcha ctd.
+tomorrow:
+	    //ifs for audioResult:
+            //- get new audio challenge (input klicks)
+            //- send result (input klicks)
 
 //input clicks in ScrapService
 
@@ -40,3 +43,5 @@ remove ShowDialog<PhraseView>
 logging with  private void LogError("Incorrect phrase."); etc
 
 JS input for clicking recaptcha??
+
+phrase builder replace " with \"

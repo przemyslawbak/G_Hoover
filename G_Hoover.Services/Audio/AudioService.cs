@@ -28,32 +28,33 @@ namespace G_Hoover.Services.Audio
 
         public async Task RecordAudioSampleAsync()
         {
-            _capture = new WasapiLoopbackCapture();
-
-            _recordFileTimer.Elapsed += new ElapsedEventHandler(OnFinishedRecordingEvent);
-            _recordFileTimer.Interval = 8000; //recording period
-
-            try
+            using (_capture = new WasapiLoopbackCapture())
             {
-                _capture.Initialize();
-                _writer = _fileService.CreateNewWaveWriter(_capture); //need to have _capture initialized
-                _capture.DataAvailable += (s, e) =>
+                _recordFileTimer.Elapsed += new ElapsedEventHandler(OnFinishedRecordingEvent);
+                _recordFileTimer.Interval = 8000; //recording period
+
+                try
                 {
-                    _writer.Write(e.Data, e.Offset, e.ByteCount); //saving recorded audio sample
-                };
+                    _capture.Initialize();
+                    _writer = _fileService.CreateNewWaveWriter(_capture); //need to have _capture initialized
+                    _capture.DataAvailable += (s, e) =>
+                    {
+                        _writer.Write(e.Data, e.Offset, e.ByteCount); //saving recorded audio sample
+                    };
 
-                _capture.Start(); //start recording
+                    _capture.Start(); //start recording
 
-                _recordFileTimer.Enabled = true;
+                    _recordFileTimer.Enabled = true;
 
-                while (_recordFileTimer.Enabled)
-                {
-                    await Task.Delay(100);
+                    while (_recordFileTimer.Enabled)
+                    {
+                        await Task.Delay(100);
+                    }
                 }
-            }
-            catch
-            {
-                //log
+                catch
+                {
+                    //log
+                }
             }
         }
 
@@ -64,7 +65,6 @@ namespace G_Hoover.Services.Audio
             _recordFileTimer.Enabled = false; //timer disabled
 
             _writer.Dispose();
-            _capture.Dispose();
         }
 
         public async Task<string> ProcessAudioSampleAsync()
