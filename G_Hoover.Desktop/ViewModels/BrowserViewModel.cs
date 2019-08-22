@@ -127,9 +127,17 @@ namespace G_Hoover.Desktop.ViewModels
             var settings = new OpenFileDialogSettings
             {
                 Title = "This Is The Title",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
             };
+
+            if (!string.IsNullOrEmpty(FilePath) && !string.IsNullOrWhiteSpace(FilePath))
+            {
+                settings.InitialDirectory = FilePath;
+            }
+            else
+            {
+                settings.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            }
 
             bool? success = _dialogService.ShowOpenFileDialog(this, settings);
             if (success == true)
