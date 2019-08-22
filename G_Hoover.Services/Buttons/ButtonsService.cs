@@ -228,5 +228,23 @@ namespace G_Hoover.Services.Buttons
                 _logger.Error(MessagesError[callerName] + e.Message); //log
             }
         }
+
+        public void ExecuteClickerChangeButton()
+        {
+            string callerName = nameof(ExecuteClickerChangeButton);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                _browseService.ClickerChange();
+
+                _logger.Info(MessagesResult[callerName]); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+        }
     }
 }

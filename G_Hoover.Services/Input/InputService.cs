@@ -116,10 +116,6 @@ namespace G_Hoover.Services.Input
 
             SetCursorPos(posX + randX + _corrX, posY + randY + _corrY); //move to x-y
 
-            Pause(); //if paused
-
-            await Task.Delay(1000);
-
             _simulator.Mouse.LeftButtonClick(); //click l.btn
         }
 

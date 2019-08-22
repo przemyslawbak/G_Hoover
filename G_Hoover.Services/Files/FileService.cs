@@ -141,14 +141,7 @@ namespace G_Hoover.Services.Files
 
         public bool CheckAudioFile()
         {
-            if (new FileInfo(_audioFile).Length > 10000)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (new FileInfo(_audioFile).Length > 10000) ? true : false;
         }
 
         public string GetAudioFilePath()

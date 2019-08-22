@@ -12,5 +12,6 @@ namespace G_Hoover.Services.Browsing
         void UpdateSearchPhrase(string searchPhrase);
         void ChangeConnectionType(IWpfWebBrowser webBrowser);
         void SaveFilePath(string filePath);
+        void ClickerChange();
     }
 }

@@ -27,6 +27,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], MethodList[9] + " called. ");
             messages.Add(MethodList[10], MethodList[10] + " called. ");
             messages.Add(MethodList[11], MethodList[11] + " called. ");
+            messages.Add(MethodList[12], MethodList[12] + " called. ");
 
             return messages;
         }
@@ -46,6 +47,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], MethodList[9] + " completed. ");
             messages.Add(MethodList[10], MethodList[10] + " completed. ");
             messages.Add(MethodList[11], MethodList[11] + " completed. ");
+            messages.Add(MethodList[12], MethodList[12] + " completed. ");
 
             return messages;
         }
@@ -65,6 +67,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], MethodList[9] + " empty string. ");
             messages.Add(MethodList[10], MethodList[10] + " completed. ");
             messages.Add(MethodList[11], MethodList[11] + " completed. ");
+            messages.Add(MethodList[12], MethodList[12] + " exception. ");
 
             return messages;
         }
@@ -84,6 +87,7 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], "");
             messages.Add(MethodList[10], "");
             messages.Add(MethodList[11], "");
+            messages.Add(MethodList[12], "");
 
             return messages;
         }

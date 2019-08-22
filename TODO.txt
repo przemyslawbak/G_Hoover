@@ -1,3 +1,19 @@
+TOMORROW:
+- disble mouse for ClickerInput and not paused
+https://stackoverflow.com/a/30262594/8532173
+https://stackoverflow.com/a/586606/8532173
+
+- not allow to minimalize when running and clickerinput
+https://stackoverflow.com/questions/17433745/make-the-window-always-maximized
+
+--
+
+testing: async (sender, args) - not anonymus??
+
+how to update Network, Clicker, Status in VM??
+
+move out _controlsService & _config from VM
+
 validate file txt + rows
 
 InitializeBrowser <- async void / Task
@@ -6,34 +22,16 @@ Current status -> event handler(??)
 
 browser -> display records how many / of total
 
-save file path, phraseno -> load file at startup
-
-log methods in VM?
-
-add messages in VM, messages in service methods
+logging with  private void LogError(); etc. logs property changes in separate service?? log methods in VM?? sort out logging!
 
 ScrapService when collecting URL, take anchor instead of string??
 
 manage save result file -> deleting
 
-disble mouse for ClickerInput
-
 get new IP button
-
-remove ShowDialog<PhraseView>
-
-logging with  private void LogError("Incorrect phrase."); etc
 
 JS input for clicking recaptcha??
 
 phrase builder replace " with \"
 
-logs property changes in separate service??
-
-when stopped, what to do for exec <KeyBinding Command="{Binding Path=PauseCommand}"??
-
-testing: async (sender, args) - not anonymus??
-
-how to update Network, Clicker, Status in VM??
-
-move out _controlsService & _config from VM
+key shortcuts??

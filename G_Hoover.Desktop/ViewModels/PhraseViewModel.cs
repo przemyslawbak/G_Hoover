@@ -88,10 +88,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void Ok(object obj)
         {
-            if (!string.IsNullOrEmpty(Text))
-            {
-                DialogResult = true;
-            }
+            DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
         }
     }
 }

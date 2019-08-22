@@ -44,6 +44,7 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_browseService.GetNewRecordAsync)); //9
             methods.Add(nameof(_browseService.CheckForCaptchaAsync)); //10
             methods.Add(nameof(_buttonsService.ExecuteConnectionButtonAsync)); //11
+            methods.Add(nameof(_buttonsService.ExecuteClickerChangeButton)); //12
 
             return methods;
         }

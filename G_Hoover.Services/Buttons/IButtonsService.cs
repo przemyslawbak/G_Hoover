@@ -12,5 +12,6 @@ namespace G_Hoover.Services.Buttons
         Task<List<string>> ExecuteUploadButtonAsync(string filePath);
         void ExecuteBuildButton(string searchPhrase);
         Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused);
+        void ExecuteClickerChangeButton();
     }
 }

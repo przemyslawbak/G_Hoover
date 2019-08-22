@@ -85,41 +85,51 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task OnStartCommandAsync()
         {
-            await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase, Paused);
+            if (UiButtonsEnabled)
+                await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase, Paused);
         }
 
         public void OnBuildCommand(object obj)
         {
-            SearchPhrase = ShowDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
-
-            _buttonService.ExecuteBuildButton(SearchPhrase);
+            if (UiButtonsEnabled)
+            {
+                SearchPhrase = ShowDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
+                _buttonService.ExecuteBuildButton(SearchPhrase);
+            }
         }
 
         public async Task OnUploadCommandAsync()
         {
-            FilePath = GetFilePath();
+            if (UiButtonsEnabled)
+            {
+                FilePath = GetFilePath();
+                NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
+            }
 
-            NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
         }
 
         public void OnPauseCommand(object obj)
         {
-            _buttonService.ExecutePauseButton(Paused);
+            if (PauseBtnEnabled)
+                _buttonService.ExecutePauseButton(Paused);
         }
 
         public void OnStopCommand(object obj)
         {
-            _buttonService.ExecuteStopButton();
+            if (StopBtnEnabled)
+                _buttonService.ExecuteStopButton();
         }
 
         public void OnClickerChangeCommand(object obj)
         {
-            throw new NotImplementedException();
+            if (UiButtonsEnabled)
+                _buttonService.ExecuteClickerChangeButton();
         }
 
         public async Task OnConnectionChangeCommandAsync()
         {
-            await _buttonService.ExecuteConnectionButtonAsync(WebBrowser, Paused);
+            if (UiButtonsEnabled)
+                await _buttonService.ExecuteConnectionButtonAsync(WebBrowser, Paused);
         }
 
         public string GetFilePath()
@@ -130,24 +140,11 @@ namespace G_Hoover.Desktop.ViewModels
                 Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
             };
 
-            if (!string.IsNullOrEmpty(FilePath) && !string.IsNullOrWhiteSpace(FilePath))
-            {
-                settings.InitialDirectory = FilePath;
-            }
-            else
-            {
-                settings.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            }
+            settings.InitialDirectory = (!string.IsNullOrEmpty(FilePath) && !string.IsNullOrWhiteSpace(FilePath)) ? FilePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             bool? success = _dialogService.ShowOpenFileDialog(this, settings);
-            if (success == true)
-            {
-                return settings.FileName;
-            }
-            else
-            {
-                return string.Empty;
-            }
+
+            return success == true ? settings.FileName : string.Empty;
         }
 
         public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
@@ -155,14 +152,8 @@ namespace G_Hoover.Desktop.ViewModels
             var dialogViewModel = new PhraseViewModel(SearchPhrase);
 
             bool? success = showDialog(dialogViewModel);
-            if (success == true)
-            {
-                return dialogViewModel.Text;
-            }
-            else
-            {
-                return string.Empty;
-            }
+
+            return success == true ? dialogViewModel.Text : string.Empty;
         }
 
         public ICommand StartCommand { get; private set; }

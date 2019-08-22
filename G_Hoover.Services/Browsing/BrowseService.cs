@@ -72,7 +72,6 @@ namespace G_Hoover.Services.Browsing
         public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
         public bool SearchViaTor { get; set; } //if Tor network in use
         public bool LoadingPage { get; set; } //if page is now loading
-        public bool IsCaptcha { get; set; }
         public bool InputCorrection { get; set; } //if need to add correction for input
 
         private int _phraseNo;
@@ -145,8 +144,6 @@ namespace G_Hoover.Services.Browsing
 
             if (NameList.Count > PhraseNo)
             {
-                AudioTrials = 0;
-
                 InputCorrection = false;
 
                 await GetNewRecordAsync();
@@ -166,7 +163,6 @@ namespace G_Hoover.Services.Browsing
         {
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
             LoadingPage = true;
-            IsCaptcha = false;
             HowManySearches++;
 
             WebBrowser.Load("https://www.google.com/");
@@ -189,11 +185,11 @@ namespace G_Hoover.Services.Browsing
 
                         Pause(); //if paused
 
-                        IsCaptcha = await CheckForCaptchaAsync();
+                        bool isCaptcha = await CheckForCaptchaAsync();
 
                         Pause(); //if paused
 
-                        if (!IsCaptcha)
+                        if (!isCaptcha)
                         {
                             await GetAndSaveResultAsync();
                         }
@@ -236,7 +232,7 @@ namespace G_Hoover.Services.Browsing
 
         public async Task ResolveCaptchaAsync()
         {
-            AudioTrials = 0;
+           AudioTrials = 0;
 
             VerifyClickerInput();
 
@@ -256,9 +252,9 @@ namespace G_Hoover.Services.Browsing
 
                 await Task.Delay(5000); //wait for pics to load JS pics
 
-                IsCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+                bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
-                if (IsCaptcha)
+                if (isCaptcha)
                 {
                     await _scrapService.ClickAudioChallangeIconAsync(ClickerInput);
 
@@ -273,9 +269,8 @@ namespace G_Hoover.Services.Browsing
 
         public void GetNewIp()
         {
-            HowManySearches = 0;
-
             _connectionService.GetNewBrowsingIp(WebBrowser);
+            HowManySearches = 0;
         }
 
         public async Task ResolveAudioChallengeAsync()
@@ -284,9 +279,9 @@ namespace G_Hoover.Services.Browsing
 
             await Task.Delay(5000); //wait to load JS window
 
-            IsCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+            bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
-            if (IsCaptcha)
+            if (isCaptcha)
             {
                 if (AudioTrials == _audioTrialsLimit)
                 {
@@ -355,9 +350,9 @@ namespace G_Hoover.Services.Browsing
 
             await Task.Delay(6000); //wait for audio challenge result
 
-            IsCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+            bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
-            if (IsCaptcha)
+            if (isCaptcha)
             {
                 InputCorrection = true;
 
@@ -404,6 +399,8 @@ namespace G_Hoover.Services.Browsing
         {
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
+
+            VerifyClickerInput();
         }
 
         public void ResolveEmptyString()
@@ -531,6 +528,11 @@ namespace G_Hoover.Services.Browsing
             {
                 _config.SaveFilePath(filePath);
             }
+        }
+
+        public void ClickerChange()
+        {
+            ClickerInput = ClickerInput ? false : true;
         }
     }
 }
