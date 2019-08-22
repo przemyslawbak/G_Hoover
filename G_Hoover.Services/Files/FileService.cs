@@ -9,6 +9,7 @@ using G_Hoover.Models;
 using CSCore.Codecs.WAV;
 using CSCore.SoundIn;
 using Microsoft.CognitiveServices.Speech.Audio;
+using System.Text.RegularExpressions;
 
 namespace G_Hoover.Services.Files
 {
@@ -167,7 +168,7 @@ namespace G_Hoover.Services.Files
             MessagesResult = obj.MessagesResult;
         }
 
-        public async Task SaveNewResult(ResultObjectModel result, string phrase)
+        public async Task SaveNewResultAsync(ResultObjectModel result, string phrase)
         {
             string stringResult = CombineStringResult(result, phrase);
 
@@ -216,6 +217,11 @@ namespace G_Hoover.Services.Files
         public string GetAudioFilePath()
         {
             return _audioFile;
+        }
+
+        public string ProsessText(string audioResult)
+        {
+            return Regex.Replace(audioResult.ToLower(), @"[.?!,]", "");
         }
     }
 }

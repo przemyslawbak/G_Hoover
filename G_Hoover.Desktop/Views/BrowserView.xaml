@@ -24,6 +24,10 @@
             <BitmapImage x:Key="builder" UriSource="pack://siteoforigin:,,,/Resources/builder.png" />
         </ResourceDictionary>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=PauseCommand}"
+                Key="Space"/>
+    </Window.InputBindings>
     <Grid>
         <!-- Definicja wierszy i kolumn dla panelu Grid-->
         <Grid.RowDefinitions>

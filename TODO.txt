@@ -45,3 +45,7 @@ logging with  private void LogError("Incorrect phrase."); etc
 JS input for clicking recaptcha??
 
 phrase builder replace " with \"
+
+logs property changes in separate service??
+
+when stopped, what to do for exec <KeyBinding Command="{Binding Path=PauseCommand}"??

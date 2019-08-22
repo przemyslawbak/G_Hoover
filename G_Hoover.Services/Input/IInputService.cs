@@ -5,7 +5,11 @@ namespace G_Hoover.Services.Input
     public interface IInputService
     {
         Task ClickCheckboxInputAsync();
-        Task AudioChallangeInputAsync();
-        Task ClickPlayInputAsync();
+        Task ClickAudioChallangeInputAsync();
+        Task ClickPlayInputAsync(bool inputCorrection);
+        Task ClickNewAudioChallengeInputAsync(bool inputCorrection);
+        Task ClickTextBoxInputAsync();
+        Task EnterResulInputAsync(string audioResult);
+        Task ClickSendResultInputAsync();
     }
 }

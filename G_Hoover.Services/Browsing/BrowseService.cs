@@ -72,6 +72,7 @@ namespace G_Hoover.Services.Browsing
         public bool SearchViaTor { get; set; } //if Tor network in use
         public bool LoadingPage { get; set; } //if page is now loading
         public bool IsCaptcha { get; set; }
+        public bool InputCorrection { get; set; } //if need to add correction for input
 
         private bool _clickerInput;
         public bool ClickerInput //if click by input simulation
@@ -135,6 +136,8 @@ namespace G_Hoover.Services.Browsing
             {
                 AudioTrials = 0;
 
+                InputCorrection = false;
+
                 await GetNewRecordAsync();
 
                 await LoopCollectingAsync(); //loop
@@ -174,7 +177,7 @@ namespace G_Hoover.Services.Browsing
 
                         Pause(); //if paused
 
-                        IsCaptcha = await CheckForCaptcha();
+                        IsCaptcha = await CheckForCaptchaAsync();
 
                         Pause(); //if paused
 
@@ -197,7 +200,7 @@ namespace G_Hoover.Services.Browsing
 
                             ClickerInput = true;
 
-                            await ResolveCaptcha();
+                            await ResolveCaptchaAsync();
 
                             if (!IsCaptcha) //if no need to solve captcha anymore
                             {
@@ -214,11 +217,6 @@ namespace G_Hoover.Services.Browsing
                     finally
                     {
                         LoadingPage = false;
-
-                        if (isResult)
-                        {
-                            PhraseNo++; //move to the next phrase
-                        }
                     }
                 }
             };
@@ -229,13 +227,13 @@ namespace G_Hoover.Services.Browsing
                 await Task.Delay(50); //if still crawling
         }
 
-        public async Task ResolveCaptcha()
+        public async Task ResolveCaptchaAsync()
         {
             AudioTrials = 0;
 
             VerifyClickerInput();
 
-            await _scrapService.TurnOffAlerts(WebBrowser);
+            await _scrapService.TurnOffAlertsAsync(WebBrowser);
 
             if (SearchViaTor && HowManySearches == _torSearchesCaptchaLimit)
             {
@@ -251,9 +249,14 @@ namespace G_Hoover.Services.Browsing
 
                 await Task.Delay(5000); //wait for pics to load JS pics
 
-                await _scrapService.ClickAudioChallangeIcon(ClickerInput);
+                IsCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
-                await ResolveAudioChallengeAsync();
+                if (IsCaptcha)
+                {
+                    await _scrapService.ClickAudioChallangeIconAsync(ClickerInput);
+
+                    await ResolveAudioChallengeAsync();
+                }
             }
         }
 
@@ -301,15 +304,69 @@ namespace G_Hoover.Services.Browsing
 
         public async Task RecordAndProcessAudioAsync()
         {
-            await _scrapService.ClickPlayIcon(ClickerInput);
+            Pause(); //if paused
+
+            await _scrapService.ClickPlayIconAsync(ClickerInput, InputCorrection);
 
             await _audioService.RecordAudioSampleAsync();
 
             string audioResult = await _audioService.ProcessAudioSampleAsync();
 
-            //ifs for audioResult:
-            //- get new audio challenge (input klicks)
-            //- send result (input klicks)
+            if (string.IsNullOrEmpty(audioResult))
+            {
+                //log
+
+                await MakeNewAudioChallengeAsync();
+            }
+            else
+            {
+                //log
+
+                await SendAudioResultAsync(audioResult);
+            }
+        }
+
+        public async Task SendAudioResultAsync(string audioResult)
+        {
+            audioResult = _fileService.ProsessText(audioResult);
+
+            Pause(); //if paused
+
+            await _scrapService.ClickTextBoxAsync(ClickerInput);
+
+            Pause(); //if paused
+
+            await _scrapService.EnterResultAsync(ClickerInput, audioResult);
+
+            Pause(); //if paused
+
+            await _scrapService.ClickSendResultAsync(ClickerInput, audioResult);
+
+            await Task.Delay(6000); //wait for audio challenge result
+
+            IsCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+            if (IsCaptcha)
+            {
+                InputCorrection = true;
+
+                await ResolveAudioChallengeAsync();
+            }
+            else
+            {
+                await GetAndSaveResultAsync();
+            }
+        }
+
+        public async Task MakeNewAudioChallengeAsync()
+        {
+            InputCorrection = false;
+
+            Pause(); //if paused
+
+            await _scrapService.ClickNewAudioChallengeAsync(ClickerInput, InputCorrection);
+
+            await RecordAndProcessAudioAsync();
         }
 
         public async Task<bool> GetAndSaveResultAsync()
@@ -326,7 +383,9 @@ namespace G_Hoover.Services.Browsing
             }
             else
             {
-                await _fileService.SaveNewResult(result, NameList[PhraseNo]);
+                await _fileService.SaveNewResultAsync(result, NameList[PhraseNo-1]);
+
+                PhraseNo++; //move to the next phrase
 
                 return true;
             }
@@ -361,13 +420,13 @@ namespace G_Hoover.Services.Browsing
             ResultObjectModel result = new ResultObjectModel
             {
                 Header = await _scrapService.GetHeaderAsync(WebBrowser),
-                Url = await _scrapService.GetUrl(WebBrowser)
+                Url = await _scrapService.GetUrlAsync(WebBrowser)
             };
 
             return result;
         }
 
-        public async Task<bool> CheckForCaptcha()
+        public async Task<bool> CheckForCaptchaAsync()
         {
             bool loadingPage = true;
             bool isCaptcha = false;
@@ -436,6 +495,13 @@ namespace G_Hoover.Services.Browsing
         public void UpdateSearchPhrase(string searchPhrase)
         {
             SearchPhrase = searchPhrase;
+        }
+
+        private void SetPhraseNo(int wantedPhrase)
+        {
+            //log
+
+            PhraseNo = wantedPhrase;
         }
     }
 }

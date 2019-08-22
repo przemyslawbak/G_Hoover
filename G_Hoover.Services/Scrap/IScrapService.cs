@@ -9,10 +9,14 @@ namespace G_Hoover.Services.Scrap
         Task CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser);
         Task<bool> CheckForRecaptchaAsync(IWpfWebBrowser webBrowser);
         Task<string> GetHeaderAsync(IWpfWebBrowser webBrowser);
-        Task<string> GetUrl(IWpfWebBrowser webBrowser);
-        Task TurnOffAlerts(IWpfWebBrowser webBrowser);
+        Task<string> GetUrlAsync(IWpfWebBrowser webBrowser);
+        Task TurnOffAlertsAsync(IWpfWebBrowser webBrowser);
         Task ClickCheckboxIcon(bool clickerInput);
-        Task ClickAudioChallangeIcon(bool clickerInput);
-        Task ClickPlayIcon(bool clickerInput);
+        Task ClickAudioChallangeIconAsync(bool clickerInput);
+        Task ClickPlayIconAsync(bool clickerInput, bool inputCorrection);
+        Task ClickNewAudioChallengeAsync(bool clickerInput, bool inputCorrection);
+        Task ClickTextBoxAsync(bool clickerInput);
+        Task EnterResultAsync(bool clickerInput, string audioResult);
+        Task ClickSendResultAsync(bool clickerInput, string audioResult);
     }
 }
