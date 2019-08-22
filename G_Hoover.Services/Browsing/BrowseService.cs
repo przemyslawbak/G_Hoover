@@ -118,8 +118,6 @@ namespace G_Hoover.Services.Browsing
             finally
             {
                 StopTokenSource.Dispose();
-
-                PhraseNo = 0;
             }
 
             StopTokenSource = null;
@@ -145,6 +143,8 @@ namespace G_Hoover.Services.Browsing
             else
             {
                 CancelCollectData();
+
+                _controlsService.GetStoppedConfiguration();
                 //finish
             }
         }
@@ -183,7 +183,7 @@ namespace G_Hoover.Services.Browsing
 
                         if (!IsCaptcha)
                         {
-                            isResult = await GetAndSaveResultAsync();
+                            await GetAndSaveResultAsync();
                         }
                         else
                         {
@@ -201,11 +201,6 @@ namespace G_Hoover.Services.Browsing
                             ClickerInput = true;
 
                             await ResolveCaptchaAsync();
-
-                            if (!IsCaptcha) //if no need to solve captcha anymore
-                            {
-                                isResult = await GetAndSaveResultAsync();
-                            }
 
                             ClickerInput = false;
                         }
@@ -256,6 +251,10 @@ namespace G_Hoover.Services.Browsing
                     await _scrapService.ClickAudioChallangeIconAsync(ClickerInput);
 
                     await ResolveAudioChallengeAsync();
+                }
+                else
+                {
+                    await GetAndSaveResultAsync();
                 }
             }
         }
@@ -354,7 +353,7 @@ namespace G_Hoover.Services.Browsing
             }
             else
             {
-                await GetAndSaveResultAsync();
+                //log
             }
         }
 
@@ -369,7 +368,7 @@ namespace G_Hoover.Services.Browsing
             await RecordAndProcessAudioAsync();
         }
 
-        public async Task<bool> GetAndSaveResultAsync()
+        public async Task GetAndSaveResultAsync()
         {
             ResultObjectModel result = new ResultObjectModel();
 
@@ -378,16 +377,12 @@ namespace G_Hoover.Services.Browsing
             if (string.IsNullOrEmpty(result.Url) && string.IsNullOrEmpty(result.Header))
             {
                 ResolveEmptyString();
-
-                return false;
             }
             else
             {
-                await _fileService.SaveNewResultAsync(result, NameList[PhraseNo-1]);
+                await _fileService.SaveNewResultAsync(result, NameList[PhraseNo]);
 
                 PhraseNo++; //move to the next phrase
-
-                return true;
             }
         }
 
@@ -482,6 +477,11 @@ namespace G_Hoover.Services.Browsing
             Paused = obj.Paused;
             Stopped = obj.Stopped;
             PleaseWaitVisible = obj.PleaseWaitVisible;
+
+            if (Stopped)
+            {
+                PhraseNo = 0;
+            }
         }
 
         public void CancelCollectData()
@@ -495,13 +495,6 @@ namespace G_Hoover.Services.Browsing
         public void UpdateSearchPhrase(string searchPhrase)
         {
             SearchPhrase = searchPhrase;
-        }
-
-        private void SetPhraseNo(int wantedPhrase)
-        {
-            //log
-
-            PhraseNo = wantedPhrase;
         }
     }
 }
