@@ -9,6 +9,7 @@
 **/result.txt
 **/Tor.dll
 **/App.config
+**/dump.wav
 
 #Google API
 *.AndroidManifest.xml
