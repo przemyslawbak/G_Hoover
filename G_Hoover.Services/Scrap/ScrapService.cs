@@ -111,7 +111,7 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //TODO: input clicks -> cancellation token?
+                    await _inputService.ClickSearchButtonInputAsync();
                 }
             }
             catch (Exception e)
@@ -132,7 +132,9 @@ namespace G_Hoover.Services.Scrap
                 }
                 else
                 {
-                    //TODO: input clicks -> cancellation token?
+                    await _inputService.ClickSearchBarInputAsync();
+
+                    await _inputService.EnterPhraseInputAsync(phrase);
                 }
             }
             catch (Exception e)
@@ -230,60 +232,5 @@ namespace G_Hoover.Services.Scrap
 
             return isCaptcha;
         }
-
-        /*
-        public async Task<int> FindIndex(IWpfWebBrowser webBrowser)
-        {
-            int index = 0;
-
-            Task<JavascriptResponse> verifyWarning = webBrowser.EvaluateScriptAsync(@"
-			(function() {
-				const arr = document.getElementsByTagName('body')[1].innerHTML;
-                        { return arr.indexOf('Your computer or network may be'); }
-				}
-			)();");
-
-            await verifyWarning.ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
-                {
-                    var response = t.Result;
-                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
-                    index = Convert.ToInt16(response.Result);
-                }
-            }
-            );
-
-            return index;
-        }
-
-        public async Task<bool> CheckForWarning(IWpfWebBrowser webBrowser)
-        {
-            bool isWarning = false;
-
-            Task<JavascriptResponse> verifyWarning = webBrowser.EvaluateScriptAsync(@"
-			(function() {
-                    var result = document.getElementsByTagName('html');
-                    for (i = 0; i < arr.length; ++i) {
-					item = arr[i].innerHTML;
-                    if (item.indexOf('Our systems have detected') > -1)
-                        { return true; }
-					}
-			})();");
-
-            await verifyWarning.ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
-                {
-                    var response = t.Result;
-                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
-                    isWarning = Convert.ToBoolean(response.Result);
-                }
-            }
-            );
-
-            return isWarning;
-        }
-        */
     }
 }

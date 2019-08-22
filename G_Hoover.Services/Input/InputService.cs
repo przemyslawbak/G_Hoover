@@ -79,16 +79,29 @@ namespace G_Hoover.Services.Input
             await MouseLeftButtonClick(329, 280);
         }
 
-        public async Task EnterResulInputAsync(string audioResult)
-        {
-            await Task.Delay(1000);
-
-            _simulator.Keyboard.TextEntry(audioResult);
-        }
-
         public async Task ClickSendResultInputAsync()
         {
             await MouseLeftButtonClick(450, 433);
+        }
+
+        public async Task ClickSearchBarInputAsync()
+        {
+            await MouseLeftButtonClick(820, 565);
+        }
+
+        public async Task ClickSearchButtonInputAsync()
+        {
+            await MouseLeftButtonClick(850, 670);
+        }
+
+        public async Task EnterResulInputAsync(string audioResult)
+        {
+            await KeyboardTextInput(audioResult);
+        }
+
+        public async Task EnterPhraseInputAsync(string phrase)
+        {
+            await KeyboardTextInput(phrase);
         }
 
         public async Task MouseLeftButtonClick(int posX, int posY)
@@ -108,6 +121,13 @@ namespace G_Hoover.Services.Input
             await Task.Delay(1000);
 
             _simulator.Mouse.LeftButtonClick(); //click l.btn
+        }
+
+        public async Task KeyboardTextInput(string text)
+        {
+            await Task.Delay(1000);
+
+            _simulator.Keyboard.TextEntry(text);
         }
 
         public void Pause()

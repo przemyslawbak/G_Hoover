@@ -11,5 +11,8 @@ namespace G_Hoover.Services.Input
         Task ClickTextBoxInputAsync();
         Task EnterResulInputAsync(string audioResult);
         Task ClickSendResultInputAsync();
+        Task ClickSearchBarInputAsync();
+        Task EnterPhraseInputAsync(string phrase);
+        Task ClickSearchButtonInputAsync();
     }
 }

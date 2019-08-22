@@ -152,7 +152,6 @@ namespace G_Hoover.Services.Browsing
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
             LoadingPage = true;
             IsCaptcha = false;
-            bool isResult = false;
             HowManySearches++;
 
             WebBrowser.Load("https://www.google.com/");
@@ -352,6 +351,8 @@ namespace G_Hoover.Services.Browsing
             else
             {
                 //log
+
+                await GetAndSaveResultAsync();
             }
         }
 

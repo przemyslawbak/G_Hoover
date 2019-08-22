@@ -1,8 +1,3 @@
-tomorrow:
-	    //ifs for audioResult:
-            //- get new audio challenge (input klicks)
-            //- send result (input klicks)
-
 //input clicks in ScrapService
 
 if captcha:
