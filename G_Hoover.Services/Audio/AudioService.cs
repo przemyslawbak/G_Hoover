@@ -5,7 +5,6 @@ using G_Hoover.Services.Files;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech.Intent;
-using System;
 using System.Threading.Tasks;
 using System.Timers;
 

@@ -8,7 +8,6 @@ using System.Text;
 using G_Hoover.Models;
 using CSCore.Codecs.WAV;
 using CSCore.SoundIn;
-using Microsoft.CognitiveServices.Speech.Audio;
 using System.Text.RegularExpressions;
 
 namespace G_Hoover.Services.Files

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using G_Hoover.Events;
 using G_Hoover.Models;
-using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using NLog;
