@@ -15,13 +15,13 @@ namespace G_Hoover.Services.Audio
         private WasapiCapture _capture;
         private WaveWriter _writer;
         private readonly IFileService _fileService;
-        private readonly AppConfig _config;
+        private readonly IAppConfig _config;
         private readonly Timer _recordFileTimer;
 
-        public AudioService(IFileService fileService)
+        public AudioService(IFileService fileService, IAppConfig config)
         {
             _fileService = fileService;
-            _config = new AppConfig();
+            _config = config;
             _recordFileTimer = new Timer();
         }
 

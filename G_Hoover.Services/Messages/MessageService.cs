@@ -27,8 +27,6 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], MethodList[9] + " called. ");
             messages.Add(MethodList[10], MethodList[10] + " called. ");
             messages.Add(MethodList[11], MethodList[11] + " called. ");
-            messages.Add(MethodList[12], MethodList[12] + " called. ");
-            messages.Add(MethodList[13], MethodList[13] + " called. ");
 
             return messages;
         }
@@ -48,8 +46,6 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], MethodList[9] + " completed. ");
             messages.Add(MethodList[10], MethodList[10] + " completed. ");
             messages.Add(MethodList[11], MethodList[11] + " completed. ");
-            messages.Add(MethodList[12], MethodList[12] + " completed. ");
-            messages.Add(MethodList[13], MethodList[13] + " completed. ");
 
             return messages;
         }
@@ -65,12 +61,10 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[5], MethodList[5] + " exception. ");
             messages.Add(MethodList[6], MethodList[6] + " exception. ");
             messages.Add(MethodList[7], MethodList[7] + " exception. ");
-            messages.Add(MethodList[8], MethodList[8] + " exception. ");
-            messages.Add(MethodList[9], MethodList[9] + " exception. ");
-            messages.Add(MethodList[10], MethodList[10] + " empty string. ");
-            messages.Add(MethodList[11], MethodList[11] + " empty string. ");
-            messages.Add(MethodList[12], MethodList[12] + " completed. ");
-            messages.Add(MethodList[13], MethodList[13] + " completed. ");
+            messages.Add(MethodList[8], MethodList[8] + " empty string. ");
+            messages.Add(MethodList[9], MethodList[9] + " empty string. ");
+            messages.Add(MethodList[10], MethodList[10] + " completed. ");
+            messages.Add(MethodList[11], MethodList[11] + " completed. ");
 
             return messages;
         }
@@ -90,8 +84,6 @@ namespace G_Hoover.Services.Messages
             messages.Add(MethodList[9], "");
             messages.Add(MethodList[10], "");
             messages.Add(MethodList[11], "");
-            messages.Add(MethodList[12], "");
-            messages.Add(MethodList[13], "");
 
             return messages;
         }

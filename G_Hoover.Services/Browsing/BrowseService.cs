@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using CefSharp;
@@ -7,6 +8,7 @@ using CefSharp.Wpf;
 using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Audio;
+using G_Hoover.Services.Config;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
@@ -19,6 +21,7 @@ namespace G_Hoover.Services.Browsing
 {
     public class BrowseService : IBrowseService
     {
+        private readonly AppConfig _config;
         private readonly Logger _logger;
         private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
@@ -40,6 +43,7 @@ namespace G_Hoover.Services.Browsing
             IConnectionService connectionService,
             IAudioService audioService)
         {
+            _config = new AppConfig();
             _logger = LogManager.GetCurrentClassLogger();
             _messageService = messageService;
             _controlsService = controlsService;
@@ -56,7 +60,6 @@ namespace G_Hoover.Services.Browsing
         public Dictionary<string, string> MessagesError { get; set; }
         public Dictionary<string, string> MessagesResult { get; set; }
         public Dictionary<string, string> MessagesDisplay { get; set; }
-        public int PhraseNo { get; set; } //number of currently checked phrase
         public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
         public int HowManySearches { get; set; } //how many searches for this IP
         public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
@@ -72,6 +75,17 @@ namespace G_Hoover.Services.Browsing
         public bool IsCaptcha { get; set; }
         public bool InputCorrection { get; set; } //if need to add correction for input
 
+        private int _phraseNo;
+        public int PhraseNo //number of currently checked phrase
+        {
+            get => _phraseNo;
+            set
+            {
+                _phraseNo = value;
+                SavePhraseNo(); //save phraseno to cofig file
+            }
+        }
+
         private bool _clickerInput;
         public bool ClickerInput //if click by input simulation
         {
@@ -79,7 +93,7 @@ namespace G_Hoover.Services.Browsing
             set
             {
                 _clickerInput = value;
-                VerifyClickerInput();
+                VerifyClickerInput(); //check window setup on prop update
             }
         }
 
@@ -93,6 +107,7 @@ namespace G_Hoover.Services.Browsing
                 WebBrowser = webBrowser;
                 SearchPhrase = searchPhrase;
                 NameList = nameList;
+                PhraseNo = GetPhraseNo();
             }
 
             Task task = Task.Run(async () =>
@@ -494,6 +509,28 @@ namespace G_Hoover.Services.Browsing
         public void UpdateSearchPhrase(string searchPhrase)
         {
             SearchPhrase = searchPhrase;
+            _config.SaveSearchPhrase(searchPhrase);
+        }
+
+        public void SavePhraseNo()
+        {
+            _config.SavePhraseNo(PhraseNo);
+        }
+
+        public int GetPhraseNo()
+        {
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            int toReturn = int.Parse(config.AppSettings.Settings["phraseNo"].Value);
+
+            return toReturn;
+        }
+
+        public void SaveFilePath(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                _config.SaveFilePath(filePath);
+            }
         }
     }
 }

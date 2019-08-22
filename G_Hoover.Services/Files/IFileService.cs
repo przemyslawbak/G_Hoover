@@ -11,8 +11,6 @@ namespace G_Hoover.Services.Files
     {
         Task<List<string>> GetNewListFromFileAsync(string filePath);
         void RemoveOldLogs();
-        Task<string> LoadPhraseAsync();
-        Task SavePhraseAsync(string searchPhrase);
         Task SaveNewResultAsync(ResultObjectModel result, string phrase);
         WaveWriter CreateNewWaveWriter(WasapiCapture capture);
         bool CheckAudioFile();

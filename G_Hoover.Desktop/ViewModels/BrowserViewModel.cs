@@ -4,6 +4,7 @@ using G_Hoover.Desktop.Views;
 using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Buttons;
+using G_Hoover.Services.Config;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
@@ -26,6 +27,7 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IControlsService _controlsService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
+        private readonly IAppConfig _config;
         private readonly Logger _logger;
 
         public BrowserViewModel(IFileService fileService,
@@ -33,13 +35,15 @@ namespace G_Hoover.Desktop.ViewModels
             IMessageService messageService,
             IControlsService controlsService,
             IEventAggregator eventAggregator,
-            IButtonsService buttonService)
+            IButtonsService buttonService,
+            IAppConfig config)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _controlsService = controlsService;
             _buttonService = buttonService;
             _eventAggregator = eventAggregator;
+            _config = config;
             _logger = LogManager.GetCurrentClassLogger();
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
@@ -48,7 +52,7 @@ namespace G_Hoover.Desktop.ViewModels
             ConnectionChangeCommand = new AsyncCommand(async () => await OnConnectionChangeCommandAsync());
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
             UploadCommand = new AsyncCommand(async () => await OnUploadCommandAsync());
-            BuildCommand = new AsyncCommand(async () => await OnBuildCommandAsync());
+            BuildCommand = new DelegateCommand(OnBuildCommand);
 
             NameList = new List<string>();
             UiControls = new UiPropertiesModel();
@@ -56,19 +60,17 @@ namespace G_Hoover.Desktop.ViewModels
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Subscribe(OnUpdateBrowser);
 
-            InitializeProgram();
+            InitializeProgramAsync();
         }
 
-        public async void InitializeProgram()
+        public async void InitializeProgramAsync()
         {
-            await LoadPhraseAsync();
+            SearchPhrase = _config.GetSearchPhrase();
+            FilePath = _config.GetFilePath();
+            PhraseNo = _config.GetPhraseNo();
+            NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
             _fileService.RemoveOldLogs();
             _controlsService.GetStoppedConfiguration();
-        }
-
-        public async Task LoadPhraseAsync()
-        {
-            SearchPhrase = await _fileService.LoadPhraseAsync();
         }
 
         private void OnUpdateControls(UiPropertiesModel obj)
@@ -86,11 +88,11 @@ namespace G_Hoover.Desktop.ViewModels
             await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase, Paused);
         }
 
-        public async Task OnBuildCommandAsync()
+        public void OnBuildCommand(object obj)
         {
             SearchPhrase = ShowDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
 
-            await _buttonService.ExecuteBuildButtonAsync(SearchPhrase);
+            _buttonService.ExecuteBuildButton(SearchPhrase);
         }
 
         public async Task OnUploadCommandAsync()
@@ -161,10 +163,11 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand ConnectionChangeCommand { get; private set; }
         public ICommand ClickerChangeCommand { get; private set; }
         public IAsyncCommand UploadCommand { get; private set; }
-        public IAsyncCommand BuildCommand { get; private set; }
+        public ICommand BuildCommand { get; private set; }
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string FilePath { get; set; } //path of uploaded file
         public string SearchPhrase { get; set; } //phrase built in dialog window
+        public int PhraseNo { get; set; }
 
         private UiPropertiesModel _uiControls;
         public UiPropertiesModel UiControls

@@ -17,7 +17,6 @@ namespace G_Hoover.Services.Files
         private Logger _logger;
         private IMessageService _messageService;
         private readonly string _logFile = "../../../../log.txt";
-        private readonly string _phraseFile = "../../../../phrase.txt";
         private readonly string _resultFile = "../../../../result.txt";
         private readonly string _audioFile = "../../../../dump.wav";
 
@@ -96,67 +95,6 @@ namespace G_Hoover.Services.Files
             catch (Exception e)
             {
                 _logger.Error(MessagesError[callerName] + e.Message); //log
-            }
-        }
-
-        public async Task<string> LoadPhraseAsync()
-        {
-            string callerName = nameof(LoadPhraseAsync);
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                if (File.Exists(_phraseFile))
-                {
-                    using (StreamReader reader = File.OpenText(_phraseFile))
-                    {
-                        string fileText = await reader.ReadToEndAsync();
-
-                        _logger.Info(MessagesResult[callerName] + fileText); //log
-
-                        return fileText;
-                    }
-                }
-                else
-                {
-                    throw new Exception("File not found.");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, MessagesError[callerName]); //log
-
-                return string.Empty;
-            }
-        }
-
-        public async Task SavePhraseAsync(string searchPhrase)
-        {
-            string callerName = nameof(SavePhraseAsync);
-
-            _logger.Info(MessagesInfo[callerName]); //log
-
-            try
-            {
-                if (File.Exists(_phraseFile))
-                {
-                    File.Delete(_phraseFile);
-                }
-
-                using (var writer = File.OpenWrite(_phraseFile))
-                {
-                    using (var streamWriter = new StreamWriter(writer))
-                    {
-                        await streamWriter.WriteAsync(searchPhrase);
-                    }
-                }
-
-                _logger.Info(MessagesResult[callerName]); //log
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, MessagesError[callerName]); //log
             }
         }
 

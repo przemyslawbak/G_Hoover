@@ -4,6 +4,7 @@ using G_Hoover.Desktop.Views;
 using G_Hoover.Services.Audio;
 using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Buttons;
+using G_Hoover.Services.Config;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
@@ -30,6 +31,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
+
+            builder.RegisterType<AppConfig>()
+              .As<IAppConfig>().SingleInstance();
 
             builder.RegisterType<AudioService>()
               .As<IAudioService>().SingleInstance();

@@ -99,6 +99,7 @@
     <Compile Include="Buttons\ButtonsService.cs" />
     <Compile Include="Buttons\IButtonsService.cs" />
     <Compile Include="Config\AppConfig.cs" />
+    <Compile Include="Config\IAppConfig.cs" />
     <Compile Include="Connection\ConnectionService.cs" />
     <Compile Include="Connection\IConnectionService.cs" />
     <Compile Include="Controls\ControlsService.cs" />

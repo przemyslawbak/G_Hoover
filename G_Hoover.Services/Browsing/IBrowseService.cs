@@ -11,5 +11,6 @@ namespace G_Hoover.Services.Browsing
         Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase);
         void UpdateSearchPhrase(string searchPhrase);
         void ChangeConnectionType(IWpfWebBrowser webBrowser);
+        void SaveFilePath(string filePath);
     }
 }

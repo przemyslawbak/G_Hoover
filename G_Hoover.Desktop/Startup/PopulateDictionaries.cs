@@ -35,17 +35,15 @@ namespace G_Hoover.Desktop.Startup
             methods.Add(nameof(_fileService.GetNewListFromFileAsync)); //0
             methods.Add(nameof(_fileService.RemoveOldLogs)); //1
             methods.Add(nameof(_buttonsService.ExecuteUploadButtonAsync)); //2
-            methods.Add(nameof(_buttonsService.ExecuteBuildButtonAsync)); //3
-            methods.Add(nameof(_fileService.LoadPhraseAsync)); //4
-            methods.Add(nameof(_fileService.SavePhraseAsync)); //5
-            methods.Add(nameof(_buttonsService.ExecuteStartButtonAsync)); //6
-            methods.Add(nameof(_browseService.CollectDataAsync)); //7
-            methods.Add(nameof(_buttonsService.ExecuteStopButton)); //8
-            methods.Add(nameof(_buttonsService.ExecutePauseButton)); //9
-            methods.Add(nameof(_browseService.LoopCollectingAsync)); //10
-            methods.Add(nameof(_browseService.GetNewRecordAsync)); //11
-            methods.Add(nameof(_browseService.CheckForCaptchaAsync)); //12
-            methods.Add(nameof(_buttonsService.ExecuteConnectionButtonAsync)); //13
+            methods.Add(nameof(_buttonsService.ExecuteBuildButton)); //3
+            methods.Add(nameof(_buttonsService.ExecuteStartButtonAsync)); //4
+            methods.Add(nameof(_browseService.CollectDataAsync)); //5
+            methods.Add(nameof(_buttonsService.ExecuteStopButton)); //6
+            methods.Add(nameof(_buttonsService.ExecutePauseButton)); //7
+            methods.Add(nameof(_browseService.LoopCollectingAsync)); //8
+            methods.Add(nameof(_browseService.GetNewRecordAsync)); //9
+            methods.Add(nameof(_browseService.CheckForCaptchaAsync)); //10
+            methods.Add(nameof(_buttonsService.ExecuteConnectionButtonAsync)); //11
 
             return methods;
         }

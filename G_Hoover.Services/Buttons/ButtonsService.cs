@@ -151,6 +151,8 @@ namespace G_Hoover.Services.Buttons
                     {
                         _browseService.CancelCollectData(); //cancel
 
+                        _browseService.SaveFilePath(filePath);
+
                         _logger.Info(MessagesResult[callerName] + nameList.Count); //log
 
                         return nameList;
@@ -173,9 +175,9 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public async Task ExecuteBuildButtonAsync(string searchPhrase)
+        public void ExecuteBuildButton(string searchPhrase)
         {
-            string callerName = nameof(ExecuteBuildButtonAsync);
+            string callerName = nameof(ExecuteBuildButton);
 
             _logger.Info(MessagesInfo[callerName]); //log
 
@@ -183,8 +185,6 @@ namespace G_Hoover.Services.Buttons
             {
                 if (!string.IsNullOrEmpty(searchPhrase))
                 {
-                    await _fileService.SavePhraseAsync(searchPhrase); //file
-
                     _browseService.UpdateSearchPhrase(searchPhrase);
 
                     _logger.Info(MessagesResult[callerName] + searchPhrase); //log
@@ -202,7 +202,7 @@ namespace G_Hoover.Services.Buttons
 
         public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
-            string callerName = nameof(ExecuteBuildButtonAsync);
+            string callerName = nameof(ExecuteBuildButton);
 
             _logger.Info(MessagesInfo[callerName]); //log
 

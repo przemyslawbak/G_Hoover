@@ -1,16 +1,3 @@
-//input clicks in ScrapService
-
-if captcha:
-//resolve / ClickerInput / checkconditions => await _scrapService.
-//after resolving?? return empty, update counter for captcha ++ and try again??
-
-testing: async (sender, args) - not anonymus??
-
-how to update Network, Clicker, Status in VM??
-
---
-app.config update -> https://stackoverflow.com/a/1357453
-
 validate file txt + rows
 
 InitializeBrowser <- async void / Task
@@ -44,3 +31,9 @@ phrase builder replace " with \"
 logs property changes in separate service??
 
 when stopped, what to do for exec <KeyBinding Command="{Binding Path=PauseCommand}"??
+
+testing: async (sender, args) - not anonymus??
+
+how to update Network, Clicker, Status in VM??
+
+move out _controlsService & _config from VM
