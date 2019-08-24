@@ -50,7 +50,8 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = true,
                 StopBtnEnabled = true,
                 PauseBtnEnabled = true,
-                Stopped = false
+                Stopped = false,
+                Init = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
@@ -65,13 +66,14 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = false,
                 StopBtnEnabled = true,
                 PauseBtnEnabled = true,
-                Stopped = false
+                Stopped = false,
+                Init = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
-        public void GetStoppedConfiguration()
+        public void GetStoppedConfiguration(bool init)
         {
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
@@ -80,7 +82,8 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = true,
                 StopBtnEnabled = false,
                 PauseBtnEnabled = false,
-                Stopped = true
+                Stopped = true,
+                Init = init
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
@@ -95,7 +98,8 @@ namespace G_Hoover.Services.Controls
                 UiButtonsEnabled = false,
                 StopBtnEnabled = false,
                 PauseBtnEnabled = false,
-                Stopped = false
+                Stopped = false,
+                Init = false
             };
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);

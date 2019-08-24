@@ -66,7 +66,7 @@ namespace G_Hoover.Services.Buttons
             }
             finally
             {
-                _controlsService.GetStoppedConfiguration(); //ui
+                _controlsService.GetStoppedConfiguration(false); //ui
             }
         }
 
@@ -122,12 +122,12 @@ namespace G_Hoover.Services.Buttons
             {
                 if (!paused)
                 {
-                    _controlsService.GetStoppedConfiguration(); //ui
+                    _controlsService.GetStoppedConfiguration(false); //ui
                 }
             }
         }
 
-        public async Task<List<string>> ExecuteUploadButtonAsync(string filePath)
+        public async Task<List<string>> ExecuteUploadButtonAsync(string filePath, bool init)
         {
             List<string> nameList = new List<string>();
             string callerName = nameof(ExecuteUploadButtonAsync);
@@ -145,7 +145,7 @@ namespace G_Hoover.Services.Buttons
 
                     await Task.Delay(1000);
 
-                    _controlsService.GetStoppedConfiguration(); //ui
+                    _controlsService.GetStoppedConfiguration(init); //ui
 
                     if (nameList.Count > 0)
                     {
@@ -220,7 +220,7 @@ namespace G_Hoover.Services.Buttons
                 }
                 else
                 {
-                    _controlsService.GetStoppedConfiguration(); //ui
+                    _controlsService.GetStoppedConfiguration(false); //ui
                 }
             }
             catch (Exception e)
@@ -240,6 +240,22 @@ namespace G_Hoover.Services.Buttons
                 _browseService.ClickerChange();
 
                 _logger.Info(MessagesResult[callerName]); //log
+            }
+            catch (Exception e)
+            {
+                _logger.Error(MessagesError[callerName] + e.Message); //log
+            }
+        }
+
+        public void ExecuteChangeIpButtonAsync()
+        {
+            string callerName = nameof(ExecuteChangeIpButtonAsync);
+
+            _logger.Info(MessagesInfo[callerName]); //log
+
+            try
+            {
+                _browseService.GetNewIp();
             }
             catch (Exception e)
             {

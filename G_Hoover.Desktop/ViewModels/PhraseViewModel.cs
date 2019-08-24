@@ -7,8 +7,6 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
-        private bool? dialogResult;
-
         public PhraseViewModel(string searchPhrase)
         {
             OkCommand = new DelegateCommand(Ok);
@@ -76,12 +74,13 @@ namespace G_Hoover.Desktop.ViewModels
 
         public ICommand OkCommand { get; }
 
+        private bool? _dialogResult;
         public bool? DialogResult
         {
-            get => dialogResult;
+            get => _dialogResult;
             private set
             {
-                dialogResult = value;
+                _dialogResult = value;
                 OnPropertyChanged();
             }
         }

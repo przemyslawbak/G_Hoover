@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
              mc:Ignorable="d"
-             Title="G_Hoover" Height="800" Width="1235" MinWidth="1235"
+             Title="G_Hoover" Height="800" Width="1245" MinWidth="1245"
              WindowStartupLocation="Manual"
              Left="0" Top="0"
              Name="Browser"
@@ -24,6 +24,7 @@
             <BitmapImage x:Key="connection" UriSource="pack://siteoforigin:,,,/Resources/connection.png" />
             <BitmapImage x:Key="upload" UriSource="pack://siteoforigin:,,,/Resources/upload.png" />
             <BitmapImage x:Key="builder" UriSource="pack://siteoforigin:,,,/Resources/builder.png" />
+            <BitmapImage x:Key="ip" UriSource="pack://siteoforigin:,,,/Resources/ip.png" />
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
@@ -102,12 +103,22 @@
                     Command="{Binding BuildCommand}">
                     <Image Source="{StaticResource builder}" Width="20" Height="20"/>
                 </Button>
+
+                <Button
+                Width="50px"
+                Margin="5"
+                ToolTip="Change IP"
+                    IsEnabled="{Binding UiButtonsEnabled}"
+                    Command="{Binding ChangeIpCommand}">
+                    <Image Source="{StaticResource ip}" Width="20" Height="20"/>
+                </Button>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
                     </Grid.ColumnDefinitions>
                     <GroupBox Header="Current status"
 				  Grid.Column="0"
@@ -118,32 +129,49 @@
                     <GroupBox Header="Clicker"
 				  Grid.Column="2"
                           Margin="5"/>
-                    <GroupBox Header="Loading page"
+                    <GroupBox Header="Progress"
 				  Grid.Column="3"
+                          Margin="5"/>
+                    <GroupBox Header="Loading page"
+				  Grid.Column="4"
                           Margin="5"/>
                     <TextBlock
                    Grid.Column="0"
-                   Text="{Binding Path=Status, StringFormat='Obecny status {0}', Mode=OneWay}"
+                   Text="{Binding Path=Status, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                        VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Margin="0,10,0,0"
                     FontWeight="Bold"/>
                     <TextBlock
                    Grid.Column="1"
-                   Text="{Binding Path=Network, StringFormat='Połączenie {0}', Mode=OneWay}"
+                   Text="{Binding Path=Connection, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                        VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Margin="0,10,0,0"
                     FontWeight="Bold"/>
                     <TextBlock
                    Grid.Column="2"
-                   Text="{Binding Path=Clicker, StringFormat='Klikanie {0}', Mode=OneWay}"
+                   Text="{Binding Path=Clicker, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                        VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Margin="0,10,0,0"
                     FontWeight="Bold"/>
                     <ProgressBar
-                   Grid.Column="3"
+                        Grid.Column="3"
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding UpdateStatusBar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                             Height="20"
+                             Margin="10 10 10 0" />
+                    <TextBlock
+                Grid.Column="3"
+                Text="{Binding Path=ProgressDisplay}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                        Margin="0,10,0,0"
+                />
+                    <ProgressBar
+                   Grid.Column="4"
                              IsIndeterminate="{Binding WebBrowser.IsLoading}"
                              Height="20"
                              Margin="10 10 10 0" />

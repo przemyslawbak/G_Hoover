@@ -7,7 +7,7 @@ namespace G_Hoover.Services.Controls
     public interface IControlsService
     {
         void GetPausedConfiguration();
-        void GetStoppedConfiguration();
+        void GetStoppedConfiguration(bool init);
         void GetStartedConfiguration();
         void GetWaitConfiguration();
         void ShowLessBrowser();

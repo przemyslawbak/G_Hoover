@@ -27,5 +27,12 @@ namespace G_Hoover.Desktop.ViewModels
                 return _container.Resolve<PhraseViewModel>();
             }
         }
+        public DeleteViewModel DeleteViewModel
+        {
+            get
+            {
+                return _container.Resolve<DeleteViewModel>();
+            }
+        }
     }
 }

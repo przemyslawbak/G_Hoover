@@ -24,7 +24,6 @@ namespace G_Hoover.Desktop.ViewModels
     {
         private readonly IFileService _fileService;
         private readonly IDialogService _dialogService;
-        private readonly IControlsService _controlsService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
@@ -33,14 +32,12 @@ namespace G_Hoover.Desktop.ViewModels
         public BrowserViewModel(IFileService fileService,
             IDialogService dialogService,
             IMessageService messageService,
-            IControlsService controlsService,
             IEventAggregator eventAggregator,
             IButtonsService buttonService,
             IAppConfig config)
         {
             _dialogService = dialogService;
             _fileService = fileService;
-            _controlsService = controlsService;
             _buttonService = buttonService;
             _eventAggregator = eventAggregator;
             _config = config;
@@ -53,12 +50,14 @@ namespace G_Hoover.Desktop.ViewModels
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
             UploadCommand = new AsyncCommand(async () => await OnUploadCommandAsync());
             BuildCommand = new DelegateCommand(OnBuildCommand);
+            ChangeIpCommand = new DelegateCommand(OnChangeIpCommand);
 
             NameList = new List<string>();
             UiControls = new UiPropertiesModel();
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Subscribe(OnUpdateBrowser);
+            _eventAggregator.GetEvent<UpdateStatusEvent>().Subscribe(OnUpdateStatus);
 
             InitializeProgramAsync();
         }
@@ -67,10 +66,9 @@ namespace G_Hoover.Desktop.ViewModels
         {
             SearchPhrase = _config.GetSearchPhrase();
             FilePath = _config.GetFilePath();
+            NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo
             PhraseNo = _config.GetPhraseNo();
-            NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
             _fileService.RemoveOldLogs();
-            _controlsService.GetStoppedConfiguration();
         }
 
         private void OnUpdateControls(UiPropertiesModel obj)
@@ -78,9 +76,20 @@ namespace G_Hoover.Desktop.ViewModels
             UiControls = obj;
         }
 
+        private void OnUpdateStatus(StatusPropertiesModel obj)
+        {
+            StatusControls = obj;
+        }
+
         private void OnUpdateBrowser(BrowserPropertiesModel obj)
         {
             BrowserControls = obj;
+        }
+
+        private void OnChangeIpCommand(object obj)
+        {
+            if (UiButtonsEnabled)
+                _buttonService.ExecuteChangeIpButtonAsync();
         }
 
         public async Task OnStartCommandAsync()
@@ -93,18 +102,26 @@ namespace G_Hoover.Desktop.ViewModels
         {
             if (UiButtonsEnabled)
             {
-                SearchPhrase = ShowDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
+                SearchPhrase = ShowUploadDialog(viewModel => _dialogService.ShowDialog<PhraseView>(this, viewModel));
                 _buttonService.ExecuteBuildButton(SearchPhrase);
             }
         }
 
         public async Task OnUploadCommandAsync()
         {
+            bool? deleteResults = false;
+
             if (UiButtonsEnabled)
             {
                 FilePath = GetFilePath();
                 if(!string.IsNullOrEmpty(FilePath))
-                    NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
+                    NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, false);
+                if (NameList.Count > 0)
+                {
+                    deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+                }
+                if (deleteResults == true)
+                    _fileService.DeleteResultsFile();
             }
 
         }
@@ -117,8 +134,13 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void OnStopCommand(object obj)
         {
+            bool? deleteResults = false;
+
             if (StopBtnEnabled)
                 _buttonService.ExecuteStopButton();
+            deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+            if (deleteResults == true)
+                _fileService.DeleteResultsFile();
         }
 
         public void OnClickerChangeCommand(object obj)
@@ -148,13 +170,37 @@ namespace G_Hoover.Desktop.ViewModels
             return success == true ? settings.FileName : string.Empty;
         }
 
-        public string ShowDialog(Func<PhraseViewModel, bool?> showDialog)
+        public string ShowUploadDialog(Func<PhraseViewModel, bool?> showDialog)
         {
             var dialogViewModel = new PhraseViewModel(SearchPhrase);
 
             bool? success = showDialog(dialogViewModel);
 
             return success == true ? dialogViewModel.Text : string.Empty;
+        }
+
+        public bool? ShowDeleteDialog(Func<DeleteViewModel, bool?> showDialog)
+        {
+            var dialogViewModel = new DeleteViewModel();
+
+            bool? success = showDialog(dialogViewModel);
+
+            return success;
+        }
+
+        public void ProgressBarTick()
+        {
+            if (NameList.Count > 0)
+            {
+                UpdateStatusBar = PhraseNo * 100 / NameList.Count;
+                ProgressDisplay = PhraseNo + " / " + NameList.Count;
+            }
+            else if (NameList.Count == 0 || NameList == null)
+            {
+                UpdateStatusBar = 0;
+                ProgressDisplay = "0 / 0";
+            }
+
         }
 
         public ICommand StartCommand { get; private set; }
@@ -164,10 +210,32 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand ClickerChangeCommand { get; private set; }
         public IAsyncCommand UploadCommand { get; private set; }
         public ICommand BuildCommand { get; private set; }
-        public List<string> NameList { get; set; } //list of phrases loaded from the file
+        public ICommand ChangeIpCommand { get; private set; }
+
         public string FilePath { get; set; } //path of uploaded file
         public string SearchPhrase { get; set; } //phrase built in dialog window
-        public int PhraseNo { get; set; }
+
+        private List<string> _nameList;
+        public List<string> NameList //list of phrases loaded from the file
+        {
+            get => _nameList;
+            set
+            {
+                _nameList = value;
+                ProgressBarTick();
+            }
+        }
+
+        private int _phraseNo;
+        public int PhraseNo //what phraseno is currently processed
+        {
+            get => _phraseNo;
+            set
+            {
+                _phraseNo = value;
+                ProgressBarTick();
+            }
+        }
 
         private UiPropertiesModel _uiControls;
         public UiPropertiesModel UiControls
@@ -196,6 +264,21 @@ namespace G_Hoover.Desktop.ViewModels
                 IsBrowserFocused = _browserControls.IsBrowserFocused;
                 IsOnTop = _browserControls.IsOnTop;
                 ResizeMode = _browserControls.ResizeMode;
+                OnPropertyChanged();
+            }
+        }
+
+        private StatusPropertiesModel _statusControls;
+        public StatusPropertiesModel StatusControls
+        {
+            get => _statusControls;
+            set
+            {
+                _statusControls = value;
+                Connection = _statusControls.Connection;
+                Status = _statusControls.Status;
+                Clicker = _statusControls.Clicker;
+                PhraseNo = _statusControls.PhraseNo;
                 OnPropertyChanged();
             }
         }
@@ -320,13 +403,13 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        private string _network;
-        public string Network
+        private string _connection;
+        public string Connection
         {
-            get => _network;
+            get => _connection;
             set
             {
-                _network = value;
+                _connection = value;
                 OnPropertyChanged();
             }
         }
@@ -349,6 +432,34 @@ namespace G_Hoover.Desktop.ViewModels
             set
             {
                 _status = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _progressDisplay;
+        public string ProgressDisplay
+        {
+            get
+            {
+                return _progressDisplay;
+            }
+            set
+            {
+                _progressDisplay = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _updateStatusBar;
+        public int UpdateStatusBar
+        {
+            get
+            {
+                return _updateStatusBar;
+            }
+            set
+            {
+                _updateStatusBar = value;
                 OnPropertyChanged();
             }
         }

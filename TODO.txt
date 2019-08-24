@@ -1,31 +1,26 @@
-
-
-how to update Network, Clicker, Status in VM??
-
-move out _controlsService & _config from VM
-
-validate file txt + rows
-
-InitializeBrowser <- async void / Task
-
-Current status -> event handler(??)
-
-browser -> display records how many / of total
-
-logging with  private void LogError(); etc. logs property changes in separate service?? log methods in VM?? sort out logging!
-
-ScrapService when collecting URL, take anchor instead of string??
-
-manage save result file -> deleting
+manage save result file -> deleting, when delete -> stop
 
 get new IP button
 
-JS input for clicking recaptcha??
+logging with  private void LogError(); etc. logs property changes in separate service?? log methods in VM?? sort out logging!
+
+InitializeBrowser <- async void / Task
+
+move out _controlsService & _config from VM
+
+ScrapService when collecting URL, take anchor instead of string
 
 phrase builder replace " with \"
 
-key shortcuts??
+validate file txt + rows??
 
 --
 
-testing: async (sender, args) - not anonymus??
+testing:
+async (sender, args) - not anonymus??
+
+--
+
+future:
+JS input for clicking recaptcha??
+key shortcuts??

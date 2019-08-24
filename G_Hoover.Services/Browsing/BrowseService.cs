@@ -73,9 +73,9 @@ namespace G_Hoover.Services.Browsing
         public List<string> NameList { get; set; } //list of phrases loaded from the file
         public string SearchPhrase { get; set; } //phrase built in dialog window
         public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
-        public bool SearchViaTor { get; set; } //if Tor network in use
         public bool LoadingPage { get; set; } //if page is now loading
         public bool InputCorrection { get; set; } //if need to add correction for input
+        public string Status { get; set; }
 
         private int _phraseNo;
         public int PhraseNo //number of currently checked phrase
@@ -85,6 +85,18 @@ namespace G_Hoover.Services.Browsing
             {
                 _phraseNo = value;
                 SavePhraseNo(); //save phraseno to cofig file
+                UpdateStatusProperties(); //publishes event with status model
+            }
+        }
+
+        private bool _searchViaTor;
+        public bool SearchViaTor //if Tor network in use
+        {
+            get => _searchViaTor;
+            set
+            {
+                _searchViaTor = value;
+                UpdateStatusProperties(); //publishes event with status model
             }
         }
 
@@ -96,6 +108,7 @@ namespace G_Hoover.Services.Browsing
             {
                 _clickerInput = value;
                 VerifyClickerInput(); //check window setup on prop update
+                UpdateStatusProperties(); //publishes event with status model
             }
         }
 
@@ -157,8 +170,7 @@ namespace G_Hoover.Services.Browsing
             {
                 CancelCollectData();
 
-                _controlsService.GetStoppedConfiguration();
-                //finish
+                //finish; GetStoppedConfiguration is in ButtonsService already
             }
         }
 
@@ -272,7 +284,15 @@ namespace G_Hoover.Services.Browsing
 
         public void GetNewIp()
         {
-            _connectionService.GetNewBrowsingIp(WebBrowser);
+            if (SearchViaTor)
+            {
+                _connectionService.GetNewBrowsingIp(WebBrowser);
+            }
+            else
+            {
+                ChangeConnectionType(WebBrowser);
+            }
+
             HowManySearches = 0;
         }
 
@@ -463,13 +483,13 @@ namespace G_Hoover.Services.Browsing
             {
                 _connectionService.ConfigureBrowserTor(webBrowser);
                 SearchViaTor = true;
-                HowManySearches = 0;
             }
             else
             {
                 _connectionService.ConfigureBrowserDirect(webBrowser);
                 SearchViaTor = false;
             }
+            HowManySearches = 0;
         }
 
         public void VerifyClickerInput()
@@ -488,17 +508,38 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        public void UpdateStatusProperties()
+        {
+            StatusPropertiesModel status = new StatusPropertiesModel()
+            {
+                Clicker = ClickerInput ? "Input Simulator" : "JavaScript",
+                Connection = SearchViaTor ? "Tor network" : "Direct connection",
+                PhraseNo = PhraseNo
+            };
+            if (Paused)
+                status.Status = "Paused";
+            else if (Stopped)
+                status.Status = "Stopped";
+            else if (PleaseWaitVisible)
+                status.Status = "Waiting";
+            else
+                status.Status = "Running";
+
+            _eventAggregator.GetEvent<UpdateStatusEvent>().Publish(status);
+        }
+
         public void OnUpdateControls(UiPropertiesModel obj)
         {
             Paused = obj.Paused;
             Stopped = obj.Stopped;
             PleaseWaitVisible = obj.PleaseWaitVisible;
 
-            if (Stopped)
+            if (Stopped && !obj.Init)
             {
                 PhraseNo = 0;
             }
 
+            UpdateStatusProperties();
             VerifyClickerInput();
         }
 

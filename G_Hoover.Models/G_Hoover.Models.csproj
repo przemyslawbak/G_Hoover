@@ -47,6 +47,7 @@
     <Compile Include="MessageDictionariesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultObjectModel.cs" />
+    <Compile Include="StatusPropertiesModel.cs" />
     <Compile Include="UiPropertiesModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

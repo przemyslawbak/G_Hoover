@@ -153,5 +153,13 @@ namespace G_Hoover.Services.Files
         {
             return Regex.Replace(audioResult.ToLower(), @"[.?!,]", "");
         }
+
+        public void DeleteResultsFile()
+        {
+            if (File.Exists(_resultFile))
+            {
+                File.Delete(_resultFile);
+            }
+        }
     }
 }

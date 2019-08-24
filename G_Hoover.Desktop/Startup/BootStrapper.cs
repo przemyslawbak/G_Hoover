@@ -63,7 +63,9 @@ namespace G_Hoover.Desktop.Startup
               .As<IButtonsService>().SingleInstance();
 
             builder.RegisterType<BrowserView>().AsSelf();
+            builder.RegisterType<DeleteView>().AsSelf();
             builder.RegisterType<BrowserViewModel>().AsSelf().SingleInstance();
+            builder.RegisterType<DeleteViewModel>().AsSelf().SingleInstance();
             builder.RegisterType<PhraseView>().AsSelf();
             builder.RegisterType<PhraseViewModel>().AsSelf().SingleInstance().WithParameter(new NamedParameter("searchPhrase", ""));
             builder.RegisterType<PopulateDictionaries>().AsSelf().SingleInstance();
