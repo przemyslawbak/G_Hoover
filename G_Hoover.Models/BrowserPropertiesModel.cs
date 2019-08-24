@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 
 namespace G_Hoover.Models
 {
@@ -6,5 +7,7 @@ namespace G_Hoover.Models
     {
         public WindowState WindowState { get; set; }
         public bool IsBrowserFocused { get; set; }
+        public bool IsOnTop { get; set; }
+        public ResizeMode ResizeMode { get; set; }
     }
 }

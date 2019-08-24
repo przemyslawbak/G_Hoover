@@ -12,7 +12,9 @@
              Name="Browser"
              DataContext="{Binding BrowserViewModel, Source={StaticResource ViewModelLocator}}"
              md:DialogServiceViews.IsRegistered="True"
-             WindowState="{Binding CurWindowState}">
+             WindowState="{Binding CurWindowState, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+             Topmost="{Binding IsOnTop, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+             ResizeMode="{Binding ResizeMode, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
     <Window.Resources>
         <ResourceDictionary>
             <BitmapImage x:Key="start" UriSource="pack://siteoforigin:,,,/Resources/start.png" />

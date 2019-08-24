@@ -11,6 +11,7 @@ namespace G_Hoover.Services.Controls
         void GetStartedConfiguration();
         void GetWaitConfiguration();
         void ShowLessBrowser();
-        void ShowMoreBrowser();
+        void ShowMoreBrowserRunning();
+        void ShowMoreBrowserPaused();
     }
 }

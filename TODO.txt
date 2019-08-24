@@ -1,14 +1,4 @@
-TOMORROW:
-- disble mouse for ClickerInput and not paused
-https://stackoverflow.com/a/30262594/8532173
-https://stackoverflow.com/a/586606/8532173
 
-- not allow to minimalize when running and clickerinput
-https://stackoverflow.com/questions/17433745/make-the-window-always-maximized
-
---
-
-testing: async (sender, args) - not anonymus??
 
 how to update Network, Clicker, Status in VM??
 
@@ -35,3 +25,7 @@ JS input for clicking recaptcha??
 phrase builder replace " with \"
 
 key shortcuts??
+
+--
+
+testing: async (sender, args) - not anonymus??

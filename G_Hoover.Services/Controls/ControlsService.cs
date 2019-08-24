@@ -106,18 +106,35 @@ namespace G_Hoover.Services.Controls
             BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
                 WindowState = WindowState.Normal,
-                IsBrowserFocused = false
+                IsBrowserFocused = false,
+                IsOnTop = false,
+                ResizeMode = ResizeMode.CanResize
             };
 
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }
 
-        public void ShowMoreBrowser()
+        public void ShowMoreBrowserRunning()
         {
             BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
                 WindowState = WindowState.Maximized,
-                IsBrowserFocused = true
+                IsBrowserFocused = true,
+                IsOnTop = true,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
+        }
+
+        public void ShowMoreBrowserPaused()
+        {
+            BrowserPropertiesModel browser = new BrowserPropertiesModel()
+            {
+                WindowState = WindowState.Maximized,
+                IsBrowserFocused = true,
+                IsOnTop = false,
+                ResizeMode = ResizeMode.CanResize
             };
 
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);

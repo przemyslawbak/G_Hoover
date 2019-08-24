@@ -121,7 +121,7 @@ namespace G_Hoover.Services.Input
 
         public async Task KeyboardTextInput(string text)
         {
-            await Task.Delay(1000);
+            await Task.Delay(1);
 
             _simulator.Keyboard.TextEntry(text);
         }
@@ -131,5 +131,6 @@ namespace G_Hoover.Services.Input
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
         }
+
     }
 }

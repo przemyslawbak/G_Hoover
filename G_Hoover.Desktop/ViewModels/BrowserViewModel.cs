@@ -103,7 +103,8 @@ namespace G_Hoover.Desktop.ViewModels
             if (UiButtonsEnabled)
             {
                 FilePath = GetFilePath();
-                NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
+                if(!string.IsNullOrEmpty(FilePath))
+                    NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath);
             }
 
         }
@@ -193,6 +194,8 @@ namespace G_Hoover.Desktop.ViewModels
                 _browserControls = value;
                 CurWindowState = _browserControls.WindowState;
                 IsBrowserFocused = _browserControls.IsBrowserFocused;
+                IsOnTop = _browserControls.IsOnTop;
+                ResizeMode = _browserControls.ResizeMode;
                 OnPropertyChanged();
             }
         }
@@ -204,6 +207,28 @@ namespace G_Hoover.Desktop.ViewModels
             set
             {
                 _paused = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isOnTop;
+        public bool IsOnTop
+        {
+            get => _isOnTop;
+            set
+            {
+                _isOnTop = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ResizeMode _resizeMode;
+        public ResizeMode ResizeMode
+        {
+            get => _resizeMode;
+            set
+            {
+                _resizeMode = value;
                 OnPropertyChanged();
             }
         }

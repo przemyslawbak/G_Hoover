@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CefSharp;
 using CefSharp.Wpf;
+using G_Hoover.Services.Controls;
 using G_Hoover.Services.Input;
 
 namespace G_Hoover.Services.Scrap

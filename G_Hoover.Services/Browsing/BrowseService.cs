@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows.Shapes;
 using CefSharp;
 using CefSharp.Wpf;
 using G_Hoover.Events;
@@ -399,8 +402,6 @@ namespace G_Hoover.Services.Browsing
         {
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
-
-            VerifyClickerInput();
         }
 
         public void ResolveEmptyString()
@@ -477,9 +478,13 @@ namespace G_Hoover.Services.Browsing
             {
                 _controlsService.ShowLessBrowser();
             }
-            else //if JavaScript clicker
+            else if (ClickerInput && !Paused && !Stopped) //if JavaScript clicker and not paused and stopped or working
             {
-                _controlsService.ShowMoreBrowser();
+                _controlsService.ShowMoreBrowserRunning();
+            }
+            else if (ClickerInput && (Paused || Stopped || PleaseWaitVisible)) //if JavaScript clicker and paused or stopped
+            {
+                _controlsService.ShowMoreBrowserPaused();
             }
         }
 
@@ -493,6 +498,8 @@ namespace G_Hoover.Services.Browsing
             {
                 PhraseNo = 0;
             }
+
+            VerifyClickerInput();
         }
 
         public void CancelCollectData()
