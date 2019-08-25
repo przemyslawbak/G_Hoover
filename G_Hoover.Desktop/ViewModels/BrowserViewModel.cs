@@ -5,12 +5,10 @@ using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Config;
-using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
-using NLog;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -27,7 +25,6 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
-        private readonly Logger _logger;
 
         public BrowserViewModel(IFileService fileService,
             IDialogService dialogService,
@@ -41,7 +38,6 @@ namespace G_Hoover.Desktop.ViewModels
             _buttonService = buttonService;
             _eventAggregator = eventAggregator;
             _config = config;
-            _logger = LogManager.GetCurrentClassLogger();
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);

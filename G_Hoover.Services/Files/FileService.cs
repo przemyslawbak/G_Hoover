@@ -14,41 +14,20 @@ namespace G_Hoover.Services.Files
 {
     public class FileService : IFileService
     {
-        private Logger _logger;
-        private IMessageService _messageService;
         private readonly string _logFile = "../../../../log.txt";
         private readonly string _resultFile = "../../../../result.txt";
         private readonly string _audioFile = "../../../../dump.wav";
 
-        public FileService(IMessageService messageService)
+        public FileService()
         {
-            _logger = LogManager.GetCurrentClassLogger();
-            _messageService = messageService;
 
-            LoadDictionaries();
         }
-
-        private void LoadDictionaries()
-        {
-            MessageDictionariesModel messages = _messageService.LoadDictionaries();
-
-            MessagesInfo = messages.MessagesInfo;
-            MessagesError = messages.MessagesError;
-            MessagesResult = messages.MessagesResult;
-            MessagesDisplay = messages.MessagesDisplay;
-        }
-
-        public Dictionary<string, string> MessagesInfo { get; set; }
-        public Dictionary<string, string> MessagesError { get; set; }
-        public Dictionary<string, string> MessagesResult { get; set; }
-        public Dictionary<string, string> MessagesDisplay { get; set; }
 
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
             List<string> list = new List<string>();
-            string callerName = nameof(GetNewListFromFileAsync);
 
-            _logger.Info(MessagesInfo[callerName] + filePath); //log
+            //_logger.Info(MessagesInfo[callerName] + filePath); //log
 
             try
             {
@@ -63,13 +42,13 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                _logger.Info(MessagesResult[callerName] + list.Count); //log
+                //_logger.Info(MessagesResult[callerName] + list.Count); //log
 
                 return list;
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                //_logger.Error(MessagesError[callerName] + e.Message); //log
 
                 list.Clear();
 
@@ -79,9 +58,7 @@ namespace G_Hoover.Services.Files
 
         public void RemoveOldLogs()
         {
-            string callerName = nameof(RemoveOldLogs);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            //_logger.Info(MessagesInfo[callerName]); //log
 
             try
             {
@@ -90,28 +67,21 @@ namespace G_Hoover.Services.Files
                     File.Delete(_logFile);
                 }
 
-                _logger.Info(MessagesResult[callerName]); //log
+                //_logger.Info(MessagesResult[callerName]); //log
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                //_logger.Error(MessagesError[callerName] + e.Message); //log
             }
-        }
-
-        public void OnDictionariesLoaded(MessageDictionariesModel obj)
-        {
-            MessagesInfo = obj.MessagesInfo;
-            MessagesError = obj.MessagesError;
-            MessagesResult = obj.MessagesResult;
         }
 
         public async Task SaveNewResultAsync(ResultObjectModel result, string phrase)
         {
             string stringResult = CombineStringResult(result, phrase);
 
-            using (TextWriter csvLineBuilder = new StreamWriter(_resultFile, true))
+            using (TextWriter LineBuilder = new StreamWriter(_resultFile, true))
             {
-                await csvLineBuilder.WriteLineAsync(stringResult);
+                await LineBuilder.WriteLineAsync(stringResult);
             }
         }
 
@@ -159,6 +129,14 @@ namespace G_Hoover.Services.Files
             if (File.Exists(_resultFile))
             {
                 File.Delete(_resultFile);
+            }
+        }
+
+        public async Task SaveLogAsync(string line)
+        {
+            using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
+            {
+                await LineBuilder.WriteLineAsync(line);
             }
         }
     }

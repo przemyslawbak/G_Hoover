@@ -1,8 +1,14 @@
-manage save result file -> deleting, when delete -> stop
-
-get new IP button
+CTD:
 
 logging with  private void LogError(); etc. logs property changes in separate service?? log methods in VM?? sort out logging!
+logging:
++ class name - https://stackoverflow.com/a/14849434
++ method name - https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.callermembernameattribute?view=netframework-4.8
++ Overloads ctor - https://stackoverflow.com/a/9621581
+- get parameters names - https://stackoverflow.com/a/214106
+- iterating parameters of the method - https://stackoverflow.com/a/1503668
+- saving to the file
+
 
 InitializeBrowser <- async void / Task
 
@@ -14,6 +20,10 @@ phrase builder replace " with \"
 
 validate file txt + rows??
 
+assembly -> iterate methods in class, but maybe not needed??
+
+after STOP is still resolving captcha
+
 --
 
 testing:
@@ -24,3 +34,4 @@ async (sender, args) - not anonymus??
 future:
 JS input for clicking recaptcha??
 key shortcuts??
+log service - receive attribute names

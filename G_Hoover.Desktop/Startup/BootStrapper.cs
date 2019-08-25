@@ -9,6 +9,7 @@ using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Input;
+using G_Hoover.Services.Logging;
 using G_Hoover.Services.Messages;
 using G_Hoover.Services.Scrap;
 using MvvmDialogs;
@@ -31,6 +32,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
+
+            builder.RegisterType<LogService>()
+              .As<ILogService>().SingleInstance();
 
             builder.RegisterType<AppConfig>()
               .As<IAppConfig>().SingleInstance();

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Shapes;
 using CefSharp;
 using CefSharp.Wpf;
 using G_Hoover.Events;
@@ -15,9 +12,7 @@ using G_Hoover.Services.Config;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Messages;
 using G_Hoover.Services.Scrap;
-using NLog;
 using Prism.Events;
 
 namespace G_Hoover.Services.Browsing
@@ -25,8 +20,6 @@ namespace G_Hoover.Services.Browsing
     public class BrowseService : IBrowseService
     {
         private readonly AppConfig _config;
-        private readonly Logger _logger;
-        private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
         private readonly IFileService _fileService;
@@ -38,8 +31,7 @@ namespace G_Hoover.Services.Browsing
         private readonly int _audioTrialsLimit = 30; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing only
         private readonly int _torSearchesCaptchaLimit = 20; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing only
 
-        public BrowseService(IMessageService messageService,
-            IControlsService controlsService,
+        public BrowseService(IControlsService controlsService,
             IEventAggregator eventAggregator,
             IScrapService scrapService,
             IFileService fileService,
@@ -47,8 +39,6 @@ namespace G_Hoover.Services.Browsing
             IAudioService audioService)
         {
             _config = new AppConfig();
-            _logger = LogManager.GetCurrentClassLogger();
-            _messageService = messageService;
             _controlsService = controlsService;
             _scrapService = scrapService;
             _fileService = fileService;

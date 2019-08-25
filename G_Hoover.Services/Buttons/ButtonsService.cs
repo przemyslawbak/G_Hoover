@@ -1,10 +1,8 @@
 ﻿using CefSharp.Wpf;
-using G_Hoover.Models;
 using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Messages;
-using NLog;
+using G_Hoover.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,56 +11,35 @@ namespace G_Hoover.Services.Buttons
 {
     public class ButtonsService : IButtonsService
     {
-        private readonly Logger _logger;
-        private readonly IMessageService _messageService;
         private readonly IControlsService _controlsService;
         private readonly IFileService _fileService;
         private readonly IBrowseService _browseService;
+        private readonly ILogService _log;
 
-        public ButtonsService(IMessageService messageService,
-            IControlsService controlService,
+        public ButtonsService(IControlsService controlService,
             IFileService fileService,
-            IBrowseService browseService)
+            IBrowseService browseService,
+            ILogService log)
         {
-            _logger = LogManager.GetCurrentClassLogger();
             _controlsService = controlService;
             _fileService = fileService;
-            _messageService = messageService;
             _browseService = browseService;
-
-            LoadDictionaries();
+            _log = log;
         }
-
-        private void LoadDictionaries()
-        {
-            MessageDictionariesModel messages = _messageService.LoadDictionaries();
-
-            MessagesInfo = messages.MessagesInfo;
-            MessagesError = messages.MessagesError;
-            MessagesResult = messages.MessagesResult;
-            MessagesDisplay = messages.MessagesDisplay;
-        }
-
-        public Dictionary<string, string> MessagesInfo { get; set; }
-        public Dictionary<string, string> MessagesError { get; set; }
-        public Dictionary<string, string> MessagesResult { get; set; }
-        public Dictionary<string, string> MessagesDisplay { get; set; }
 
         public void ExecuteStopButton()
         {
-            string callerName = nameof(ExecuteStopButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            _log.Called();
 
             try
             {
                 _browseService.CancelCollectData(); //cancel
 
-                _logger.Info(MessagesResult[callerName]); //log
+                _log.Ended();
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
             finally
             {
@@ -72,9 +49,7 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecutePauseButton(bool paused)
         {
-            string callerName = nameof(ExecutePauseButton);
-
-            _logger.Info(MessagesInfo[callerName] + paused); //log
+            _log.Called(paused);
 
             try
             {
@@ -87,19 +62,17 @@ namespace G_Hoover.Services.Buttons
                     _controlsService.GetPausedConfiguration(); //ui
                 }
 
-                _logger.Info(MessagesResult[callerName] + paused); //log
+                _log.Ended();
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
 
         public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase, bool paused)
         {
-            string callerName = nameof(ExecuteStartButtonAsync);
-
-            _logger.Info(MessagesInfo[callerName] + nameList.Count + ". " + searchPhrase); //log
+            _log.Called(nameList.Count, searchPhrase, paused);
 
             try
             {
@@ -109,30 +82,27 @@ namespace G_Hoover.Services.Buttons
                 {
                     await _browseService.CollectDataAsync(nameList, webBrowser, searchPhrase); //browser service
                 }
-
-                _logger.Info(MessagesResult[callerName]); //log
-
-
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
             finally
             {
                 if (!paused)
                 {
                     _controlsService.GetStoppedConfiguration(false); //ui
+
+                    _log.Ended();
                 }
             }
         }
 
         public async Task<List<string>> ExecuteUploadButtonAsync(string filePath, bool init)
         {
-            List<string> nameList = new List<string>();
-            string callerName = nameof(ExecuteUploadButtonAsync);
+            _log.Called(filePath, init);
 
-            _logger.Info(MessagesInfo[callerName] + filePath); //log
+            List<string> nameList = new List<string>();
 
             try
             {
@@ -143,7 +113,7 @@ namespace G_Hoover.Services.Buttons
 
                     nameList = await _fileService.GetNewListFromFileAsync(filePath); //file
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000); //display messge
 
                     _controlsService.GetStoppedConfiguration(init); //ui
 
@@ -151,9 +121,9 @@ namespace G_Hoover.Services.Buttons
                     {
                         _browseService.CancelCollectData(); //cancel
 
-                        _browseService.SaveFilePath(filePath);
+                        _browseService.SaveFilePath(filePath); //browser service
 
-                        _logger.Info(MessagesResult[callerName] + nameList.Count); //log
+                        _log.Ended(nameList.Count);
 
                         return nameList;
                     }
@@ -169,7 +139,7 @@ namespace G_Hoover.Services.Buttons
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
 
                 return new List<string>();
             }
@@ -177,17 +147,15 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecuteBuildButton(string searchPhrase)
         {
-            string callerName = nameof(ExecuteBuildButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            _log.Called(searchPhrase);
 
             try
             {
                 if (!string.IsNullOrEmpty(searchPhrase))
                 {
-                    _browseService.UpdateSearchPhrase(searchPhrase);
+                    _browseService.UpdateSearchPhrase(searchPhrase); //browser service
 
-                    _logger.Info(MessagesResult[callerName] + searchPhrase); //log
+                    _log.Ended();
                 }
                 else
                 {
@@ -196,23 +164,21 @@ namespace G_Hoover.Services.Buttons
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
 
         public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
-            string callerName = nameof(ExecuteBuildButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            _log.Called(paused);
 
             try
             {
                 _controlsService.GetWaitConfiguration();
 
-                _browseService.ChangeConnectionType(webBrowser);
+                _browseService.ChangeConnectionType(webBrowser); //browser service
 
-                await Task.Delay(1000);
+                await Task.Delay(1000); //display messge
 
                 if (paused)
                 {
@@ -222,44 +188,44 @@ namespace G_Hoover.Services.Buttons
                 {
                     _controlsService.GetStoppedConfiguration(false); //ui
                 }
+
+                _log.Ended();
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
 
         public void ExecuteClickerChangeButton()
         {
-            string callerName = nameof(ExecuteClickerChangeButton);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            _log.Called();
 
             try
             {
-                _browseService.ClickerChange();
+                _browseService.ClickerChange(); //browser service
 
-                _logger.Info(MessagesResult[callerName]); //log
+                _log.Ended();
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
 
         public void ExecuteChangeIpButtonAsync()
         {
-            string callerName = nameof(ExecuteChangeIpButtonAsync);
-
-            _logger.Info(MessagesInfo[callerName]); //log
+            _log.Called();
 
             try
             {
-                _browseService.GetNewIp();
+                _browseService.GetNewIp(); //browser service
+
+                _log.Ended();
             }
             catch (Exception e)
             {
-                _logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
     }

@@ -11,35 +11,12 @@ namespace G_Hoover.Services.Controls
 {
     public class ControlsService : IControlsService
     {
-        private readonly Logger _logger;
-        private readonly IMessageService _messageService;
         private readonly IEventAggregator _eventAggregator;
 
-        public ControlsService(IMessageService messageService,
-            IEventAggregator eventAggregator,
-            IFileService fileService)
+        public ControlsService(IEventAggregator eventAggregator)
         {
-            _logger = LogManager.GetCurrentClassLogger();
-            _messageService = messageService;
             _eventAggregator = eventAggregator;
-
-            LoadDictionaries();
         }
-
-        private void LoadDictionaries()
-        {
-            MessageDictionariesModel messages = _messageService.LoadDictionaries();
-
-            MessagesInfo = messages.MessagesInfo;
-            MessagesError = messages.MessagesError;
-            MessagesResult = messages.MessagesResult;
-            MessagesDisplay = messages.MessagesDisplay;
-        }
-
-        public Dictionary<string, string> MessagesInfo { get; set; }
-        public Dictionary<string, string> MessagesError { get; set; }
-        public Dictionary<string, string> MessagesResult { get; set; }
-        public Dictionary<string, string> MessagesDisplay { get; set; }
 
         public void GetPausedConfiguration()
         {

@@ -109,6 +109,8 @@
     <Compile Include="Files\IFileService.cs" />
     <Compile Include="Input\IInputService.cs" />
     <Compile Include="Input\InputService.cs" />
+    <Compile Include="Logging\ILogService.cs" />
+    <Compile Include="Logging\LogService.cs" />
     <Compile Include="Messages\IMessageService.cs" />
     <Compile Include="Messages\MessageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
