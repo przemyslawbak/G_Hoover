@@ -6,5 +6,6 @@
         void Ended(params object[] values);
         void Info(params object[] values);
         void Error(params object[] values);
+        void Prop(string name, object value);
     }
 }

@@ -13,6 +13,6 @@ namespace G_Hoover.Services.Buttons
         void ExecuteBuildButton(string searchPhrase);
         Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused);
         void ExecuteClickerChangeButton();
-        void ExecuteChangeIpButtonAsync();
+        void ExecuteChangeIpButtonAsync(IWpfWebBrowser webBrowser);
     }
 }

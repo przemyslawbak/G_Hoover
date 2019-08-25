@@ -12,6 +12,7 @@ using G_Hoover.Services.Config;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
+using G_Hoover.Services.Logging;
 using G_Hoover.Services.Scrap;
 using Prism.Events;
 
@@ -20,12 +21,14 @@ namespace G_Hoover.Services.Browsing
     public class BrowseService : IBrowseService
     {
         private readonly AppConfig _config;
+        private readonly ILogService _log;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
         private readonly IFileService _fileService;
         private readonly IConnectionService _connectionService;
         private readonly IAudioService _audioService;
         private readonly IEventAggregator _eventAggregator;
+
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
         private readonly int _audioTrialsLimit = 30; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing only
@@ -36,9 +39,11 @@ namespace G_Hoover.Services.Browsing
             IScrapService scrapService,
             IFileService fileService,
             IConnectionService connectionService,
-            IAudioService audioService)
+            IAudioService audioService,
+            ILogService log)
         {
             _config = new AppConfig();
+            _log = log;
             _controlsService = controlsService;
             _scrapService = scrapService;
             _fileService = fileService;
@@ -49,10 +54,6 @@ namespace G_Hoover.Services.Browsing
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
         }
 
-        public Dictionary<string, string> MessagesInfo { get; set; }
-        public Dictionary<string, string> MessagesError { get; set; }
-        public Dictionary<string, string> MessagesResult { get; set; }
-        public Dictionary<string, string> MessagesDisplay { get; set; }
         public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
         public int HowManySearches { get; set; } //how many searches for this IP
         public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
@@ -115,6 +116,8 @@ namespace G_Hoover.Services.Browsing
                 PhraseNo = GetPhraseNo();
             }
 
+            _log.Called(nameList.Count, searchPhrase);
+
             Task task = Task.Run(async () =>
             {
                 await LoopCollectingAsync();
@@ -124,14 +127,16 @@ namespace G_Hoover.Services.Browsing
             try
             {
                 await task;
+
+                _log.Ended();
             }
             catch (OperationCanceledException e)
             {
-                //log
+                _log.Info("Task cancelled", e.Message);
             }
             catch (Exception e)
             {
-                //log
+                _log.Error(e.Message);
             }
             finally
             {
@@ -143,24 +148,35 @@ namespace G_Hoover.Services.Browsing
 
         public async Task LoopCollectingAsync()
         {
-            if (StopCancellationToken.IsCancellationRequested)
+            _log.Called();
+
+            try
             {
-                StopCancellationToken.ThrowIfCancellationRequested();
+                if (StopCancellationToken.IsCancellationRequested)
+                {
+                    StopCancellationToken.ThrowIfCancellationRequested();
+                }
+
+                if (NameList.Count > PhraseNo)
+                {
+                    InputCorrection = false;
+
+                    await GetNewRecordAsync();
+
+                    await LoopCollectingAsync(); //loop
+                }
+                else
+                {
+                    CancelCollectData();
+
+                    //finish; GetStoppedConfiguration is in ButtonsService already
+                }
+
+                _log.Ended(NameList.Count, PhraseNo);
             }
-
-            if (NameList.Count > PhraseNo)
+            catch (Exception e)
             {
-                InputCorrection = false;
-
-                await GetNewRecordAsync();
-
-                await LoopCollectingAsync(); //loop
-            }
-            else
-            {
-                CancelCollectData();
-
-                //finish; GetStoppedConfiguration is in ButtonsService already
+                _log.Error(e.Message);
             }
         }
 
@@ -169,6 +185,8 @@ namespace G_Hoover.Services.Browsing
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
             LoadingPage = true;
             HowManySearches++;
+
+            _log.Called(HowManySearches, phrase);
 
             WebBrowser.Load("https://www.google.com/");
 
@@ -204,12 +222,14 @@ namespace G_Hoover.Services.Browsing
                         }
 
                         Pause(); //if paused
+
+                        _log.Ended();
                     }
                     catch (Exception e)
                     {
                         if (e.Message == "Captcha detected")
                         {
-                            //log
+                            _log.Info(e.Message);
 
                             ClickerInput = true;
 
@@ -219,7 +239,7 @@ namespace G_Hoover.Services.Browsing
                         }
                         else
                         {
-                            //log
+                            _log.Error(e.Message);
                         }
                     }
                     finally
@@ -237,87 +257,120 @@ namespace G_Hoover.Services.Browsing
 
         public async Task ResolveCaptchaAsync()
         {
-           AudioTrials = 0;
+            AudioTrials = 0;
 
-            VerifyClickerInput();
+            _log.Called();
 
-            await _scrapService.TurnOffAlertsAsync(WebBrowser);
-
-            if (SearchViaTor && HowManySearches == _torSearchesCaptchaLimit)
+            try
             {
-                GetNewIp();
+                VerifyClickerInput();
+
+                await _scrapService.TurnOffAlertsAsync(WebBrowser);
+
+                if (SearchViaTor && HowManySearches == _torSearchesCaptchaLimit)
+                {
+                    GetNewIp(WebBrowser);
+                }
+                else
+                {
+                    Pause(); //if paused
+
+                    await _scrapService.ClickCheckboxIcon(ClickerInput);
+
+                    Pause(); //if paused
+
+                    await Task.Delay(5000); //wait for pics to load JS pics
+
+                    bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+                    if (isCaptcha)
+                    {
+                        await _scrapService.ClickAudioChallangeIconAsync(ClickerInput);
+
+                        await ResolveAudioChallengeAsync();
+                    }
+                    else
+                    {
+                        await GetAndSaveResultAsync();
+                    }
+                }
+
+                _log.Ended();
             }
-            else
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
+        }
+
+        public void GetNewIp(IWpfWebBrowser webBrowser)
+        {
+            _log.Called();
+
+            try
+            {
+                if (SearchViaTor)
+                {
+                    _connectionService.GetNewBrowsingIp(webBrowser);
+                }
+                else
+                {
+                    ChangeConnectionType(webBrowser);
+                }
+
+                HowManySearches = 0;
+
+                _log.Ended();
+            }
+            catch (Exception e)
+            {
+                _log.Error();
+            }
+        }
+
+        public async Task ResolveAudioChallengeAsync()
+        {
+            _log.Called();
+
+            try
             {
                 Pause(); //if paused
 
-                await _scrapService.ClickCheckboxIcon(ClickerInput);
-
-                Pause(); //if paused
-
-                await Task.Delay(5000); //wait for pics to load JS pics
+                await Task.Delay(5000); //wait to load JS window
 
                 bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
                 if (isCaptcha)
                 {
-                    await _scrapService.ClickAudioChallangeIconAsync(ClickerInput);
-
-                    await ResolveAudioChallengeAsync();
-                }
-                else
-                {
-                    await GetAndSaveResultAsync();
-                }
-            }
-        }
-
-        public void GetNewIp()
-        {
-            if (SearchViaTor)
-            {
-                _connectionService.GetNewBrowsingIp(WebBrowser);
-            }
-            else
-            {
-                ChangeConnectionType(WebBrowser);
-            }
-
-            HowManySearches = 0;
-        }
-
-        public async Task ResolveAudioChallengeAsync()
-        {
-            Pause(); //if paused
-
-            await Task.Delay(5000); //wait to load JS window
-
-            bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
-
-            if (isCaptcha)
-            {
-                if (AudioTrials == _audioTrialsLimit)
-                {
-                    if (SearchViaTor)
+                    if (AudioTrials == _audioTrialsLimit)
                     {
-                        GetNewIp();
+                        if (SearchViaTor)
+                        {
+                            GetNewIp(WebBrowser);
+                        }
+                        else
+                        {
+                            ChangeConnectionType(WebBrowser);
+                        }
                     }
                     else
                     {
-                        ChangeConnectionType(WebBrowser);
+
+                        await RecordAndProcessAudioAsync();
+
+                        AudioTrials++;
+
+                        _log.Info(AudioTrials);
                     }
                 }
                 else
                 {
-
-                    await RecordAndProcessAudioAsync();
-
-                    AudioTrials++;
+                    //log that no more captcha
                 }
             }
-            else
+            catch (Exception e)
             {
-                //log that no more captcha
+                _log.Error(e.Message);
             }
         }
 

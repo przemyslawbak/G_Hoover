@@ -1,4 +1,5 @@
 ﻿using G_Hoover.Desktop.Commands;
+using G_Hoover.Services.Logging;
 using MvvmDialogs;
 using System;
 using System.Windows.Input;
@@ -7,8 +8,11 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
-        public PhraseViewModel(string searchPhrase)
+        private readonly ILogService _log;
+        public PhraseViewModel(string searchPhrase, ILogService log)
         {
+            _log = log;
+
             OkCommand = new DelegateCommand(Ok);
 
             Before = "";
@@ -87,7 +91,18 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void Ok(object obj)
         {
-            DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
+            _log.Called();
+
+            try
+            {
+                DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
+
+                _log.Ended(Text, DialogResult);
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
     }
 }

@@ -29,17 +29,15 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecuteStopButton()
         {
-            _log.Called();
+            _log.Called(); //log
 
             try
             {
                 _browseService.CancelCollectData(); //cancel
-
-                _log.Ended();
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
             finally
             {
@@ -49,7 +47,7 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecutePauseButton(bool paused)
         {
-            _log.Called(paused);
+            _log.Called(paused); //log
 
             try
             {
@@ -61,18 +59,16 @@ namespace G_Hoover.Services.Buttons
                 {
                     _controlsService.GetPausedConfiguration(); //ui
                 }
-
-                _log.Ended();
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
         }
 
         public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase, bool paused)
         {
-            _log.Called(nameList.Count, searchPhrase, paused);
+            _log.Called(nameList.Count, string.Empty, searchPhrase, paused); //log
 
             try
             {
@@ -85,22 +81,20 @@ namespace G_Hoover.Services.Buttons
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
             finally
             {
                 if (!paused)
                 {
                     _controlsService.GetStoppedConfiguration(false); //ui
-
-                    _log.Ended();
                 }
             }
         }
 
         public async Task<List<string>> ExecuteUploadButtonAsync(string filePath, bool init)
         {
-            _log.Called(filePath, init);
+            _log.Called(filePath, init); //log
 
             List<string> nameList = new List<string>();
 
@@ -123,8 +117,6 @@ namespace G_Hoover.Services.Buttons
 
                         _browseService.SaveFilePath(filePath); //browser service
 
-                        _log.Ended(nameList.Count);
-
                         return nameList;
                     }
                     else
@@ -139,7 +131,7 @@ namespace G_Hoover.Services.Buttons
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
 
                 return new List<string>();
             }
@@ -147,15 +139,13 @@ namespace G_Hoover.Services.Buttons
 
         public void ExecuteBuildButton(string searchPhrase)
         {
-            _log.Called(searchPhrase);
+            _log.Called(searchPhrase); //log
 
             try
             {
                 if (!string.IsNullOrEmpty(searchPhrase))
                 {
                     _browseService.UpdateSearchPhrase(searchPhrase); //browser service
-
-                    _log.Ended();
                 }
                 else
                 {
@@ -164,13 +154,13 @@ namespace G_Hoover.Services.Buttons
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
         }
 
         public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
-            _log.Called(paused);
+            _log.Called(string.Empty, paused); //log
 
             try
             {
@@ -188,44 +178,38 @@ namespace G_Hoover.Services.Buttons
                 {
                     _controlsService.GetStoppedConfiguration(false); //ui
                 }
-
-                _log.Ended();
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
         }
 
         public void ExecuteClickerChangeButton()
         {
-            _log.Called();
+            _log.Called(); //log
 
             try
             {
                 _browseService.ClickerChange(); //browser service
-
-                _log.Ended();
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
         }
 
-        public void ExecuteChangeIpButtonAsync()
+        public void ExecuteChangeIpButtonAsync(IWpfWebBrowser webBrowser)
         {
-            _log.Called();
+            _log.Called(); //log
 
             try
             {
-                _browseService.GetNewIp(); //browser service
-
-                _log.Ended();
+                _browseService.GetNewIp(webBrowser); //browser service
             }
             catch (Exception e)
             {
-                _log.Error(e.Message);
+                _log.Error(e.Message); //log
             }
         }
     }

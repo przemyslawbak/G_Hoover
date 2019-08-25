@@ -1,13 +1,18 @@
 ﻿using G_Hoover.Desktop.Commands;
+using G_Hoover.Services.Logging;
 using MvvmDialogs;
+using System;
 using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
     public class DeleteViewModel : ViewModelBase, IModalDialogViewModel
     {
-        public DeleteViewModel()
+        private readonly ILogService _log;
+        public DeleteViewModel(ILogService log)
         {
+            _log = log;
+
             OkCommand = new DelegateCommand(Ok);
         }
 
@@ -26,7 +31,18 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void Ok(object obj)
         {
-            DialogResult = true;
+            _log.Called();
+
+            try
+            {
+                DialogResult = true;
+
+                _log.Ended(DialogResult);
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
     }
 }

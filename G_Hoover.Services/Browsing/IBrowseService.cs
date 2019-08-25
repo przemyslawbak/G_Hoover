@@ -13,6 +13,6 @@ namespace G_Hoover.Services.Browsing
         void ChangeConnectionType(IWpfWebBrowser webBrowser);
         void SaveFilePath(string filePath);
         void ClickerChange();
-        void GetNewIp();
+        void GetNewIp(IWpfWebBrowser webBrowser);
     }
 }

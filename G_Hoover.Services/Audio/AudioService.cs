@@ -2,9 +2,11 @@
 using CSCore.SoundIn;
 using G_Hoover.Services.Config;
 using G_Hoover.Services.Files;
+using G_Hoover.Services.Logging;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech.Intent;
+using System;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -12,16 +14,21 @@ namespace G_Hoover.Services.Audio
 {
     public class AudioService : IAudioService
     {
-        private WasapiCapture _capture;
-        private WaveWriter _writer;
         private readonly IFileService _fileService;
         private readonly IAppConfig _config;
+        private readonly ILogService _log;
+
+
+        private WasapiCapture _capture;
+        private WaveWriter _writer;
         private readonly Timer _recordFileTimer;
 
-        public AudioService(IFileService fileService, IAppConfig config)
+        public AudioService(IFileService fileService, IAppConfig config, ILogService log)
         {
             _fileService = fileService;
             _config = config;
+            _log = log;
+
             _recordFileTimer = new Timer();
         }
 
@@ -31,6 +38,8 @@ namespace G_Hoover.Services.Audio
             {
                 _recordFileTimer.Elapsed += new ElapsedEventHandler(OnFinishedRecordingEvent);
                 _recordFileTimer.Interval = 8000; //recording period
+
+                _log.Called();
 
                 try
                 {
@@ -49,21 +58,34 @@ namespace G_Hoover.Services.Audio
                     {
                         await Task.Delay(100);
                     }
+
+                    _log.Ended();
                 }
-                catch
+                catch (Exception e)
                 {
-                    //log
+                    _log.Error(e.Message, _recordFileTimer.ToString());
                 }
             }
         }
 
         private void OnFinishedRecordingEvent(object sender, ElapsedEventArgs e)
         {
-            _capture.Stop(); //stop recording
+            _log.Called();
 
-            _recordFileTimer.Enabled = false; //timer disabled
+            try
+            {
+                _capture.Stop(); //stop recording
 
-            _writer.Dispose();
+                _recordFileTimer.Enabled = false; //timer disabled
+
+                _writer.Dispose();
+
+                _log.Ended();
+            }
+            catch
+            {
+                _log.Error();
+            }
         }
 
         public async Task<string> ProcessAudioSampleAsync()
@@ -73,56 +95,66 @@ namespace G_Hoover.Services.Audio
             SpeechConfig configRecognizer = SpeechConfig.FromSubscription(key, region);
             string processedAudio = "";
             string audioFile = _fileService.GetAudioFilePath();
-
             bool isRecorded = _fileService.CheckAudioFile();
+
+            _log.Called(isRecorded);
 
             if (!isRecorded)
                 return processedAudio; //if file empty
 
-            using (AudioConfig audioInput = AudioConfig.FromWavFileInput(audioFile))
-            using (IntentRecognizer recognizer = new IntentRecognizer(configRecognizer, audioInput))
+            try
             {
-                TaskCompletionSource<int> stopRecognition = new TaskCompletionSource<int>();
-
-                recognizer.Recognized += (s, e) =>
+                using (AudioConfig audioInput = AudioConfig.FromWavFileInput(audioFile))
+                using (IntentRecognizer recognizer = new IntentRecognizer(configRecognizer, audioInput))
                 {
+                    TaskCompletionSource<int> stopRecognition = new TaskCompletionSource<int>();
 
-                    if (e.Result.Reason == ResultReason.RecognizedSpeech)
+                    recognizer.Recognized += (s, e) =>
                     {
-                        processedAudio = e.Result.Text;
-                    }
-                };
 
-                recognizer.Canceled += (s, e) => {
-                    if (e.Reason == CancellationReason.Error)
-                    {
-                        //log
-                    }
-                    stopRecognition.TrySetResult(0);
-                };
+                        if (e.Result.Reason == ResultReason.RecognizedSpeech)
+                        {
+                            processedAudio = e.Result.Text;
+                        }
+                    };
 
-                recognizer.SessionStarted += (s, e) => {
+                    recognizer.Canceled += (s, e) => {
+                        if (e.Reason == CancellationReason.Error)
+                        {
+                            //log
+                        }
+                        stopRecognition.TrySetResult(0);
+                    };
 
-                    //log
-                };
+                    recognizer.SessionStarted += (s, e) => {
 
-                recognizer.SessionStopped += (s, e) => {
+                        _log.Info("Start recording.");
+                    };
 
-                    //log
+                    recognizer.SessionStopped += (s, e) => {
 
-                    stopRecognition.TrySetResult(0);
-                };
+                        _log.Info("Stop recording.");
 
-                await recognizer.StartContinuousRecognitionAsync();
+                        stopRecognition.TrySetResult(0);
+                    };
 
-                Task.WaitAny(new[] { stopRecognition.Task });
+                    await recognizer.StartContinuousRecognitionAsync();
 
-                await recognizer.StopContinuousRecognitionAsync();
+                    Task.WaitAny(new[] { stopRecognition.Task });
+
+                    await recognizer.StopContinuousRecognitionAsync();
+                }
+
+                _log.Ended(processedAudio);
+
+                return processedAudio;
             }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
 
-            //log
-
-            return processedAudio;
+                return string.Empty;
+            }
         }
     }
 }

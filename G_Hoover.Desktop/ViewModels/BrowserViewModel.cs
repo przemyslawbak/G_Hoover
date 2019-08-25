@@ -6,6 +6,7 @@ using G_Hoover.Models;
 using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Config;
 using G_Hoover.Services.Files;
+using G_Hoover.Services.Logging;
 using G_Hoover.Services.Messages;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
@@ -25,19 +26,22 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
+        private readonly ILogService _log;
 
         public BrowserViewModel(IFileService fileService,
             IDialogService dialogService,
             IMessageService messageService,
             IEventAggregator eventAggregator,
             IButtonsService buttonService,
-            IAppConfig config)
+            IAppConfig config,
+            ILogService log)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _buttonService = buttonService;
             _eventAggregator = eventAggregator;
             _config = config;
+            _log = log;
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new DelegateCommand(OnStopCommand);
@@ -60,11 +64,20 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async void InitializeProgramAsync()
         {
-            SearchPhrase = _config.GetSearchPhrase();
-            FilePath = _config.GetFilePath();
-            NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo
-            PhraseNo = _config.GetPhraseNo();
             _fileService.RemoveOldLogs();
+            _log.Called();
+
+            try
+            {
+                SearchPhrase = _config.GetSearchPhrase();
+                FilePath = _config.GetFilePath();
+                NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo
+                PhraseNo = _config.GetPhraseNo();
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         private void OnUpdateControls(UiPropertiesModel obj)
@@ -85,7 +98,7 @@ namespace G_Hoover.Desktop.ViewModels
         private void OnChangeIpCommand(object obj)
         {
             if (UiButtonsEnabled)
-                _buttonService.ExecuteChangeIpButtonAsync();
+                _buttonService.ExecuteChangeIpButtonAsync(WebBrowser);
         }
 
         public async Task OnStartCommandAsync()
@@ -111,13 +124,15 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 FilePath = GetFilePath();
                 if(!string.IsNullOrEmpty(FilePath))
-                    NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, false);
-                if (NameList.Count > 0)
                 {
-                    deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+                    NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, false);
+                    if (NameList.Count > 0)
+                    {
+                        deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+                    }
+                    if (deleteResults == true)
+                        _fileService.DeleteResultsFile();
                 }
-                if (deleteResults == true)
-                    _fileService.DeleteResultsFile();
             }
 
         }
@@ -153,50 +168,91 @@ namespace G_Hoover.Desktop.ViewModels
 
         public string GetFilePath()
         {
-            var settings = new OpenFileDialogSettings
+            _log.Called();
+
+            try
             {
-                Title = "This Is The Title",
-                Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
-            };
+                var settings = new OpenFileDialogSettings
+                {
+                    Title = "This Is The Title",
+                    Filter = "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*"
+                };
 
-            settings.InitialDirectory = (!string.IsNullOrEmpty(FilePath) && !string.IsNullOrWhiteSpace(FilePath)) ? FilePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                settings.InitialDirectory = (!string.IsNullOrEmpty(FilePath) && !string.IsNullOrWhiteSpace(FilePath)) ? FilePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            bool? success = _dialogService.ShowOpenFileDialog(this, settings);
+                bool? success = _dialogService.ShowOpenFileDialog(this, settings);
 
-            return success == true ? settings.FileName : string.Empty;
+                return success == true ? settings.FileName : string.Empty;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return string.Empty;
+            }
         }
 
         public string ShowUploadDialog(Func<PhraseViewModel, bool?> showDialog)
         {
-            var dialogViewModel = new PhraseViewModel(SearchPhrase);
+            _log.Called(string.Empty);
 
-            bool? success = showDialog(dialogViewModel);
+            try
+            {
+                var dialogViewModel = new PhraseViewModel(SearchPhrase, _log);
 
-            return success == true ? dialogViewModel.Text : string.Empty;
+                bool? success = showDialog(dialogViewModel);
+
+                return success == true ? dialogViewModel.Text : string.Empty;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return string.Empty;
+            }
         }
 
         public bool? ShowDeleteDialog(Func<DeleteViewModel, bool?> showDialog)
         {
-            var dialogViewModel = new DeleteViewModel();
+            _log.Called(string.Empty);
 
-            bool? success = showDialog(dialogViewModel);
+            try
+            {
+                var dialogViewModel = new DeleteViewModel(_log);
 
-            return success;
+                bool? success = showDialog(dialogViewModel);
+
+                return success;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return false;
+            }
         }
 
         public void ProgressBarTick()
         {
-            if (NameList.Count > 0)
-            {
-                UpdateStatusBar = PhraseNo * 100 / NameList.Count;
-                ProgressDisplay = PhraseNo + " / " + NameList.Count;
-            }
-            else if (NameList.Count == 0 || NameList == null)
-            {
-                UpdateStatusBar = 0;
-                ProgressDisplay = "0 / 0";
-            }
+            ProgressDisplay = string.Empty;
 
+            try
+            {
+                if (NameList.Count > 0)
+                {
+                    UpdateStatusBar = PhraseNo * 100 / NameList.Count;
+                    ProgressDisplay = PhraseNo + " / " + NameList.Count;
+                }
+                else if (NameList.Count == 0 || NameList == null)
+                {
+                    UpdateStatusBar = 0;
+                    ProgressDisplay = "0 / 0";
+                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         public ICommand StartCommand { get; private set; }
@@ -208,8 +264,30 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand BuildCommand { get; private set; }
         public ICommand ChangeIpCommand { get; private set; }
 
-        public string FilePath { get; set; } //path of uploaded file
-        public string SearchPhrase { get; set; } //phrase built in dialog window
+
+        private string _filePath;
+        public string FilePath //path of uploaded file
+        {
+            get => _filePath;
+            set
+            {
+                _filePath = value;
+                ProgressBarTick();
+                _log.Prop(nameof(_filePath), _filePath);
+            }
+        }
+
+        private string _searchPhrase;
+        public string SearchPhrase //phrase built in dialog window
+        {
+            get => _searchPhrase;
+            set
+            {
+                _searchPhrase = value;
+                ProgressBarTick();
+                _log.Prop(nameof(_searchPhrase), _searchPhrase);
+            }
+        }
 
         private List<string> _nameList;
         public List<string> NameList //list of phrases loaded from the file
@@ -219,6 +297,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _nameList = value;
                 ProgressBarTick();
+                _log.Prop(nameof(_nameList), _nameList.Count);
             }
         }
 
@@ -230,16 +309,18 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _phraseNo = value;
                 ProgressBarTick();
+                _log.Prop(nameof(_phraseNo), _phraseNo.ToString());
             }
         }
 
         private UiPropertiesModel _uiControls;
-        public UiPropertiesModel UiControls
+        public UiPropertiesModel UiControls //controls props for UI
         {
             get => _uiControls;
             set
             {
                 _uiControls = value;
+                Stopped = _uiControls.Stopped;
                 Paused = _uiControls.Paused;
                 PleaseWaitVisible = _uiControls.PleaseWaitVisible;
                 UiButtonsEnabled = _uiControls.UiButtonsEnabled;
@@ -250,7 +331,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private BrowserPropertiesModel _browserControls;
-        public BrowserPropertiesModel BrowserControls
+        public BrowserPropertiesModel BrowserControls //controls props for browser
         {
             get => _browserControls;
             set
@@ -279,6 +360,18 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        private bool _stopped;
+        public bool Stopped
+        {
+            get => _stopped;
+            set
+            {
+                _stopped = value;
+                OnPropertyChanged();
+                _log.Prop(nameof(_stopped), _stopped.ToString());
+            }
+        }
+
         private bool _paused;
         public bool Paused
         {
@@ -287,6 +380,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _paused = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_paused), _paused.ToString());
             }
         }
 
@@ -298,6 +392,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _isOnTop = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_isOnTop), _isOnTop.ToString());
             }
         }
 
@@ -309,6 +404,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _resizeMode = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_resizeMode), _resizeMode.ToString());
             }
         }
 
@@ -320,6 +416,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _curWindowState = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_curWindowState), _curWindowState.ToString());
             }
         }
 
@@ -331,6 +428,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _isBrowserFocused = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_isBrowserFocused), _isBrowserFocused.ToString());
             }
         }
 
@@ -342,6 +440,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _pleaseWaitVisible = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_pleaseWaitVisible), _pleaseWaitVisible.ToString());
             }
         }
         private bool _pauseBtnEnabled;
@@ -407,6 +506,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _connection = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_connection), _connection);
             }
         }
 
@@ -418,6 +518,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _clicker = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_clicker), _clicker);
             }
         }
 
@@ -429,6 +530,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _status = value;
                 OnPropertyChanged();
+                _log.Prop(nameof(_status), _status);
             }
         }
 
