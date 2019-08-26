@@ -6,12 +6,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace G_Hoover.Services.Logging
 {
     public class LogService : ILogService
     {
+        private readonly string _logFile = "../../../../log.txt";
         public LogService()
         {
 
@@ -21,38 +23,40 @@ namespace G_Hoover.Services.Logging
         {
             object[] arguments = { propertyName, value };
 
-            GetStringAttributes(nameof(Prop), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Prop), arguments, DateTime.Now);
         }
 
         public void Called(params object[] arguments)
         {
-            GetStringAttributes(nameof(Called), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Called), arguments, DateTime.Now);
         }
 
         public void Ended(params object[] arguments)
         {
-            GetStringAttributes(nameof(Ended), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Ended), arguments, DateTime.Now);
         }
 
         public void Info(string value)
         {
             object[] arguments = { value };
 
-            GetStringAttributes(nameof(Info), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Info), arguments, DateTime.Now);
         }
 
-        public void Error(params object[] arguments)
+        public void Error(string value)
         {
-            GetStringAttributes(nameof(Error), arguments, DateTime.Now);
+            object[] arguments = { value };
+
+            GetStringAttributesAsync(nameof(Error), arguments, DateTime.Now);
         }
 
-        private void GetStringAttributes(string eventType, object[] arguments, DateTime date)
+        public async void GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
         {
             string methodName = string.Empty;
             string className = string.Empty;
             ParameterInfo[] parameters = { };
 
-           MethodBase callingMethod = new StackTrace().GetFrame(2).GetMethod();
+            MethodBase callingMethod = new StackTrace().GetFrame(4).GetMethod();
 
             if (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run")
             {
@@ -68,23 +72,22 @@ namespace G_Hoover.Services.Logging
             string type = GetEventType(eventType);
             string line = BuildLine(date, type, className, methodName, parameters, arguments);
 
-            SaveLogAsync(line);
+            await SaveLogAsync(line);
         }
 
-        public void SaveLogAsync(string line)
+        public async Task SaveLogAsync(string line) //DO NOT LOG -> makes endless loop!
         {
-            Called();//no need param
-
             try
             {
-                using (TextWriter LineBuilder = new StreamWriter("../../../../log.txt", true))
+                using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
                 {
-                    LineBuilder.WriteLine(line);
+                    await LineBuilder.WriteLineAsync(line);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Error(e.Message);
+                Thread.Sleep(100);
+                await SaveLogAsync(line);
             }
         }
 
@@ -100,6 +103,7 @@ namespace G_Hoover.Services.Logging
             bool typeProps = type == "PROP";
             bool typeCalled = type == "CALLED";
             bool typeInfo = type == "INFO";
+            bool typeError = type == "ERROR";
 
             StringBuilder sb = new StringBuilder();
             sb.Append(date.ToLongTimeString());
@@ -132,7 +136,7 @@ namespace G_Hoover.Services.Logging
             {
                 sb.Append(arguments[1]);
             }
-            else if (typeInfo)
+            else if (typeInfo || typeError)
             {
                 sb.Append("(");
                 sb.Append(arguments[0]);
@@ -151,10 +155,10 @@ namespace G_Hoover.Services.Logging
             }
 
             sb.Append(")");
-            if (!typeCalled && !typeProps && !typeInfo)
+            if (!typeCalled && !typeProps && !typeInfo && !typeError)
                 sb.Append("|");
 
-            if (areArgs && !combineParamsArgs && !typeProps)
+            if (areArgs && !combineParamsArgs && !typeProps && !typeCalled && !typeInfo)
             {
                 for (var i = 0; i < arguments.Length; i++)
                 {
@@ -167,7 +171,7 @@ namespace G_Hoover.Services.Logging
                         sb.Append("; ");
                 }
             }
-            else if (noArgs && !typeCalled && !typeProps && !typeInfo)
+            else if (noArgs && !typeCalled && !typeProps && !typeInfo && !typeError)
                 sb.Append("none");
 
             return sb.ToString();

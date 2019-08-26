@@ -69,7 +69,7 @@ namespace G_Hoover.Services.Audio
                 }
                 catch (Exception e)
                 {
-                    _log.Error(e.Message, _recordFileTimer.ToString());
+                    _log.Error(e.Message);
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace G_Hoover.Services.Audio
             }
             catch
             {
-                _log.Error();
+                _log.Error("Problems when finishing recording.");
             }
         }
 

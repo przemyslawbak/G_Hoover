@@ -56,6 +56,8 @@ namespace G_Hoover.Services.Browsing
 
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
+            _log.Called(nameList.Count, string.Empty, searchPhrase);
+
             if (StopTokenSource == null || StopTokenSource.IsCancellationRequested)
             {
                 StopTokenSource = new CancellationTokenSource();
@@ -67,8 +69,6 @@ namespace G_Hoover.Services.Browsing
                 PhraseNo = GetPhraseNo();
             }
 
-            _log.Called(nameList.Count, searchPhrase);
-
             Task task = Task.Run(async () =>
             {
                 await LoopCollectingAsync();
@@ -78,8 +78,6 @@ namespace G_Hoover.Services.Browsing
             try
             {
                 await task;
-
-                _log.Ended();
             }
             catch (OperationCanceledException e)
             {
@@ -122,8 +120,10 @@ namespace G_Hoover.Services.Browsing
 
                     //finish; GetStoppedConfiguration is in ButtonsService already
                 }
-
-                _log.Ended(NameList.Count, PhraseNo);
+            }
+            catch (OperationCanceledException e)
+            {
+                _log.Info("Task cancelled");
             }
             catch (Exception e)
             {
@@ -133,11 +133,11 @@ namespace G_Hoover.Services.Browsing
 
         public async Task GetNewRecordAsync()
         {
+            _log.Called();
+
             string phrase = SearchPhrase.Replace("<name>", NameList[PhraseNo]);
             LoadingPage = true;
             HowManySearches++;
-
-            _log.Called(HowManySearches, phrase);
 
             WebBrowser.Load("https://www.google.com/");
 
@@ -173,8 +173,6 @@ namespace G_Hoover.Services.Browsing
                         }
 
                         Pause(); //if paused
-
-                        _log.Ended();
                     }
                     catch (Exception e)
                     {
@@ -245,8 +243,6 @@ namespace G_Hoover.Services.Browsing
                         await GetAndSaveResultAsync();
                     }
                 }
-
-                _log.Ended();
             }
             catch (Exception e)
             {
@@ -256,7 +252,7 @@ namespace G_Hoover.Services.Browsing
 
         public void GetNewIp(IWpfWebBrowser webBrowser)
         {
-            _log.Called();
+            _log.Called(string.Empty);
 
             try
             {
@@ -270,12 +266,10 @@ namespace G_Hoover.Services.Browsing
                 }
 
                 HowManySearches = 0;
-
-                _log.Ended();
             }
             catch (Exception e)
             {
-                _log.Error();
+                _log.Error(e.Message);
             }
         }
 

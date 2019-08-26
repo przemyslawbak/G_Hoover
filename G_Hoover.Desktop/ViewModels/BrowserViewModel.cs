@@ -294,7 +294,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _nameList = value;
                 ProgressBarTick();
-                //_log.Prop(_nameList.Count);
+                _log.Prop(_nameList.Count);
             }
         }
 

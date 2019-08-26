@@ -7,7 +7,7 @@ namespace G_Hoover.Services.Logging
         void Called(params object[] values);
         void Ended(params object[] values);
         void Info(string value);
-        void Error(params object[] values);
+        void Error(string value);
         void Prop(object value, [CallerMemberName] string propertyName = null);
     }
 }

@@ -32,7 +32,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public void Ok(object obj)
         {
-            _log.Called(obj.ToString());
+            _log.Called(string.Empty);
 
             try
             {

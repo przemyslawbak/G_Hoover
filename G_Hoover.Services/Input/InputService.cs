@@ -145,12 +145,8 @@ namespace G_Hoover.Services.Input
 
         public void Pause()
         {
-            _log.Info("Paused");
-
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
-
-            _log.Info("Unpaused");
         }
 
     }
