@@ -26,18 +26,17 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _dialogResult = value;
                 OnPropertyChanged();
+                _log.Prop(_dialogResult);
             }
         }
 
         public void Ok(object obj)
         {
-            _log.Called();
+            _log.Called(obj.ToString());
 
             try
             {
                 DialogResult = true;
-
-                _log.Ended(DialogResult);
             }
             catch (Exception e)
             {

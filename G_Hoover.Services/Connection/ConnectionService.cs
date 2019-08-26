@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using CefSharp;
 using CefSharp.Wpf;
+using G_Hoover.Services.Logging;
 using Tor;
 using Tor.Config;
 
@@ -10,61 +11,104 @@ namespace G_Hoover.Services.Connection
 {
     public class ConnectionService : IConnectionService
     {
+        ILogService _log;
+
+        public ConnectionService(ILogService log)
+        {
+            _log = log;
+        }
+
         public void ConfigureBrowserDirect(IWpfWebBrowser webBrowser)
         {
-            Cef.UIThreadTaskFactory.StartNew(delegate
+            _log.Called(string.Empty);
+
+            try
             {
-                var rc = webBrowser.GetBrowser().GetHost().RequestContext;
-                var v = new Dictionary<string, object>();
-                v["mode"] = "direct";
-                v["server"] = "";
-                string error;
-                bool success = rc.SetPreference("proxy", v, out error);
-            });
+                Cef.UIThreadTaskFactory.StartNew(delegate
+                {
+                    var rc = webBrowser.GetBrowser().GetHost().RequestContext;
+                    var v = new Dictionary<string, object>();
+                    v["mode"] = "direct";
+                    v["server"] = "";
+                    string error;
+                    bool success = rc.SetPreference("proxy", v, out error);
+                });
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         public void ConfigureBrowserTor(IWpfWebBrowser webBrowser)
         {
-            InitializeTor();
+            _log.Called(string.Empty);
 
-            Cef.UIThreadTaskFactory.StartNew(delegate
+            try
             {
-                var rc = webBrowser.GetBrowser().GetHost().RequestContext;
-                var v = new Dictionary<string, object>();
-                v["mode"] = "fixed_servers";
-                v["server"] = "socks5://127.0.0.1:9050";
-                string error;
-                bool success = rc.SetPreference("proxy", v, out error);
-            });
+                InitializeTor();
+
+                Cef.UIThreadTaskFactory.StartNew(delegate
+                {
+                    var rc = webBrowser.GetBrowser().GetHost().RequestContext;
+                    var v = new Dictionary<string, object>();
+                    v["mode"] = "fixed_servers";
+                    v["server"] = "socks5://127.0.0.1:9050";
+                    string error;
+                    bool success = rc.SetPreference("proxy", v, out error);
+                });
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         public void GetNewBrowsingIp(IWpfWebBrowser webBrowser)
         {
-            Cef.GetGlobalCookieManager().DeleteCookies("", "");
+            _log.Called(string.Empty);
 
-            InitializeTor();
+            try
+            {
+                Cef.GetGlobalCookieManager().DeleteCookies("", "");
+
+                InitializeTor();
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         private void InitializeTor()
         {
-            Process[] previous = Process.GetProcessesByName("tor");
-            if (previous != null && previous.Length > 0)
+            _log.Called();
+
+            try
             {
-                foreach (Process process in previous)
-                    process.Kill();
+                Process[] previous = Process.GetProcessesByName("tor");
+                if (previous != null && previous.Length > 0)
+                {
+                    foreach (Process process in previous)
+                        process.Kill();
+                }
+
+                ClientCreateParams createParams = new ClientCreateParams();
+                createParams.ConfigurationFile = "";
+                createParams.DefaultConfigurationFile = "";
+                createParams.ControlPassword = "";
+                createParams.ControlPort = 9051;
+                createParams.Path = @"Tor\Tor\tor.exe";
+                createParams.SetConfig(ConfigurationNames.AvoidDiskWrites, true);
+                createParams.SetConfig(ConfigurationNames.GeoIPFile, System.IO.Path.Combine(Environment.CurrentDirectory, @"Tor\Data\Tor\geoip"));
+                createParams.SetConfig(ConfigurationNames.GeoIPv6File, System.IO.Path.Combine(Environment.CurrentDirectory, @"Tor\Data\Tor\geoip6"));
+
+                Client client = Client.Create(createParams);
             }
-
-            ClientCreateParams createParams = new ClientCreateParams();
-            createParams.ConfigurationFile = "";
-            createParams.DefaultConfigurationFile = "";
-            createParams.ControlPassword = "";
-            createParams.ControlPort = 9051;
-            createParams.Path = @"Tor\Tor\tor.exe";
-            createParams.SetConfig(ConfigurationNames.AvoidDiskWrites, true);
-            createParams.SetConfig(ConfigurationNames.GeoIPFile, System.IO.Path.Combine(Environment.CurrentDirectory, @"Tor\Data\Tor\geoip"));
-            createParams.SetConfig(ConfigurationNames.GeoIPv6File, System.IO.Path.Combine(Environment.CurrentDirectory, @"Tor\Data\Tor\geoip6"));
-
-            Client client = Client.Create(createParams);
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
     }
 }

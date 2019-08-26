@@ -1,5 +1,6 @@
 ﻿using G_Hoover.Events;
 using G_Hoover.Models;
+using G_Hoover.Services.Logging;
 using Prism.Events;
 using System;
 using System.Runtime.InteropServices;
@@ -12,18 +13,23 @@ namespace G_Hoover.Services.Input
 
     public class InputService : IInputService
     {
-        private readonly InputSimulator _simulator; //framework
+
+        private readonly IInputSimulator _simulator;
         private readonly IEventAggregator _eventAggregator;
+        private readonly ILogService _log;
+
+
         private readonly Random _rndX; //random int for X
         private readonly Random _rndY; //random int for Y
         private int _corrX; //correction for X
         private int _corrY; //correction for Y
 
-        public InputService(IEventAggregator eventAggregator)
+        public InputService(IEventAggregator eventAggregator, IInputSimulator simulator, ILogService log)
         {
             _eventAggregator = eventAggregator;
+            _simulator = simulator;
+            _log = log;
 
-            _simulator = new InputSimulator();
             _rndX = new Random();
             _rndY = new Random();
             _corrX = 0;
@@ -106,21 +112,32 @@ namespace G_Hoover.Services.Input
 
         public async Task MouseLeftButtonClick(int posX, int posY)
         {
-            //add randomity
-            int randX = _rndX.Next(-10, 10);
-            int randY = _rndY.Next(-10, 10);
+            _log.Called(posX, posY);
 
-            Pause(); //if paused
+            try
+            {
+                //add randomity
+                int randX = _rndX.Next(-10, 10);
+                int randY = _rndY.Next(-10, 10);
 
-            await Task.Delay(1000);
+                Pause(); //if paused
 
-            SetCursorPos(posX + randX + _corrX, posY + randY + _corrY); //move to x-y
+                await Task.Delay(1000);
 
-            _simulator.Mouse.LeftButtonClick(); //click l.btn
+                SetCursorPos(posX + randX + _corrX, posY + randY + _corrY); //move to x-y
+
+                _simulator.Mouse.LeftButtonClick(); //click l.btn
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
         }
 
         public async Task KeyboardTextInput(string text)
         {
+            _log.Called(text);
+
             await Task.Delay(1);
 
             _simulator.Keyboard.TextEntry(text);
@@ -128,8 +145,12 @@ namespace G_Hoover.Services.Input
 
         public void Pause()
         {
+            _log.Info("Paused");
+
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
+
+            _log.Info("Unpaused");
         }
 
     }

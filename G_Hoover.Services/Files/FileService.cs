@@ -9,25 +9,28 @@ using G_Hoover.Models;
 using CSCore.Codecs.WAV;
 using CSCore.SoundIn;
 using System.Text.RegularExpressions;
+using G_Hoover.Services.Logging;
 
 namespace G_Hoover.Services.Files
 {
     public class FileService : IFileService
     {
+        ILogService _log;
+
         private readonly string _logFile = "../../../../log.txt";
         private readonly string _resultFile = "../../../../result.txt";
         private readonly string _audioFile = "../../../../dump.wav";
 
-        public FileService()
+        public FileService(ILogService log)
         {
-
+            _log = log;
         }
 
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
-            List<string> list = new List<string>();
+            _log.Called(filePath);
 
-            //_logger.Info(MessagesInfo[callerName] + filePath); //log
+            List<string> list = new List<string>();
 
             try
             {
@@ -42,15 +45,14 @@ namespace G_Hoover.Services.Files
                     }
                 }
 
-                //_logger.Info(MessagesResult[callerName] + list.Count); //log
-
                 return list;
             }
             catch (Exception e)
             {
-                //_logger.Error(MessagesError[callerName] + e.Message); //log
 
                 list.Clear();
+
+                _log.Error(e.Message);
 
                 return list;
             }
@@ -58,85 +60,112 @@ namespace G_Hoover.Services.Files
 
         public void RemoveOldLogs()
         {
-            //_logger.Info(MessagesInfo[callerName]); //log
+            _log.Called();
 
             try
             {
-                if (File.Exists(_logFile))
-                {
-                    File.Delete(_logFile);
-                }
-
-                //_logger.Info(MessagesResult[callerName]); //log
+                DeleteFile(_logFile);
             }
             catch (Exception e)
             {
-                //_logger.Error(MessagesError[callerName] + e.Message); //log
+                _log.Error(e.Message);
             }
         }
 
         public async Task SaveNewResultAsync(ResultObjectModel result, string phrase)
         {
-            string stringResult = CombineStringResult(result, phrase);
+            _log.Called(string.Empty, phrase);
 
-            using (TextWriter LineBuilder = new StreamWriter(_resultFile, true))
+            try
             {
-                await LineBuilder.WriteLineAsync(stringResult);
+                string stringResult = CombineStringResult(result, phrase);
+
+                if (!string.IsNullOrEmpty(stringResult))
+                {
+                    using (TextWriter LineBuilder = new StreamWriter(_resultFile, true))
+                    {
+                        await LineBuilder.WriteLineAsync(stringResult);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
             }
         }
 
         public string CombineStringResult(ResultObjectModel result, string phrase)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(phrase);
-            sb.Append("|");
-            sb.Append(result.Header);
-            sb.Append("|");
-            sb.Append(result.Url);
+            _log.Called(string.Empty, phrase);
 
-            return sb.ToString();
-        }
-
-        public WaveWriter CreateNewWaveWriter(WasapiCapture capture)
-        {
-            if (File.Exists(_audioFile))
+            try
             {
-                File.Delete(_audioFile);
+                StringBuilder sb = new StringBuilder();
+                sb.Append(phrase);
+                sb.Append("|");
+                sb.Append(result.Header);
+                sb.Append("|");
+                sb.Append(result.Url);
+
+                return sb.ToString();
             }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
 
-            WaveWriter writer = new WaveWriter(_audioFile, capture.WaveFormat);
-
-            return writer;
+                return string.Empty;
+            }
         }
 
         public bool CheckAudioFile()
         {
+            _log.Called();
+
             return (new FileInfo(_audioFile).Length > 10000) ? true : false;
         }
 
         public string GetAudioFilePath()
         {
+            _log.Called();
+
             return _audioFile;
         }
 
         public string ProsessText(string audioResult)
         {
+            _log.Called(audioResult);
+
             return Regex.Replace(audioResult.ToLower(), @"[.?!,]", "");
         }
 
         public void DeleteResultsFile()
         {
-            if (File.Exists(_resultFile))
-            {
-                File.Delete(_resultFile);
-            }
+            _log.Called();
+
+            DeleteFile(_resultFile);
         }
 
-        public async Task SaveLogAsync(string line)
+        public void DeleteOldAudio()
         {
-            using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
+            _log.Called();
+
+            DeleteFile(_audioFile);
+        }
+
+        private void DeleteFile(string path)
+        {
+            _log.Called(path);
+
+            try
             {
-                await LineBuilder.WriteLineAsync(line);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
             }
         }
     }

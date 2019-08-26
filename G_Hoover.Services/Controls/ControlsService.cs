@@ -3,6 +3,7 @@ using System.Windows;
 using G_Hoover.Events;
 using G_Hoover.Models;
 using G_Hoover.Services.Files;
+using G_Hoover.Services.Logging;
 using G_Hoover.Services.Messages;
 using NLog;
 using Prism.Events;
@@ -12,14 +13,18 @@ namespace G_Hoover.Services.Controls
     public class ControlsService : IControlsService
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly ILogService _log;
 
-        public ControlsService(IEventAggregator eventAggregator)
+        public ControlsService(IEventAggregator eventAggregator, ILogService log)
         {
+            _log = log;
             _eventAggregator = eventAggregator;
         }
 
         public void GetPausedConfiguration()
         {
+            _log.Called();
+
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
                 Paused = true,
@@ -36,6 +41,8 @@ namespace G_Hoover.Services.Controls
 
         public void GetStartedConfiguration()
         {
+            _log.Called();
+
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
                 Paused = false,
@@ -52,6 +59,8 @@ namespace G_Hoover.Services.Controls
 
         public void GetStoppedConfiguration(bool init)
         {
+            _log.Called();
+
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
                 Paused = false,
@@ -68,6 +77,8 @@ namespace G_Hoover.Services.Controls
 
         public void GetWaitConfiguration()
         {
+            _log.Called();
+
             UiPropertiesModel uiModel = new UiPropertiesModel()
             {
                 Paused = false,
@@ -84,6 +95,8 @@ namespace G_Hoover.Services.Controls
 
         public void ShowLessBrowser()
         {
+            _log.Called();
+
             BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
                 WindowState = WindowState.Normal,
@@ -97,6 +110,8 @@ namespace G_Hoover.Services.Controls
 
         public void ShowMoreBrowserRunning()
         {
+            _log.Called();
+
             BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
                 WindowState = WindowState.Maximized,
@@ -110,6 +125,8 @@ namespace G_Hoover.Services.Controls
 
         public void ShowMoreBrowserPaused()
         {
+            _log.Called();
+
             BrowserPropertiesModel browser = new BrowserPropertiesModel()
             {
                 WindowState = WindowState.Maximized,

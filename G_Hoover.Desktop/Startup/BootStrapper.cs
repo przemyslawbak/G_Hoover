@@ -14,6 +14,7 @@ using G_Hoover.Services.Messages;
 using G_Hoover.Services.Scrap;
 using MvvmDialogs;
 using Prism.Events;
+using WindowsInput;
 
 namespace G_Hoover.Desktop.Startup
 {
@@ -44,6 +45,9 @@ namespace G_Hoover.Desktop.Startup
 
             builder.RegisterType<InputService>()
               .As<IInputService>().SingleInstance();
+
+            builder.RegisterType<InputSimulator>()
+              .As<IInputSimulator>().SingleInstance();
 
             builder.RegisterType<BrowseService>()
               .As<IBrowseService>().SingleInstance();

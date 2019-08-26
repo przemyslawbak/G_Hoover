@@ -2,22 +2,26 @@
 using System.Threading.Tasks;
 using CefSharp;
 using CefSharp.Wpf;
-using G_Hoover.Services.Controls;
 using G_Hoover.Services.Input;
+using G_Hoover.Services.Logging;
 
 namespace G_Hoover.Services.Scrap
 {
     public class ScrapService : IScrapService
     {
-        IInputService _inputService;
+        private readonly IInputService _inputService;
+        private readonly ILogService _log;
 
-        public ScrapService(IInputService inputService)
+        public ScrapService(IInputService inputService, ILogService log)
         {
             _inputService = inputService;
+            _log = log;
         }
 
-        public async Task ClickSendResultAsync(bool clickerInput, string audioResult)
+        public async Task ClickSendResultAsync(bool clickerInput)
         {
+            _log.Called(clickerInput);
+
             if (!clickerInput)
             {
                 //TODO: find the way to do it with JS

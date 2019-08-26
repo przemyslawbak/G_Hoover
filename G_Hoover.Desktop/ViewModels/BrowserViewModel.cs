@@ -264,16 +264,14 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand BuildCommand { get; private set; }
         public ICommand ChangeIpCommand { get; private set; }
 
-
         private string _filePath;
-        public string FilePath //path of uploaded file
-        {
+        public string FilePath {
             get => _filePath;
             set
             {
                 _filePath = value;
                 ProgressBarTick();
-                _log.Prop(nameof(_filePath), _filePath);
+                _log.Prop(_filePath);
             }
         }
 
@@ -284,8 +282,7 @@ namespace G_Hoover.Desktop.ViewModels
             set
             {
                 _searchPhrase = value;
-                ProgressBarTick();
-                _log.Prop(nameof(_searchPhrase), _searchPhrase);
+                _log.Prop(_searchPhrase);
             }
         }
 
@@ -297,7 +294,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _nameList = value;
                 ProgressBarTick();
-                _log.Prop(nameof(_nameList), _nameList.Count);
+                //_log.Prop(_nameList.Count);
             }
         }
 
@@ -309,7 +306,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _phraseNo = value;
                 ProgressBarTick();
-                _log.Prop(nameof(_phraseNo), _phraseNo.ToString());
+                _log.Prop(_phraseNo);
             }
         }
 
@@ -368,7 +365,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _stopped = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_stopped), _stopped.ToString());
+                _log.Prop(_stopped);
             }
         }
 
@@ -380,7 +377,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _paused = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_paused), _paused.ToString());
+                _log.Prop(_paused);
             }
         }
 
@@ -392,7 +389,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _isOnTop = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_isOnTop), _isOnTop.ToString());
+                _log.Prop(_isOnTop);
             }
         }
 
@@ -404,7 +401,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _resizeMode = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_resizeMode), _resizeMode.ToString());
+                _log.Prop(_resizeMode);
             }
         }
 
@@ -416,7 +413,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _curWindowState = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_curWindowState), _curWindowState.ToString());
+                _log.Prop(_curWindowState);
             }
         }
 
@@ -428,7 +425,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _isBrowserFocused = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_isBrowserFocused), _isBrowserFocused.ToString());
+                _log.Prop(_isBrowserFocused);
             }
         }
 
@@ -440,7 +437,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _pleaseWaitVisible = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_pleaseWaitVisible), _pleaseWaitVisible.ToString());
+                _log.Prop(_pleaseWaitVisible);
             }
         }
         private bool _pauseBtnEnabled;
@@ -506,7 +503,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _connection = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_connection), _connection);
+                _log.Prop(_connection);
             }
         }
 
@@ -518,7 +515,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _clicker = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_clicker), _clicker);
+                _log.Prop(_clicker);
             }
         }
 
@@ -530,7 +527,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 _status = value;
                 OnPropertyChanged();
-                _log.Prop(nameof(_status), _status);
+                _log.Prop(_status);
             }
         }
 

@@ -1,25 +1,25 @@
 ﻿using G_Hoover.Services.Files;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace G_Hoover.Services.Logging
 {
     public class LogService : ILogService
     {
-        private readonly IFileService _fileService;
-
-        public LogService(IFileService fileService)
+        public LogService()
         {
-            _fileService = fileService;
+
         }
 
-        public void Prop(string name, object value)
+        public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
-            object[] arguments = { name, value };
+            object[] arguments = { propertyName, value };
 
             GetStringAttributes(nameof(Prop), arguments, DateTime.Now);
         }
@@ -34,8 +34,10 @@ namespace G_Hoover.Services.Logging
             GetStringAttributes(nameof(Ended), arguments, DateTime.Now);
         }
 
-        public void Info(params object[] arguments)
+        public void Info(string value)
         {
+            object[] arguments = { value };
+
             GetStringAttributes(nameof(Info), arguments, DateTime.Now);
         }
 
@@ -66,12 +68,24 @@ namespace G_Hoover.Services.Logging
             string type = GetEventType(eventType);
             string line = BuildLine(date, type, className, methodName, parameters, arguments);
 
-            SaveLog(line);
+            SaveLogAsync(line);
         }
 
-        public void SaveLog(string line)
+        public void SaveLogAsync(string line)
         {
-            _fileService.SaveLogAsync(line);
+            Called();//no need param
+
+            try
+            {
+                using (TextWriter LineBuilder = new StreamWriter("../../../../log.txt", true))
+                {
+                    LineBuilder.WriteLine(line);
+                }
+            }
+            catch (Exception e)
+            {
+                Error(e.Message);
+            }
         }
 
         //not possible to get argument variables with reflection, best way is to use 'nameof': https://stackoverflow.com/a/2566177/11972985
@@ -85,6 +99,7 @@ namespace G_Hoover.Services.Logging
             bool noArgs = arguments.Length == 0;
             bool typeProps = type == "PROP";
             bool typeCalled = type == "CALLED";
+            bool typeInfo = type == "INFO";
 
             StringBuilder sb = new StringBuilder();
             sb.Append(date.ToLongTimeString());
@@ -98,7 +113,7 @@ namespace G_Hoover.Services.Logging
             sb.Append(methodName);
             sb.Append("(");
 
-            if (areParams && combineParamsArgs && typeCalled) //called
+            if (typeCalled && areParams && combineParamsArgs) //called
             {
                 for (var i = 0; i < parameters.Length; i++)
                 {
@@ -113,11 +128,15 @@ namespace G_Hoover.Services.Logging
                         sb.Append(", ");
                 }
             }
-            else if (areArgs && typeProps) //properties
+            else if (typeProps && areArgs) //properties
             {
-                sb.Append(arguments[0].ToString());
-                sb.Append("=");
-                sb.Append(arguments[1].ToString());
+                sb.Append(arguments[1]);
+            }
+            else if (typeInfo)
+            {
+                sb.Append("(");
+                sb.Append(arguments[0]);
+                sb.Append(")");
             }
             else if (areParams && !combineParamsArgs && !typeCalled) //all other
             {
@@ -132,7 +151,7 @@ namespace G_Hoover.Services.Logging
             }
 
             sb.Append(")");
-            if (!typeCalled && !typeProps)
+            if (!typeCalled && !typeProps && !typeInfo)
                 sb.Append("|");
 
             if (areArgs && !combineParamsArgs && !typeProps)
@@ -148,7 +167,7 @@ namespace G_Hoover.Services.Logging
                         sb.Append("; ");
                 }
             }
-            else if (noArgs && !typeCalled && !typeProps)
+            else if (noArgs && !typeCalled && !typeProps && !typeInfo)
                 sb.Append("none");
 
             return sb.ToString();

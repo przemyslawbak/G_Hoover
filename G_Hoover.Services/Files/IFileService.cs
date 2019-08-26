@@ -12,11 +12,10 @@ namespace G_Hoover.Services.Files
         Task<List<string>> GetNewListFromFileAsync(string filePath);
         void RemoveOldLogs();
         Task SaveNewResultAsync(ResultObjectModel result, string phrase);
-        WaveWriter CreateNewWaveWriter(WasapiCapture capture);
+        void DeleteOldAudio();
         bool CheckAudioFile();
         string GetAudioFilePath();
         string ProsessText(string audioResult);
         void DeleteResultsFile();
-        Task SaveLogAsync(string line);
     }
 }

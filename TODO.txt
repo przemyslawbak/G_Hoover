@@ -32,6 +32,8 @@ var foundMethod = matchingMethods.Single(); <- exception in LogService
 
 add debug only for logs
 
+clean up logservice
+
 --
 
 testing:

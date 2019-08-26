@@ -34,32 +34,38 @@ namespace G_Hoover.Services.Audio
 
         public async Task RecordAudioSampleAsync()
         {
+            _log.Called();
+
             using (_capture = new WasapiLoopbackCapture())
             {
                 _recordFileTimer.Elapsed += new ElapsedEventHandler(OnFinishedRecordingEvent);
                 _recordFileTimer.Interval = 8000; //recording period
 
-                _log.Called();
-
                 try
                 {
                     _capture.Initialize();
-                    _writer = _fileService.CreateNewWaveWriter(_capture); //need to have _capture initialized
-                    _capture.DataAvailable += (s, e) =>
+                    _writer = CreateNewWaveWriter(_capture); //need to have _capture initialized
+
+                    if (_writer != null)
                     {
-                        _writer.Write(e.Data, e.Offset, e.ByteCount); //saving recorded audio sample
-                    };
+                        _capture.DataAvailable += (s, e) =>
+                        {
+                            _writer.Write(e.Data, e.Offset, e.ByteCount); //saving recorded audio sample
+                        };
 
-                    _capture.Start(); //start recording
+                        _capture.Start(); //start recording
 
-                    _recordFileTimer.Enabled = true;
+                        _recordFileTimer.Enabled = true;
 
-                    while (_recordFileTimer.Enabled)
-                    {
-                        await Task.Delay(100);
+                        while (_recordFileTimer.Enabled)
+                        {
+                            await Task.Delay(100);
+                        }
                     }
-
-                    _log.Ended();
+                    else
+                    {
+                        throw new Exception("Could not create audio writer.");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -70,7 +76,7 @@ namespace G_Hoover.Services.Audio
 
         private void OnFinishedRecordingEvent(object sender, ElapsedEventArgs e)
         {
-            _log.Called();
+            _log.Called(sender.ToString(), string.Empty);
 
             try
             {
@@ -79,8 +85,6 @@ namespace G_Hoover.Services.Audio
                 _recordFileTimer.Enabled = false; //timer disabled
 
                 _writer.Dispose();
-
-                _log.Ended();
             }
             catch
             {
@@ -90,14 +94,14 @@ namespace G_Hoover.Services.Audio
 
         public async Task<string> ProcessAudioSampleAsync()
         {
+            _log.Called();
+
             string key = _config.AudioApiKey;
             string region = _config.AudioApiRegion;
             SpeechConfig configRecognizer = SpeechConfig.FromSubscription(key, region);
             string processedAudio = "";
             string audioFile = _fileService.GetAudioFilePath();
             bool isRecorded = _fileService.CheckAudioFile();
-
-            _log.Called(isRecorded);
 
             if (!isRecorded)
                 return processedAudio; //if file empty
@@ -145,8 +149,6 @@ namespace G_Hoover.Services.Audio
                     await recognizer.StopContinuousRecognitionAsync();
                 }
 
-                _log.Ended(processedAudio);
-
                 return processedAudio;
             }
             catch (Exception e)
@@ -154,6 +156,28 @@ namespace G_Hoover.Services.Audio
                 _log.Error(e.Message);
 
                 return string.Empty;
+            }
+        }
+
+        public WaveWriter CreateNewWaveWriter(WasapiCapture capture)
+        {
+            _log.Called(string.Empty);
+
+            try
+            {
+                string audioFile = _fileService.GetAudioFilePath();
+
+                _fileService.DeleteOldAudio();
+
+                WaveWriter writer = new WaveWriter(audioFile, capture.WaveFormat);
+
+                return writer;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return null;
             }
         }
     }

@@ -54,55 +54,6 @@ namespace G_Hoover.Services.Browsing
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
         }
 
-        public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
-        public int HowManySearches { get; set; } //how many searches for this IP
-        public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
-        public CancellationToken StopCancellationToken { get; set; } //cancellation token
-        public bool Paused { get; set; } //is paused by the user?
-        public bool Stopped { get; set; } //is stopped by the user?
-        public bool PleaseWaitVisible { get; set; } //is work in progress?
-        public List<string> NameList { get; set; } //list of phrases loaded from the file
-        public string SearchPhrase { get; set; } //phrase built in dialog window
-        public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
-        public bool LoadingPage { get; set; } //if page is now loading
-        public bool InputCorrection { get; set; } //if need to add correction for input
-        public string Status { get; set; }
-
-        private int _phraseNo;
-        public int PhraseNo //number of currently checked phrase
-        {
-            get => _phraseNo;
-            set
-            {
-                _phraseNo = value;
-                SavePhraseNo(); //save phraseno to cofig file
-                UpdateStatusProperties(); //publishes event with status model
-            }
-        }
-
-        private bool _searchViaTor;
-        public bool SearchViaTor //if Tor network in use
-        {
-            get => _searchViaTor;
-            set
-            {
-                _searchViaTor = value;
-                UpdateStatusProperties(); //publishes event with status model
-            }
-        }
-
-        private bool _clickerInput;
-        public bool ClickerInput //if click by input simulation
-        {
-            get => _clickerInput;
-            set
-            {
-                _clickerInput = value;
-                VerifyClickerInput(); //check window setup on prop update
-                UpdateStatusProperties(); //publishes event with status model
-            }
-        }
-
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             if (StopTokenSource == null || StopTokenSource.IsCancellationRequested)
@@ -132,7 +83,7 @@ namespace G_Hoover.Services.Browsing
             }
             catch (OperationCanceledException e)
             {
-                _log.Info("Task cancelled", e.Message);
+                _log.Info("Task cancelled");
             }
             catch (Exception e)
             {
@@ -360,7 +311,7 @@ namespace G_Hoover.Services.Browsing
 
                         AudioTrials++;
 
-                        _log.Info(AudioTrials);
+                        _log.Info(AudioTrials.ToString());
                     }
                 }
                 else
@@ -412,7 +363,7 @@ namespace G_Hoover.Services.Browsing
 
             Pause(); //if paused
 
-            await _scrapService.ClickSendResultAsync(ClickerInput, audioResult);
+            await _scrapService.ClickSendResultAsync(ClickerInput);
 
             await Task.Delay(6000); //wait for audio challenge result
 
@@ -463,8 +414,12 @@ namespace G_Hoover.Services.Browsing
 
         public void Pause()
         {
+            _log.Info("Paused");
+
             while (Paused || PleaseWaitVisible)
                 Thread.Sleep(50);
+
+            _log.Info("Unpaused");
         }
 
         public void ResolveEmptyString()
@@ -624,6 +579,55 @@ namespace G_Hoover.Services.Browsing
         public void ClickerChange()
         {
             ClickerInput = ClickerInput ? false : true;
+        }
+
+        public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
+        public int HowManySearches { get; set; } //how many searches for this IP
+        public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
+        public CancellationToken StopCancellationToken { get; set; } //cancellation token
+        public bool Paused { get; set; } //is paused by the user?
+        public bool Stopped { get; set; } //is stopped by the user?
+        public bool PleaseWaitVisible { get; set; } //is work in progress?
+        public List<string> NameList { get; set; } //list of phrases loaded from the file
+        public string SearchPhrase { get; set; } //phrase built in dialog window
+        public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
+        public bool LoadingPage { get; set; } //if page is now loading
+        public bool InputCorrection { get; set; } //if need to add correction for input
+        public string Status { get; set; }
+
+        private int _phraseNo;
+        public int PhraseNo //number of currently checked phrase
+        {
+            get => _phraseNo;
+            set
+            {
+                _phraseNo = value;
+                SavePhraseNo(); //save phraseno to cofig file
+                UpdateStatusProperties(); //publishes event with status model
+            }
+        }
+
+        private bool _searchViaTor;
+        public bool SearchViaTor //if Tor network in use
+        {
+            get => _searchViaTor;
+            set
+            {
+                _searchViaTor = value;
+                UpdateStatusProperties(); //publishes event with status model
+            }
+        }
+
+        private bool _clickerInput;
+        public bool ClickerInput //if click by input simulation
+        {
+            get => _clickerInput;
+            set
+            {
+                _clickerInput = value;
+                VerifyClickerInput(); //check window setup on prop update
+                UpdateStatusProperties(); //publishes event with status model
+            }
         }
     }
 }

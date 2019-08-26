@@ -17,6 +17,6 @@ namespace G_Hoover.Services.Scrap
         Task ClickNewAudioChallengeAsync(bool clickerInput, bool inputCorrection);
         Task ClickTextBoxAsync(bool clickerInput);
         Task EnterResultAsync(bool clickerInput, string audioResult);
-        Task ClickSendResultAsync(bool clickerInput, string audioResult);
+        Task ClickSendResultAsync(bool clickerInput);
     }
 }

@@ -1,11 +1,13 @@
-﻿namespace G_Hoover.Services.Logging
+﻿using System.Runtime.CompilerServices;
+
+namespace G_Hoover.Services.Logging
 {
     public interface ILogService
     {
         void Called(params object[] values);
         void Ended(params object[] values);
-        void Info(params object[] values);
+        void Info(string value);
         void Error(params object[] values);
-        void Prop(string name, object value);
+        void Prop(object value, [CallerMemberName] string propertyName = null);
     }
 }

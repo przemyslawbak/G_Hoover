@@ -95,6 +95,7 @@ namespace G_Hoover.Services.Buttons
         public async Task<List<string>> ExecuteUploadButtonAsync(string filePath, bool init)
         {
             _log.Called(filePath, init); //log
+            _log.Info("Looking good!");
 
             List<string> nameList = new List<string>();
 

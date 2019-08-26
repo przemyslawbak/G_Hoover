@@ -29,6 +29,34 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        public ICommand OkCommand { get; }
+
+        private bool? _dialogResult;
+        public bool? DialogResult
+        {
+            get => _dialogResult;
+            private set
+            {
+                _dialogResult = value;
+                OnPropertyChanged();
+                _log.Prop(_dialogResult);
+            }
+        }
+
+        public void Ok(object obj)
+        {
+            _log.Called(obj.ToString());
+
+            try
+            {
+                DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+            }
+        }
+
         public string Name { get; set; } = "<name>";
 
         private string _after;
@@ -73,35 +101,6 @@ namespace G_Hoover.Desktop.ViewModels
             get
             {
                 return !After.Contains("<name>") && !Before.Contains("<name>");
-            }
-        }
-
-        public ICommand OkCommand { get; }
-
-        private bool? _dialogResult;
-        public bool? DialogResult
-        {
-            get => _dialogResult;
-            private set
-            {
-                _dialogResult = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public void Ok(object obj)
-        {
-            _log.Called();
-
-            try
-            {
-                DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
-
-                _log.Ended(Text, DialogResult);
-            }
-            catch (Exception e)
-            {
-                _log.Error(e.Message);
             }
         }
     }
