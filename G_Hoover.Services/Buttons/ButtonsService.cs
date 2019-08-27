@@ -100,16 +100,14 @@ namespace G_Hoover.Services.Buttons
 
             try
             {
+                _controlsService.GetWaitConfiguration(); //ui
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    _controlsService.GetWaitConfiguration(); //ui
 
                     nameList = await _fileService.GetNewListFromFileAsync(filePath); //file
 
                     await Task.Delay(1000); //display messge
-
-                    _controlsService.GetStoppedConfiguration(init); //ui
 
                     if (nameList.Count > 0)
                     {
@@ -134,6 +132,10 @@ namespace G_Hoover.Services.Buttons
                 _log.Error(e.Message); //log
 
                 return new List<string>();
+            }
+            finally
+            {
+                _controlsService.GetStoppedConfiguration(init); //ui
             }
         }
 

@@ -1,17 +1,15 @@
-add debug only for logs
-
-clean up logservice
-
-track ControlsService calls on each btn click
-
 delays in saving log.txt
 
 09:27:43.822|ERROR|ScrapService|GetUrlAsync((Index was outside the bounds of the array.)) changes to ShowMoreBrowserRunning
+
+check if can get from stack what method returns...??
 
 --
 
 testing:
 async (sender, args) - not anonymus??
+
+track ControlsService calls on each btn click
 
 --
 

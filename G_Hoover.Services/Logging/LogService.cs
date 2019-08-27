@@ -1,5 +1,4 @@
-﻿using G_Hoover.Services.Files;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,10 +13,8 @@ namespace G_Hoover.Services.Logging
     public class LogService : ILogService
     {
         private readonly string _logFile = "../../../../log.txt";
-        public LogService()
-        {
 
-        }
+        public string Line { get; set; }
 
         public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
@@ -50,7 +47,7 @@ namespace G_Hoover.Services.Logging
             GetStringAttributesAsync(nameof(Error), arguments, DateTime.Now).Wait();
         }
 
-        public async Task GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
+        private async Task GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
         {
             string methodName = string.Empty;
             string className = string.Empty;
@@ -69,30 +66,15 @@ namespace G_Hoover.Services.Logging
                 parameters = callingMethod.GetParameters();
             }
 
-            string type = GetEventType(eventType);
-            string line = BuildLine(date, type, className, methodName, parameters, arguments);
+            eventType = eventType.ToUpper();
 
-            await SaveLogAsync(line);
+            Line = BuildLine(date, eventType, className, methodName, parameters, arguments);
+
+            await SaveLogAsync(Line);
         }
 
-        public async Task SaveLogAsync(string line) //DO NOT LOG -> makes endless loop!
-        {
-            try
-            {
-                using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
-                {
-                    await LineBuilder.WriteLineAsync(line);
-                }
-            }
-            catch
-            {
-                Thread.Sleep(10);
-                await SaveLogAsync(line + " <--DELAYED");
-            }
-        }
-
-        //not possible to get argument variables with reflection, best way is to use 'nameof': https://stackoverflow.com/a/2566177/11972985
-        //not possible to get parameter values with reflection: https://stackoverflow.com/a/1867496/11972985
+        //NOTE: not possible to get argument variables with reflection, best way is to use 'nameof': https://stackoverflow.com/a/2566177/11972985
+        //NOTE: not possible to get parameter values with reflection: https://stackoverflow.com/a/1867496/11972985
 
         private string BuildLine(DateTime date, string type, string className, string methodName, ParameterInfo[] parameters, object[] arguments)
         {
@@ -104,7 +86,141 @@ namespace G_Hoover.Services.Logging
             bool typeCalled = type == "CALLED";
             bool typeInfo = type == "INFO";
             bool typeError = type == "ERROR";
+            bool typeOther = !combineParamsArgs && !typeProps && !typeCalled && !typeInfo;
 
+            string begin = "";
+            string param = "";
+            string separator = "";
+            string argum = "";
+
+            begin = BuildBegin(date, type, className, methodName);
+
+            if (typeCalled && areParams && combineParamsArgs) //CALLED
+            {
+                param = BuildCalled(parameters, arguments);
+            }
+            else if (typeProps && areArgs) //PROP
+            {
+                param = BuildProp(arguments);
+            }
+            else if (typeInfo || typeError) //INFO & ERROR
+            {
+                param = BuildInfoError(arguments);
+            }
+            else if (areParams && !combineParamsArgs && !typeCalled) //all OTHER
+            {
+                param = BuildOther(arguments, parameters);
+            }
+
+            if (!typeCalled && !typeProps && !typeInfo && !typeError)
+            {
+                separator = BuildSeparator();
+            }
+
+            if (areArgs && typeOther) //all OTHER
+            {
+                argum = BuildArguments(arguments);
+            }
+            else if (noArgs && typeOther) //none
+            {
+                argum = "none";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(begin);
+            sb.Append(param);
+            sb.Append(separator);
+            sb.Append(argum);
+
+            return sb.ToString();
+        }
+
+        private string BuildArguments(object[] arguments)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                sb.Append("(");
+                sb.Append(arguments[i].GetType().Name);
+                sb.Append(")");
+                sb.Append("=");
+                sb.Append(arguments[i].ToString());
+                if (i < arguments.Length - 1)
+                    sb.Append("; ");
+            }
+
+            return sb.ToString();
+        }
+
+        private string BuildSeparator()
+        {
+            return "|";
+        }
+
+        private string BuildOther(object[] arguments, ParameterInfo[] parameters)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("(");
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                sb.Append(parameters[i].ParameterType.Name);
+                sb.Append(" ");
+                sb.Append(parameters[i].Name);
+                if (i < parameters.Length - 1)
+                    sb.Append(", ");
+            }
+            sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        private string BuildInfoError(object[] arguments)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("(");
+            sb.Append("(");
+            sb.Append(arguments[0]);
+            sb.Append(")");
+            sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        private string BuildProp(object[] arguments)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("(");
+            sb.Append(arguments[1]);
+            sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        private string BuildCalled(ParameterInfo[] parameters, object[] arguments)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("(");
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                sb.Append("(");
+                sb.Append(parameters[i].ParameterType.Name);
+                sb.Append(")");
+                sb.Append(parameters[i].Name);
+                if (!string.IsNullOrEmpty(arguments[i].ToString()))
+                    sb.Append("=");
+                sb.Append(arguments[i].ToString());
+                if (i < parameters.Length - 1)
+                    sb.Append(", ");
+            }
+            sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        private string BuildBegin(DateTime date, string type, string className, string methodName)
+        {
             StringBuilder sb = new StringBuilder();
             sb.Append(date.ToLongTimeString());
             sb.Append(".");
@@ -115,93 +231,11 @@ namespace G_Hoover.Services.Logging
             sb.Append(className);
             sb.Append("|");
             sb.Append(methodName);
-            sb.Append("(");
-
-            if (typeCalled && areParams && combineParamsArgs) //called
-            {
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    sb.Append("(");
-                    sb.Append(parameters[i].ParameterType.Name);
-                    sb.Append(")");
-                    sb.Append(parameters[i].Name);
-                    if (!string.IsNullOrEmpty(arguments[i].ToString()))
-                        sb.Append("=");
-                    sb.Append(arguments[i].ToString());
-                    if (i < parameters.Length - 1)
-                        sb.Append(", ");
-                }
-            }
-            else if (typeProps && areArgs) //properties
-            {
-                sb.Append(arguments[1]);
-            }
-            else if (typeInfo || typeError)
-            {
-                sb.Append("(");
-                sb.Append(arguments[0]);
-                sb.Append(")");
-            }
-            else if (areParams && !combineParamsArgs && !typeCalled) //all other
-            {
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    sb.Append(parameters[i].ParameterType.Name);
-                    sb.Append(" ");
-                    sb.Append(parameters[i].Name);
-                    if (i < parameters.Length - 1)
-                        sb.Append(", ");
-                }
-            }
-
-            sb.Append(")");
-            if (!typeCalled && !typeProps && !typeInfo && !typeError)
-                sb.Append("|");
-
-            if (areArgs && !combineParamsArgs && !typeProps && !typeCalled && !typeInfo)
-            {
-                for (var i = 0; i < arguments.Length; i++)
-                {
-                    sb.Append("(");
-                    sb.Append(arguments[i].GetType().Name);
-                    sb.Append(")");
-                    sb.Append("=");
-                    sb.Append(arguments[i].ToString());
-                    if (i < arguments.Length - 1)
-                        sb.Append("; ");
-                }
-            }
-            else if (noArgs && !typeCalled && !typeProps && !typeInfo && !typeError)
-                sb.Append("none");
 
             return sb.ToString();
         }
 
-        public string GetEventType(string eventType)
-        {
-            if (eventType == "Called")
-            {
-                return "CALLED";
-            }
-            else if (eventType == "Ended")
-            {
-                return "ENDED";
-            }
-            else if (eventType == "Info")
-            {
-                return "INFO";
-            }
-            else if (eventType == "Prop")
-            {
-                return "PROP";
-            }
-            else
-            {
-                return "ERROR";
-            }
-        }
-
-        public static MethodBase GetRealMethodFromAsyncMethod(MethodBase asyncMethod)
+        private static MethodBase GetRealMethodFromAsyncMethod(MethodBase asyncMethod)
         {
             try
             {
@@ -220,6 +254,25 @@ namespace G_Hoover.Services.Logging
             catch (Exception e)
             {
                 return null;
+            }
+        }
+
+        private async Task SaveLogAsync(string line) //DO NOT LOG -> makes endless loop!
+        {
+            try
+            {
+                if (Debugger.IsAttached) //save only for DEBUG
+                {
+                    using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
+                    {
+                        await LineBuilder.WriteLineAsync(line);
+                    }
+                }
+            }
+            catch
+            {
+                Thread.Sleep(10);
+                await SaveLogAsync(line + " <--DELAYED");
             }
         }
     }

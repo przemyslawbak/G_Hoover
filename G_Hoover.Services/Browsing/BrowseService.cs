@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using CefSharp;
@@ -31,8 +32,8 @@ namespace G_Hoover.Services.Browsing
 
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
-        private readonly int _audioTrialsLimit = 30; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing only
-        private readonly int _torSearchesCaptchaLimit = 20; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for testing only
+        private readonly int _audioTrialsLimit;
+        private readonly int _torSearchesCaptchaLimit;
 
         public BrowseService(IControlsService controlsService,
             IEventAggregator eventAggregator,
@@ -51,6 +52,17 @@ namespace G_Hoover.Services.Browsing
             _connectionService = connectionService;
             _audioService = audioService;
             _eventAggregator = eventAggregator;
+
+            if (Debugger.IsAttached) //save only for DEBUG
+            {
+                _audioTrialsLimit = 10;
+                _torSearchesCaptchaLimit = 10;
+            }
+            else
+            {
+                _audioTrialsLimit = 3;
+                _torSearchesCaptchaLimit = 2;
+            }
 
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
         }
