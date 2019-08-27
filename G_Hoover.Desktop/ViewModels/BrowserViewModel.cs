@@ -23,6 +23,7 @@ namespace G_Hoover.Desktop.ViewModels
     {
         Task Initialization { get; }
     }
+
     public class BrowserViewModel : ViewModelBase, IAsyncInitialization
     {
         private readonly IFileService _fileService;
@@ -54,7 +55,7 @@ namespace G_Hoover.Desktop.ViewModels
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
             UploadCommand = new AsyncCommand(async () => await OnUploadCommandAsync());
             BuildCommand = new DelegateCommand(OnBuildCommand);
-            ChangeIpCommand = new DelegateCommand(OnChangeIpCommand);
+            ChangeIpCommand = new AsyncCommand(async () => await OnChangeIpCommandAsync());
 
             NameList = new List<string>();
             UiControls = new UiPropertiesModel();
@@ -75,7 +76,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 SearchPhrase = _config.GetSearchPhrase();
                 FilePath = _config.GetFilePath();
-                NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo
+                NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo, after FilePath
                 PhraseNo = _config.GetPhraseNo();
             }
             catch (Exception e)
@@ -99,10 +100,10 @@ namespace G_Hoover.Desktop.ViewModels
             BrowserControls = obj;
         }
 
-        private void OnChangeIpCommand(object obj)
+        private async Task OnChangeIpCommandAsync()
         {
             if (UiButtonsEnabled)
-                _buttonService.ExecuteChangeIpButtonAsync(WebBrowser);
+                await _buttonService.ExecuteChangeIpButtonAsync(WebBrowser, Paused);
         }
 
         public async Task OnStartCommandAsync()
@@ -266,7 +267,7 @@ namespace G_Hoover.Desktop.ViewModels
         public ICommand ClickerChangeCommand { get; private set; }
         public IAsyncCommand UploadCommand { get; private set; }
         public ICommand BuildCommand { get; private set; }
-        public ICommand ChangeIpCommand { get; private set; }
+        public IAsyncCommand ChangeIpCommand { get; private set; }
 
         public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
 

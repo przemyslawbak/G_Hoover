@@ -8,5 +8,8 @@
         string GetFilePath();
         int GetPhraseNo();
         string GetSearchPhrase();
+        void SaveSearchPhrase(string searchPhrase);
+        void SavePhraseNo(int phraseNo);
+        void SaveFilePath(string filePath);
     }
 }

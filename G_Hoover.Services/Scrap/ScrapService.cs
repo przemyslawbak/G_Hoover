@@ -22,90 +22,153 @@ namespace G_Hoover.Services.Scrap
         {
             _log.Called(clickerInput);
 
-            if (!clickerInput)
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickSendResultInputAsync();
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickSendResultInputAsync();
+                _log.Error(e.Message);
             }
         }
 
         public async Task ClickAudioChallangeIconAsync(bool clickerInput)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickAudioChallangeInputAsync();
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickAudioChallangeInputAsync();
+                _log.Error(e.Message);
             }
         }
 
         public async Task ClickCheckboxIcon(bool clickerInput)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickCheckboxInputAsync();
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickCheckboxInputAsync();
+                _log.Error(e.Message);
             }
         }
 
         public async Task ClickNewAudioChallengeAsync(bool clickerInput, bool inputCorrection)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput, inputCorrection);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickNewAudioChallengeInputAsync(inputCorrection);
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickNewAudioChallengeInputAsync(inputCorrection);
+                _log.Error(e.Message);
             }
         }
 
         public async Task ClickPlayIconAsync(bool clickerInput, bool inputCorrection)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput, inputCorrection);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickPlayInputAsync(inputCorrection);
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickPlayInputAsync(inputCorrection);
+                _log.Error(e.Message);
             }
         }
 
         public async Task ClickTextBoxAsync(bool clickerInput)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.ClickTextBoxInputAsync();
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.ClickTextBoxInputAsync();
+                _log.Error(e.Message);
             }
         }
 
         public async Task EnterResultAsync(bool clickerInput, string audioResult)
         {
-            if (!clickerInput)
+            _log.Called(clickerInput, audioResult);
+
+            try
             {
-                //TODO: find the way to do it with JS
+                if (!clickerInput)
+                {
+                    //TODO: find the way to do it with JS
+                }
+                else
+                {
+                    await _inputService.EnterResulInputAsync(audioResult);
+                }
             }
-            else
+            catch (Exception e)
             {
-                await _inputService.EnterResulInputAsync(audioResult);
+                _log.Error(e.Message);
             }
         }
 
         public async Task CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
         {
+            _log.Called(clickerInput, string.Empty);
+
             try
             {
                 if (!clickerInput)
@@ -121,16 +184,20 @@ namespace G_Hoover.Services.Scrap
             }
             catch (Exception e)
             {
-                //log
+                _log.Error(e.Message);
             }
         }
 
         public async Task EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
         {
+            _log.Called(clickerInput, string.Empty, phrase);
+
             try
             {
                 if (!clickerInput)
                 {
+                    phrase = ValidatePhrase(phrase);
+
                     await webBrowser.EvaluateScriptAsync(@"
                            var arr = document.getElementsByTagName('input')[2].value = '" + phrase + @"';
                            ");
@@ -144,62 +211,102 @@ namespace G_Hoover.Services.Scrap
             }
             catch (Exception e)
             {
-                //log
+                _log.Error(e.Message);
             }
         }
 
         public async Task<string> GetHeaderAsync(IWpfWebBrowser webBrowser)
         {
-            string header = "";
+            _log.Called(string.Empty);
 
-            Task<JavascriptResponse> findHeader = webBrowser.EvaluateScriptAsync(@"
+            try
+            {
+                string header = "";
+
+                Task<JavascriptResponse> findHeader = webBrowser.EvaluateScriptAsync(@"
 			(function() {
 				var results = document.getElementsByClassName('srg')[0];
                     var result = results.getElementsByClassName('g')[0];
                     var header = result.getElementsByTagName('h3')[0];
-                    return header.innerHTML;
+                    var result = header.getElementsByTagName('div')[0];
+                    return result.innerHTML;
 				}
 			)();");
 
-            await findHeader.ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
+                await findHeader.ContinueWith(t =>
                 {
-                    var response = t.Result;
-                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
-                    header = Convert.ToString(response.Result);
+                    if (!t.IsFaulted)
+                    {
+                        var response = t.Result;
+                        var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
+                        header = Convert.ToString(response.Result);
+                    }
                 }
-            }
-            );
+                );
 
-            return header;
+                return header;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return string.Empty;
+            }
         }
 
         public async Task<string> GetUrlAsync(IWpfWebBrowser webBrowser)
         {
-            string url = "";
+            _log.Called(string.Empty);
 
-            Task<JavascriptResponse> findUrl = webBrowser.EvaluateScriptAsync(@"
+            try
+            {
+                string url = "";
+
+                Task<JavascriptResponse> findUrl = webBrowser.EvaluateScriptAsync(@"
 			(function() {
 				var results = document.getElementsByClassName('srg')[0];
                     var result = results.getElementsByClassName('g')[0];
-                    var url = result.getElementsByTagName('cite')[0];
-                    return url.innerHTML;
+                    var div = result.getElementsByTagName('div')[0];
+                    return div.innerHTML;
 				}
 			)();");
 
-            await findUrl.ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
+                await findUrl.ContinueWith(t =>
                 {
-                    var response = t.Result;
-                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
-                    url = Convert.ToString(response.Result);
+                    if (!t.IsFaulted)
+                    {
+                        var response = t.Result;
+                        var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
+                        url = Convert.ToString(response.Result);
+                    }
                 }
-            }
-            );
+                );
 
-            return url;
+                url = SplitUrl(url);
+
+                return url;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return string.Empty;
+            }
+        }
+
+        private string ValidatePhrase(string phrase)
+        {
+            if (phrase.Contains("'"))
+            {
+                phrase = phrase.Replace("'", "\\'");
+            }
+
+            return phrase;
+        }
+
+        private string SplitUrl(string url)
+        {
+            return url.Split(new[] { "<a href=\"" }, StringSplitOptions.None)[1].Split('"')[0];
         }
 
         public async Task TurnOffAlertsAsync(IWpfWebBrowser webBrowser)
@@ -211,9 +318,13 @@ namespace G_Hoover.Services.Scrap
 
         public async Task<bool> CheckForRecaptchaAsync(IWpfWebBrowser webBrowser)
         {
-            bool isCaptcha = false;
+            _log.Called(string.Empty);
 
-            Task<JavascriptResponse> verifyReCaptcha = webBrowser.EvaluateScriptAsync(@"
+            try
+            {
+                bool isCaptcha = false;
+
+                Task<JavascriptResponse> verifyReCaptcha = webBrowser.EvaluateScriptAsync(@"
 			(function() {
 				const arr = document.getElementsByTagName('a');
 				for (i = 0; i < arr.length; ++i) {
@@ -224,18 +335,25 @@ namespace G_Hoover.Services.Scrap
 				}
 			)();");
 
-            await verifyReCaptcha.ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
+                await verifyReCaptcha.ContinueWith(t =>
                 {
-                    var response = t.Result;
-                    var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
-                    isCaptcha = Convert.ToBoolean(response.Result);
+                    if (!t.IsFaulted)
+                    {
+                        var response = t.Result;
+                        var EvaluateJavaScriptResult = response.Success ? (response.Result ?? "null") : response.Message;
+                        isCaptcha = Convert.ToBoolean(response.Result);
+                    }
                 }
-            }
-            );
+                );
 
-            return isCaptcha;
+                return isCaptcha;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return true;
+            }
         }
     }
 }

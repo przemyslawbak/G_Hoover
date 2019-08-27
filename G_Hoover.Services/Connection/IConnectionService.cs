@@ -7,6 +7,6 @@ namespace G_Hoover.Services.Connection
     {
         void ConfigureBrowserTor(IWpfWebBrowser webBrowser);
         void ConfigureBrowserDirect(IWpfWebBrowser webBrowser);
-        void GetNewBrowsingIp(IWpfWebBrowser webBrowser);
+        void InitializeTor();
     }
 }

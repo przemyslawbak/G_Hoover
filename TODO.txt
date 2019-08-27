@@ -1,17 +1,3 @@
-move out _controlsService & _config from VM
-
-ScrapService when collecting URL, take anchor instead of string
-
-phrase builder replace " with \"
-
-validate file txt + rows??
-
-assembly -> iterate methods in class, but maybe not needed??
-
-after STOP is still resolving captcha
-
-var foundMethod = matchingMethods.Single(); <- exception in LogService
-
 add debug only for logs
 
 clean up logservice
@@ -19,6 +5,8 @@ clean up logservice
 track ControlsService calls on each btn click
 
 delays in saving log.txt
+
+09:27:43.822|ERROR|ScrapService|GetUrlAsync((Index was outside the bounds of the array.)) changes to ShowMoreBrowserRunning
 
 --
 

@@ -64,28 +64,14 @@ namespace G_Hoover.Services.Connection
             }
         }
 
-        public void GetNewBrowsingIp(IWpfWebBrowser webBrowser)
-        {
-            _log.Called(string.Empty);
-
-            try
-            {
-                Cef.GetGlobalCookieManager().DeleteCookies("", "");
-
-                InitializeTor();
-            }
-            catch (Exception e)
-            {
-                _log.Error(e.Message);
-            }
-        }
-
-        private void InitializeTor()
+        public void InitializeTor()
         {
             _log.Called();
 
             try
             {
+                Cef.GetGlobalCookieManager().DeleteCookies("", "");
+
                 Process[] previous = Process.GetProcessesByName("tor");
                 if (previous != null && previous.Length > 0)
                 {

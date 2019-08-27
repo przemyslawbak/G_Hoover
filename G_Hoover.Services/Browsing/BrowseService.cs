@@ -20,7 +20,7 @@ namespace G_Hoover.Services.Browsing
 {
     public class BrowseService : IBrowseService
     {
-        private readonly AppConfig _config;
+        private readonly IAppConfig _config;
         private readonly ILogService _log;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
@@ -40,9 +40,10 @@ namespace G_Hoover.Services.Browsing
             IFileService fileService,
             IConnectionService connectionService,
             IAudioService audioService,
-            ILogService log)
+            ILogService log,
+            IAppConfig config)
         {
-            _config = new AppConfig();
+            _config = config;
             _log = log;
             _controlsService = controlsService;
             _scrapService = scrapService;
@@ -58,10 +59,10 @@ namespace G_Hoover.Services.Browsing
         {
             _log.Called(nameList.Count, string.Empty, searchPhrase);
 
-            if (StopTokenSource == null || StopTokenSource.IsCancellationRequested)
+            if (StopTS == null || StopTS.IsCancellationRequested)
             {
-                StopTokenSource = new CancellationTokenSource();
-                StopCancellationToken = StopTokenSource.Token;
+                StopTS = new CancellationTokenSource();
+                StopCT = StopTS.Token;
 
                 WebBrowser = webBrowser;
                 SearchPhrase = searchPhrase;
@@ -73,7 +74,7 @@ namespace G_Hoover.Services.Browsing
             {
                 await LoopCollectingAsync();
 
-            }, StopTokenSource.Token);
+            }, StopCT);
 
             try
             {
@@ -81,7 +82,7 @@ namespace G_Hoover.Services.Browsing
             }
             catch (OperationCanceledException e)
             {
-                _log.Info("Task cancelled");
+                _log.Info("Cancellation token cancelled: " + e.Message);
             }
             catch (Exception e)
             {
@@ -89,10 +90,10 @@ namespace G_Hoover.Services.Browsing
             }
             finally
             {
-                StopTokenSource.Dispose();
+                StopTS.Dispose();
             }
 
-            StopTokenSource = null;
+            StopTS = null;
         }
 
         public async Task LoopCollectingAsync()
@@ -101,10 +102,7 @@ namespace G_Hoover.Services.Browsing
 
             try
             {
-                if (StopCancellationToken.IsCancellationRequested)
-                {
-                    StopCancellationToken.ThrowIfCancellationRequested();
-                }
+                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
 
                 if (NameList.Count > PhraseNo)
                 {
@@ -120,10 +118,6 @@ namespace G_Hoover.Services.Browsing
 
                     //finish; GetStoppedConfiguration is in ButtonsService already
                 }
-            }
-            catch (OperationCanceledException e)
-            {
-                _log.Info("Task cancelled");
             }
             catch (Exception e)
             {
@@ -149,6 +143,8 @@ namespace G_Hoover.Services.Browsing
 
                     try
                     {
+                        if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
+
                         Pause(); //if paused
 
                         await _scrapService.EnterPhraseAsync(ClickerInput, WebBrowser, phrase);
@@ -174,9 +170,13 @@ namespace G_Hoover.Services.Browsing
 
                         Pause(); //if paused
                     }
+                    catch (OperationCanceledException e)
+                    {
+                        _log.Info("Method STOP cancelled");
+                    }
                     catch (Exception e)
                     {
-                        if (e.Message == "Captcha detected")
+                        if (e.Message == "Captcha detected" && !StopCT.IsCancellationRequested)
                         {
                             _log.Info(e.Message);
 
@@ -212,6 +212,8 @@ namespace G_Hoover.Services.Browsing
 
             try
             {
+                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
+
                 VerifyClickerInput();
 
                 await _scrapService.TurnOffAlertsAsync(WebBrowser);
@@ -229,6 +231,8 @@ namespace G_Hoover.Services.Browsing
                     Pause(); //if paused
 
                     await Task.Delay(5000); //wait for pics to load JS pics
+
+                    if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
 
                     bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
@@ -258,7 +262,7 @@ namespace G_Hoover.Services.Browsing
             {
                 if (SearchViaTor)
                 {
-                    _connectionService.GetNewBrowsingIp(webBrowser);
+                    _connectionService.InitializeTor();
                 }
                 else
                 {
@@ -282,6 +286,8 @@ namespace G_Hoover.Services.Browsing
                 Pause(); //if paused
 
                 await Task.Delay(5000); //wait to load JS window
+
+                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
 
                 bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
 
@@ -321,59 +327,81 @@ namespace G_Hoover.Services.Browsing
 
         public async Task RecordAndProcessAudioAsync()
         {
-            Pause(); //if paused
+            _log.Called();
 
-            await _scrapService.ClickPlayIconAsync(ClickerInput, InputCorrection);
-
-            await _audioService.RecordAudioSampleAsync();
-
-            string audioResult = await _audioService.ProcessAudioSampleAsync();
-
-            if (string.IsNullOrEmpty(audioResult))
+            try
             {
-                //log
+                Pause(); //if paused
 
-                await MakeNewAudioChallengeAsync();
+                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
+
+                await _scrapService.ClickPlayIconAsync(ClickerInput, InputCorrection);
+
+                await _audioService.RecordAudioSampleAsync();
+
+                string audioResult = await _audioService.ProcessAudioSampleAsync();
+
+                if (string.IsNullOrEmpty(audioResult))
+                {
+                    //log
+
+                    await MakeNewAudioChallengeAsync();
+                }
+                else
+                {
+                    //log
+
+                    await SendAudioResultAsync(audioResult);
+                }
             }
-            else
+            catch (Exception e)
             {
-                //log
-
-                await SendAudioResultAsync(audioResult);
+                _log.Error(e.Message);
             }
         }
 
         public async Task SendAudioResultAsync(string audioResult)
         {
-            audioResult = _fileService.ProsessText(audioResult);
+            _log.Called(audioResult);
 
-            Pause(); //if paused
-
-            await _scrapService.ClickTextBoxAsync(ClickerInput);
-
-            Pause(); //if paused
-
-            await _scrapService.EnterResultAsync(ClickerInput, audioResult);
-
-            Pause(); //if paused
-
-            await _scrapService.ClickSendResultAsync(ClickerInput);
-
-            await Task.Delay(6000); //wait for audio challenge result
-
-            bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
-
-            if (isCaptcha)
+            try
             {
-                InputCorrection = true;
+                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
 
-                await ResolveAudioChallengeAsync();
+                audioResult = _fileService.ProsessText(audioResult);
+
+                Pause(); //if paused
+
+                await _scrapService.ClickTextBoxAsync(ClickerInput);
+
+                Pause(); //if paused
+
+                await _scrapService.EnterResultAsync(ClickerInput, audioResult);
+
+                Pause(); //if paused
+
+                await _scrapService.ClickSendResultAsync(ClickerInput);
+
+                await Task.Delay(6000); //wait for audio challenge result
+
+                bool isCaptcha = await _scrapService.CheckForRecaptchaAsync(WebBrowser);
+
+                if (isCaptcha)
+                {
+                    InputCorrection = true;
+
+                    await ResolveAudioChallengeAsync();
+                }
+                else
+                {
+                    //log
+
+                    await GetAndSaveResultAsync();
+                }
             }
-            else
+            catch (Exception e)
             {
-                //log
-
-                await GetAndSaveResultAsync();
+                _log.Error(e.Message);
             }
         }
 
@@ -537,9 +565,14 @@ namespace G_Hoover.Services.Browsing
 
         public void CancelCollectData()
         {
-            if (StopTokenSource != null && !StopTokenSource.IsCancellationRequested)
+            if (StopTS != null && !StopTS.IsCancellationRequested)
             {
-                StopTokenSource.Cancel(); //cancel browsing
+                if (WebBrowser.IsLoading)
+                {
+                    WebBrowser.Stop();
+                }
+
+                StopTS.Cancel(); //cancel browsing
             }
         }
 
@@ -577,8 +610,8 @@ namespace G_Hoover.Services.Browsing
 
         public int AudioTrials { get; set; } //number of currently audio challenge trials for this phrase
         public int HowManySearches { get; set; } //how many searches for this IP
-        public CancellationTokenSource StopTokenSource { get; set; } //for cancellation
-        public CancellationToken StopCancellationToken { get; set; } //cancellation token
+        public CancellationTokenSource StopTS { get; set; } //for cancellation
+        public CancellationToken StopCT { get; set; } //cancellation token
         public bool Paused { get; set; } //is paused by the user?
         public bool Stopped { get; set; } //is stopped by the user?
         public bool PleaseWaitVisible { get; set; } //is work in progress?

@@ -48,7 +48,7 @@ namespace G_Hoover.Services.Config
             ConfigurationManager.RefreshSection("appSettings");
         }
 
-        internal void SaveFilePath(string filePath)
+        public void SaveFilePath(string filePath)
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             config.AppSettings.Settings["filePath"].Value = filePath;

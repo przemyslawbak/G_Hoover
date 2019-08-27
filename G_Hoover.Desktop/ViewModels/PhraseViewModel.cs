@@ -49,12 +49,24 @@ namespace G_Hoover.Desktop.ViewModels
 
             try
             {
-                DialogResult = !string.IsNullOrEmpty(Text) ? true : false;
+                string text = ValidateText(Text);
+
+                DialogResult = !string.IsNullOrEmpty(text) ? true : false;
             }
             catch (Exception e)
             {
                 _log.Error(e.Message);
             }
+        }
+
+        private string ValidateText(string text)
+        {
+            if (text.Contains("\""))
+            {
+                text = text.Replace("\"", "\\\"");
+            }
+
+            return text;
         }
 
         public string Name { get; set; } = "<name>";

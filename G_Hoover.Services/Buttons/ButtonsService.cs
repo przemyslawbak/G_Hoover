@@ -199,13 +199,26 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
-        public void ExecuteChangeIpButtonAsync(IWpfWebBrowser webBrowser)
+        public async Task ExecuteChangeIpButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
             _log.Called(); //log
 
             try
             {
+                _controlsService.GetWaitConfiguration();
+
                 _browseService.GetNewIp(webBrowser); //browser service
+
+                await Task.Delay(1000); //display messge
+
+                if (paused)
+                {
+                    _controlsService.GetPausedConfiguration(); //ui
+                }
+                else
+                {
+                    _controlsService.GetStoppedConfiguration(false); //ui
+                }
             }
             catch (Exception e)
             {
