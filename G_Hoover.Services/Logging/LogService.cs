@@ -23,34 +23,34 @@ namespace G_Hoover.Services.Logging
         {
             object[] arguments = { propertyName, value };
 
-            GetStringAttributesAsync(nameof(Prop), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Prop), arguments, DateTime.Now).Wait();
         }
 
         public void Called(params object[] arguments)
         {
-            GetStringAttributesAsync(nameof(Called), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Called), arguments, DateTime.Now).Wait();
         }
 
         public void Ended(params object[] arguments)
         {
-            GetStringAttributesAsync(nameof(Ended), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Ended), arguments, DateTime.Now).Wait();
         }
 
         public void Info(string value)
         {
             object[] arguments = { value };
 
-            GetStringAttributesAsync(nameof(Info), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Info), arguments, DateTime.Now).Wait();
         }
 
         public void Error(string value)
         {
             object[] arguments = { value };
 
-            GetStringAttributesAsync(nameof(Error), arguments, DateTime.Now);
+            GetStringAttributesAsync(nameof(Error), arguments, DateTime.Now).Wait();
         }
 
-        public async void GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
+        public async Task GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
         {
             string methodName = string.Empty;
             string className = string.Empty;
@@ -86,8 +86,8 @@ namespace G_Hoover.Services.Logging
             }
             catch
             {
-                Thread.Sleep(100);
-                await SaveLogAsync(line);
+                Thread.Sleep(10);
+                await SaveLogAsync(line + " <--DELAYED");
             }
         }
 

@@ -19,7 +19,11 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
-    public class BrowserViewModel : ViewModelBase
+    public interface IAsyncInitialization
+    {
+        Task Initialization { get; }
+    }
+    public class BrowserViewModel : ViewModelBase, IAsyncInitialization
     {
         private readonly IFileService _fileService;
         private readonly IDialogService _dialogService;
@@ -59,10 +63,10 @@ namespace G_Hoover.Desktop.ViewModels
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Subscribe(OnUpdateBrowser);
             _eventAggregator.GetEvent<UpdateStatusEvent>().Subscribe(OnUpdateStatus);
 
-            InitializeProgramAsync();
+            Initialization = InitializeProgramAsync();
         }
 
-        public async void InitializeProgramAsync()
+        public async Task InitializeProgramAsync()
         {
             _fileService.RemoveOldLogs();
             _log.Called();
@@ -263,6 +267,8 @@ namespace G_Hoover.Desktop.ViewModels
         public IAsyncCommand UploadCommand { get; private set; }
         public ICommand BuildCommand { get; private set; }
         public ICommand ChangeIpCommand { get; private set; }
+
+        public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
 
         private string _filePath;
         public string FilePath {

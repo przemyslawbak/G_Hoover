@@ -1,21 +1,3 @@
-LogService CTD:
-- !!! OnPropertyChanged for props OR use [CallerMemberName]
-- _log.Prop(nameof(_filePath), _filePath); -> LogProp(_filePath) -> method
-- _log.Called(string.Empty); -> same
-
-logging with  private void LogError(); etc. logs property changes in separate service?? log methods in VM?? sort out logging!
-logging:
-+ class name - https://stackoverflow.com/a/14849434
-+ method name - https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.callermembernameattribute?view=netframework-4.8
-+ Overloads ctor - https://stackoverflow.com/a/9621581
-- get parameters names / values - https://stackoverflow.com/a/75297/11972985
-- iterating parameters of the method - https://stackoverflow.com/a/1503668
-- saving to the file
-- atrybuty - https://stackoverflow.com/a/21461846/11972985
-
-
-InitializeBrowser <- async void / Task
-
 move out _controlsService & _config from VM
 
 ScrapService when collecting URL, take anchor instead of string
@@ -35,6 +17,8 @@ add debug only for logs
 clean up logservice
 
 track ControlsService calls on each btn click
+
+delays in saving log.txt
 
 --
 
