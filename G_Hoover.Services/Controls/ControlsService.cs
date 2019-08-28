@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using G_Hoover.Events;
 using G_Hoover.Models;
@@ -112,13 +113,28 @@ namespace G_Hoover.Services.Controls
         {
             _log.Called();
 
-            BrowserPropertiesModel browser = new BrowserPropertiesModel()
+            BrowserPropertiesModel browser;
+
+            if (Debugger.IsAttached) // only for DEBUG
             {
-                WindowState = WindowState.Maximized,
-                IsBrowserFocused = true,
-                IsOnTop = true,
-                ResizeMode = ResizeMode.NoResize
-            };
+                browser = new BrowserPropertiesModel()
+                {
+                    WindowState = WindowState.Maximized,
+                    IsBrowserFocused = true,
+                    IsOnTop = false,
+                    ResizeMode = ResizeMode.CanResize
+                };
+            }
+            else
+            {
+                browser = new BrowserPropertiesModel()
+                {
+                    WindowState = WindowState.Maximized,
+                    IsBrowserFocused = true,
+                    IsOnTop = true,
+                    ResizeMode = ResizeMode.NoResize
+                };
+            }
 
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }

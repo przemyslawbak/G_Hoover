@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using WindowsInput;
+using WindowsInput.Native;
 
 namespace G_Hoover.Services.Input
 {
@@ -85,10 +86,6 @@ namespace G_Hoover.Services.Input
             await MouseLeftButtonClick(329, 280);
         }
 
-        public async Task ClickSendResultInputAsync()
-        {
-            await MouseLeftButtonClick(450, 433);
-        }
 
         public async Task ClickSearchBarInputAsync()
         {
@@ -138,9 +135,15 @@ namespace G_Hoover.Services.Input
         {
             _log.Called(text);
 
+            Pause(); //if paused
+
             await Task.Delay(1);
 
             _simulator.Keyboard.TextEntry(text);
+
+            await Task.Delay(1000);
+
+            _simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
         }
 
         public void Pause()

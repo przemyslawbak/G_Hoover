@@ -184,7 +184,7 @@ namespace G_Hoover.Services.Browsing
                     }
                     catch (OperationCanceledException e)
                     {
-                        _log.Info("Method STOP cancelled");
+                        _log.Info("Method STOP cancelled: " + e.Message);
                     }
                     catch (Exception e)
                     {
@@ -242,7 +242,7 @@ namespace G_Hoover.Services.Browsing
 
                     Pause(); //if paused
 
-                    await Task.Delay(5000); //wait for pics to load JS pics
+                    await Task.Delay(10000); //wait for pics to load JS pics
 
                     if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
 
@@ -389,10 +389,6 @@ namespace G_Hoover.Services.Browsing
                 Pause(); //if paused
 
                 await _scrapService.EnterResultAsync(ClickerInput, audioResult);
-
-                Pause(); //if paused
-
-                await _scrapService.ClickSendResultAsync(ClickerInput);
 
                 await Task.Delay(6000); //wait for audio challenge result
 

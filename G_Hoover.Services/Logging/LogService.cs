@@ -1,76 +1,173 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace G_Hoover.Services.Logging
 {
-    public class LogService : ILogService
+    public interface IAsyncInitialization
     {
+        Task Initialization { get; }
+    }
+
+    public class LogService : ILogService, IAsyncInitialization
+    {
+        private Timer _savingTimer;
+        AppDomain _currentDomain;
         private readonly string _logFile = "../../../../log.txt";
 
-        public string Line { get; set; }
+        public LogService()
+        {
+            _currentDomain = AppDomain.CurrentDomain;
+
+            LineList = new List<string>();
+
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                Initialization = RunTimerAsync();
+            }
+            GlobalHandler();
+        }
+
+        [STAThread]
+        private void GlobalHandler()
+        {
+            AppDomain.CurrentDomain.UnhandledException += async (sender, e) => await FatalExceptionObjectAsync(e.ExceptionObject);
+        }
+
+        private async Task FatalExceptionObjectAsync(object exceptionObject)
+        {
+            await SaveAllLinesAsync();
+        }
+
+        public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
+
+        private async Task RunTimerAsync()
+        {
+            _savingTimer = new Timer();
+
+            if (!_savingTimer.Enabled || _savingTimer == null)
+            {
+                if (LineList.Count > 0)
+                {
+                    await SaveAllLinesAsync();
+                }
+                _savingTimer = new Timer();
+                _savingTimer.Elapsed += new ElapsedEventHandler(ResetTimerAsync);
+                _savingTimer.Interval = 100; // in miliseconds
+                _savingTimer.Start();
+            }
+        }
+
+        private async void ResetTimerAsync(object sender, EventArgs e)
+        {
+            _savingTimer.Enabled = false;
+
+            await RunTimerAsync();
+        }
+
+        public async Task SaveAllLinesAsync()
+        {
+            List<string> lineList = LineList.ToList();
+            LineList.Clear();
+
+            foreach (string line in lineList)
+            {
+                await SaveLogAsync(line);
+            }
+        }
+
+        public List<string> LineList { get; set; }
 
         public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
-            object[] arguments = { propertyName, value };
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                object[] arguments = { propertyName, value };
 
-            GetStringAttributesAsync(nameof(Prop), arguments, DateTime.Now).Wait();
+                GetStringAttributes(nameof(Prop), arguments, DateTime.Now).Wait();
+            }
         }
 
         public void Called(params object[] arguments)
         {
-            GetStringAttributesAsync(nameof(Called), arguments, DateTime.Now).Wait();
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                GetStringAttributes(nameof(Called), arguments, DateTime.Now).Wait();
+            }
         }
 
         public void Ended(params object[] arguments)
         {
-            GetStringAttributesAsync(nameof(Ended), arguments, DateTime.Now).Wait();
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                GetStringAttributes(nameof(Ended), arguments, DateTime.Now).Wait();
+            }
         }
 
         public void Info(string value)
         {
-            object[] arguments = { value };
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                object[] arguments = { value };
 
-            GetStringAttributesAsync(nameof(Info), arguments, DateTime.Now).Wait();
+                GetStringAttributes(nameof(Info), arguments, DateTime.Now).Wait();
+            }
         }
 
         public void Error(string value)
         {
-            object[] arguments = { value };
+            if (Debugger.IsAttached) // only for DEBUG
+            {
+                object[] arguments = { value };
 
-            GetStringAttributesAsync(nameof(Error), arguments, DateTime.Now).Wait();
+                GetStringAttributes(nameof(Error), arguments, DateTime.Now).Wait();
+            }
         }
 
-        private async Task GetStringAttributesAsync(string eventType, object[] arguments, DateTime date)
+        private async Task GetStringAttributes(string eventType, object[] arguments, DateTime date)
         {
             string methodName = string.Empty;
             string className = string.Empty;
             ParameterInfo[] parameters = { };
+            MethodBase callingMethod;
 
-            MethodBase callingMethod = new StackTrace().GetFrame(4).GetMethod();
+            var frames = new StackTrace().GetFrames();
 
-            if (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run")
+            if (frames.Length > 4)
+            {
+                callingMethod = new StackTrace().GetFrame(4).GetMethod();
+            }
+            else
+            {
+                callingMethod = null;
+            }
+
+            if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
             {
                 callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
             }
-            if (callingMethod != null)
+            if (callingMethod != null && callingMethod.ReflectedType != null)
             {
                 methodName = callingMethod.Name;
                 className = callingMethod.ReflectedType.Name;
                 parameters = callingMethod.GetParameters();
             }
 
+            var dupa = callingMethod.GetMethodBody();
+
             eventType = eventType.ToUpper();
 
-            Line = BuildLine(date, eventType, className, methodName, parameters, arguments);
+            string line = BuildLine(date, eventType, className, methodName, parameters, arguments);
 
-            await SaveLogAsync(Line);
+            LineList.Add(line);
+
         }
 
         //NOTE: not possible to get argument variables with reflection, best way is to use 'nameof': https://stackoverflow.com/a/2566177/11972985
@@ -99,7 +196,11 @@ namespace G_Hoover.Services.Logging
             {
                 param = BuildCalled(parameters, arguments);
             }
-            else if (typeProps && areArgs) //PROP
+            else if (typeCalled && !areParams) //CALLED
+            {
+                param = "()";
+            }
+            else if (typeProps) //PROP
             {
                 param = BuildProp(arguments);
             }
@@ -114,7 +215,7 @@ namespace G_Hoover.Services.Logging
 
             if (!typeCalled && !typeProps && !typeInfo && !typeError)
             {
-                separator = BuildSeparator();
+                separator = "|";
             }
 
             if (areArgs && typeOther) //all OTHER
@@ -151,11 +252,6 @@ namespace G_Hoover.Services.Logging
             }
 
             return sb.ToString();
-        }
-
-        private string BuildSeparator()
-        {
-            return "|";
         }
 
         private string BuildOther(object[] arguments, ParameterInfo[] parameters)
@@ -248,10 +344,10 @@ namespace G_Hoover.Services.Logging
                     select methodInfo;
 
                 // If this throws, the async method scanning failed.
-                var foundMethod = matchingMethods.Single();
+                MethodInfo foundMethod = matchingMethods.Single();
                 return foundMethod;
             }
-            catch (Exception e)
+            catch
             {
                 return null;
             }
@@ -261,17 +357,14 @@ namespace G_Hoover.Services.Logging
         {
             try
             {
-                if (Debugger.IsAttached) //save only for DEBUG
+                using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
                 {
-                    using (TextWriter LineBuilder = new StreamWriter(_logFile, true))
-                    {
-                        await LineBuilder.WriteLineAsync(line);
-                    }
+                    await LineBuilder.WriteLineAsync(line);
                 }
             }
             catch
             {
-                Thread.Sleep(10);
+                await Task.Delay(100);
                 await SaveLogAsync(line + " <--DELAYED");
             }
         }

@@ -1,8 +1,8 @@
-delays in saving log.txt
+unhandled exception
 
-09:27:43.822|ERROR|ScrapService|GetUrlAsync((Index was outside the bounds of the array.)) changes to ShowMoreBrowserRunning
+manual test failures for captcha solving
 
-check if can get from stack what method returns...??
+GetStringAttributes sync
 
 --
 

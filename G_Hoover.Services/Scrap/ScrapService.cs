@@ -18,27 +18,6 @@ namespace G_Hoover.Services.Scrap
             _log = log;
         }
 
-        public async Task ClickSendResultAsync(bool clickerInput)
-        {
-            _log.Called(clickerInput);
-
-            try
-            {
-                if (!clickerInput)
-                {
-                    //TODO: find the way to do it with JS
-                }
-                else
-                {
-                    await _inputService.ClickSendResultInputAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                _log.Error(e.Message);
-            }
-        }
-
         public async Task ClickAudioChallangeIconAsync(bool clickerInput)
         {
             _log.Called(clickerInput);
@@ -176,10 +155,6 @@ namespace G_Hoover.Services.Scrap
                     await webBrowser.EvaluateScriptAsync(@"
                            var arr = document.getElementsByTagName('input')[3].click();
                            ");
-                }
-                else
-                {
-                    await _inputService.ClickSearchButtonInputAsync();
                 }
             }
             catch (Exception e)
