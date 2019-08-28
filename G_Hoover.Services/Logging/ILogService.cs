@@ -10,6 +10,5 @@ namespace G_Hoover.Services.Logging
         void Info(string value);
         void Error(string value);
         void Prop(object value, [CallerMemberName] string propertyName = null);
-        Task SaveAllLinesAsync();
     }
 }

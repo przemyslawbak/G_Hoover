@@ -1,15 +1,17 @@
-unhandled exception
+handling fatal exception
 
-manual test failures for captcha solving
+remove populating dictionaries
 
-GetStringAttributes sync
+clean up logservice
+
+manual test failures for captcha solving + buttos
+
+track ControlsService calls on each btn click
 
 --
 
 testing:
 async (sender, args) - not anonymus??
-
-track ControlsService calls on each btn click
 
 --
 

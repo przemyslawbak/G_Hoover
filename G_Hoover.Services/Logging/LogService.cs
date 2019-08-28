@@ -11,12 +11,19 @@ using System.Timers;
 
 namespace G_Hoover.Services.Logging
 {
+    public class LogModel
+    {
+        public string MethodName { get; set; }
+        public object[] Arguments { get; set; }
+        public DateTime Date { get; set; }
+        public MethodBase Method { get; set; }
+    }
     public interface IAsyncInitialization
     {
         Task Initialization { get; }
     }
 
-    public class LogService : ILogService, IAsyncInitialization
+    public class LogService : ILogService
     {
         private Timer _savingTimer;
         AppDomain _currentDomain;
@@ -26,27 +33,13 @@ namespace G_Hoover.Services.Logging
         {
             _currentDomain = AppDomain.CurrentDomain;
 
-            LineList = new List<string>();
+            LogList = new List<LogModel>();
 
             if (Debugger.IsAttached) // only for DEBUG
             {
                 Initialization = RunTimerAsync();
             }
-            GlobalHandler();
         }
-
-        [STAThread]
-        private void GlobalHandler()
-        {
-            AppDomain.CurrentDomain.UnhandledException += async (sender, e) => await FatalExceptionObjectAsync(e.ExceptionObject);
-        }
-
-        private async Task FatalExceptionObjectAsync(object exceptionObject)
-        {
-            await SaveAllLinesAsync();
-        }
-
-        public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
 
         private async Task RunTimerAsync()
         {
@@ -54,15 +47,12 @@ namespace G_Hoover.Services.Logging
 
             if (!_savingTimer.Enabled || _savingTimer == null)
             {
-                if (LineList.Count > 0)
-                {
-                    await SaveAllLinesAsync();
-                }
-                _savingTimer = new Timer();
-                _savingTimer.Elapsed += new ElapsedEventHandler(ResetTimerAsync);
-                _savingTimer.Interval = 100; // in miliseconds
-                _savingTimer.Start();
+                await ProcessLogList();
             }
+            _savingTimer = new Timer();
+            _savingTimer.Elapsed += new ElapsedEventHandler(ResetTimerAsync);
+            _savingTimer.Interval = 20;
+            _savingTimer.Start();
         }
 
         private async void ResetTimerAsync(object sender, EventArgs e)
@@ -72,26 +62,47 @@ namespace G_Hoover.Services.Logging
             await RunTimerAsync();
         }
 
-        public async Task SaveAllLinesAsync()
+        private async Task ProcessLogList()
         {
-            List<string> lineList = LineList.ToList();
-            LineList.Clear();
+            List<LogModel> iterateMe = LogList.ToList();
+            LogList.Clear();
 
-            foreach (string line in lineList)
+            foreach (LogModel item in iterateMe)
             {
-                await SaveLogAsync(line);
+                await GetStringAttributesAsync(item);
             }
         }
 
-        public List<string> LineList { get; set; }
+        public List<LogModel> LogList { get; set; }
+        public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
 
         public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
             if (Debugger.IsAttached) // only for DEBUG
             {
+                DateTime date = DateTime.Now;
+
                 object[] arguments = { propertyName, value };
 
-                GetStringAttributes(nameof(Prop), arguments, DateTime.Now).Wait();
+                MethodBase callingMethod;
+
+                var frames = new StackTrace().GetFrames();
+
+                if (frames.Length > 1)
+                {
+                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                }
+                else
+                {
+                    callingMethod = null;
+                }
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
+
+                LogList.Add(new LogModel { MethodName = nameof(Prop), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
@@ -99,7 +110,25 @@ namespace G_Hoover.Services.Logging
         {
             if (Debugger.IsAttached) // only for DEBUG
             {
-                GetStringAttributes(nameof(Called), arguments, DateTime.Now).Wait();
+                DateTime date = DateTime.Now;
+                MethodBase callingMethod;
+
+                var frames = new StackTrace().GetFrames();
+
+                if (frames.Length > 1)
+                {
+                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                }
+                else
+                {
+                    callingMethod = null;
+                }
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
+                LogList.Add(new LogModel { MethodName = nameof(Called), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
@@ -107,7 +136,25 @@ namespace G_Hoover.Services.Logging
         {
             if (Debugger.IsAttached) // only for DEBUG
             {
-                GetStringAttributes(nameof(Ended), arguments, DateTime.Now).Wait();
+                DateTime date = DateTime.Now;
+                MethodBase callingMethod;
+
+                var frames = new StackTrace().GetFrames();
+
+                if (frames.Length > 1)
+                {
+                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                }
+                else
+                {
+                    callingMethod = null;
+                }
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
+                LogList.Add(new LogModel { MethodName = nameof(Ended), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
@@ -115,9 +162,27 @@ namespace G_Hoover.Services.Logging
         {
             if (Debugger.IsAttached) // only for DEBUG
             {
-                object[] arguments = { value };
+                DateTime date = DateTime.Now;
 
-                GetStringAttributes(nameof(Info), arguments, DateTime.Now).Wait();
+                object[] arguments = { value };
+                MethodBase callingMethod;
+
+                var frames = new StackTrace().GetFrames();
+
+                if (frames.Length > 1)
+                {
+                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                }
+                else
+                {
+                    callingMethod = null;
+                }
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
+                LogList.Add(new LogModel { MethodName = nameof(Info), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
@@ -125,48 +190,48 @@ namespace G_Hoover.Services.Logging
         {
             if (Debugger.IsAttached) // only for DEBUG
             {
-                object[] arguments = { value };
+                DateTime date = DateTime.Now;
 
-                GetStringAttributes(nameof(Error), arguments, DateTime.Now).Wait();
+                object[] arguments = { value };
+                MethodBase callingMethod;
+
+                var frames = new StackTrace().GetFrames();
+
+                if (frames.Length > 1)
+                {
+                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                }
+                else
+                {
+                    callingMethod = null;
+                }
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
+                LogList.Add(new LogModel { MethodName = nameof(Error), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
-        private async Task GetStringAttributes(string eventType, object[] arguments, DateTime date)
+        private async Task GetStringAttributesAsync(LogModel log)
         {
             string methodName = string.Empty;
             string className = string.Empty;
             ParameterInfo[] parameters = { };
-            MethodBase callingMethod;
 
-            var frames = new StackTrace().GetFrames();
-
-            if (frames.Length > 4)
+            if (log.Method != null && log.Method.ReflectedType != null)
             {
-                callingMethod = new StackTrace().GetFrame(4).GetMethod();
-            }
-            else
-            {
-                callingMethod = null;
+                methodName = log.Method.Name;
+                className = log.Method.ReflectedType.Name;
+                parameters = log.Method.GetParameters();
             }
 
-            if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-            {
-                callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-            }
-            if (callingMethod != null && callingMethod.ReflectedType != null)
-            {
-                methodName = callingMethod.Name;
-                className = callingMethod.ReflectedType.Name;
-                parameters = callingMethod.GetParameters();
-            }
+            log.MethodName = log.MethodName.ToUpper();
 
-            var dupa = callingMethod.GetMethodBody();
+            string line = BuildLine(log.Date, log.MethodName, className, methodName, parameters, log.Arguments);
 
-            eventType = eventType.ToUpper();
-
-            string line = BuildLine(date, eventType, className, methodName, parameters, arguments);
-
-            LineList.Add(line);
+            await SaveLogAsync(line);
 
         }
 
