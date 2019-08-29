@@ -38,7 +38,22 @@ namespace G_Hoover.Services.Logging
             if (Debugger.IsAttached) // only for DEBUG
             {
                 Initialization = RunTimerAsync();
+
+                UnhandledExceptionsHandlerAsync();
             }
+        }
+
+        private async void UnhandledExceptionsHandlerAsync()
+        {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnUnhandledException);
+
+            await ProcessLogList();
+        }
+
+        void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+        {
+            Error(string.Format("Runtime terminating: {0}", args.IsTerminating));
         }
 
         private async Task RunTimerAsync()
@@ -84,23 +99,9 @@ namespace G_Hoover.Services.Logging
 
                 object[] arguments = { propertyName, value };
 
-                MethodBase callingMethod;
-
                 var frames = new StackTrace().GetFrames();
 
-                if (frames.Length > 1)
-                {
-                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
-                }
-                else
-                {
-                    callingMethod = null;
-                }
-
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
+                MethodBase callingMethod = GetCallingMethod(frames);
 
                 LogList.Add(new LogModel { MethodName = nameof(Prop), Arguments = arguments, Date = date, Method = callingMethod });
             }
@@ -111,23 +112,11 @@ namespace G_Hoover.Services.Logging
             if (Debugger.IsAttached) // only for DEBUG
             {
                 DateTime date = DateTime.Now;
-                MethodBase callingMethod;
 
                 var frames = new StackTrace().GetFrames();
 
-                if (frames.Length > 1)
-                {
-                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
-                }
-                else
-                {
-                    callingMethod = null;
-                }
+                MethodBase callingMethod = GetCallingMethod(frames);
 
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
                 LogList.Add(new LogModel { MethodName = nameof(Called), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
@@ -137,23 +126,11 @@ namespace G_Hoover.Services.Logging
             if (Debugger.IsAttached) // only for DEBUG
             {
                 DateTime date = DateTime.Now;
-                MethodBase callingMethod;
 
                 var frames = new StackTrace().GetFrames();
 
-                if (frames.Length > 1)
-                {
-                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
-                }
-                else
-                {
-                    callingMethod = null;
-                }
+                MethodBase callingMethod = GetCallingMethod(frames);
 
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
                 LogList.Add(new LogModel { MethodName = nameof(Ended), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
@@ -165,23 +142,11 @@ namespace G_Hoover.Services.Logging
                 DateTime date = DateTime.Now;
 
                 object[] arguments = { value };
-                MethodBase callingMethod;
 
                 var frames = new StackTrace().GetFrames();
 
-                if (frames.Length > 1)
-                {
-                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
-                }
-                else
-                {
-                    callingMethod = null;
-                }
+                MethodBase callingMethod = GetCallingMethod(frames);
 
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
                 LogList.Add(new LogModel { MethodName = nameof(Info), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
@@ -193,25 +158,34 @@ namespace G_Hoover.Services.Logging
                 DateTime date = DateTime.Now;
 
                 object[] arguments = { value };
-                MethodBase callingMethod;
 
                 var frames = new StackTrace().GetFrames();
 
-                if (frames.Length > 1)
-                {
-                    callingMethod = new StackTrace().GetFrame(1).GetMethod();
-                }
-                else
-                {
-                    callingMethod = null;
-                }
+                MethodBase callingMethod = GetCallingMethod(frames);
 
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
                 LogList.Add(new LogModel { MethodName = nameof(Error), Arguments = arguments, Date = date, Method = callingMethod });
             }
+        }
+
+        private MethodBase GetCallingMethod(StackFrame[] frames)
+        {
+            MethodBase callingMethod;
+
+            if (frames.Length > 1)
+            {
+                callingMethod = new StackTrace().GetFrame(1).GetMethod();
+            }
+            else
+            {
+                callingMethod = null;
+            }
+
+            if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+            {
+                callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+            }
+
+            return callingMethod;
         }
 
         private async Task GetStringAttributesAsync(LogModel log)

@@ -1,8 +1,10 @@
-handling fatal exception
+when asking to delete results, tell how many:
+https://stackoverflow.com/a/13168006/11993544
+https://stackoverflow.com/a/18791181/11993544
+https://stackoverflow.com/a/52830075/11993544
+https://stackoverflow.com/a/35750642/11993544
 
-remove populating dictionaries
-
-clean up logservice
+file paths from App.config, all classes
 
 manual test failures for captcha solving + buttos
 
@@ -12,6 +14,8 @@ track ControlsService calls on each btn click
 
 testing:
 async (sender, args) - not anonymus??
+
+Timer: https://stackoverflow.com/a/11496412/11993544
 
 --
 

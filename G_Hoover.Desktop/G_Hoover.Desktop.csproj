@@ -96,7 +96,6 @@
     <Compile Include="Commands\AsyncCommandBase.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Startup\BootStrapper.cs" />
-    <Compile Include="Startup\PopulateDictionaries.cs" />
     <Compile Include="ViewModels\DeleteViewModel.cs" />
     <Compile Include="ViewModels\PhraseViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />

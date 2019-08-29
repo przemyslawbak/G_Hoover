@@ -9,8 +9,6 @@ namespace G_Hoover.Desktop.ViewModels
         public ViewModelLocator()
         {
             _container = BootStrapper.BootStrap();
-
-            _container.Resolve<PopulateDictionaries>();
         }
 
         public BrowserViewModel BrowserViewModel
