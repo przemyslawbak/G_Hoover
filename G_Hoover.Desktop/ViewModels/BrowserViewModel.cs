@@ -19,11 +19,6 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
-    public interface IAsyncInitialization
-    {
-        Task Initialization { get; }
-    }
-
     public class BrowserViewModel : ViewModelBase, IAsyncInitialization
     {
         private readonly IFileService _fileService;
@@ -57,9 +52,6 @@ namespace G_Hoover.Desktop.ViewModels
             BuildCommand = new DelegateCommand(OnBuildCommand);
             ChangeIpCommand = new AsyncCommand(async () => await OnChangeIpCommandAsync());
 
-            NameList = new List<string>();
-            UiControls = new UiPropertiesModel();
-
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Subscribe(OnUpdateBrowser);
             _eventAggregator.GetEvent<UpdateStatusEvent>().Subscribe(OnUpdateStatus);
@@ -69,10 +61,14 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task InitializeProgramAsync()
         {
+            await _log.Initialization; //awaiting for init of logger
+
             _log.Called();
 
             try
             {
+                NameList = new List<string>();
+                UiControls = new UiPropertiesModel();
                 SearchPhrase = _config.GetSearchPhrase();
                 FilePath = _config.GetFilePath();
                 NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, true); //need to be loaded before PhraseNo, after FilePath

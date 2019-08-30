@@ -21,7 +21,7 @@ namespace G_Hoover.Services.Logging
     }
     public interface IAsyncInitialization
     {
-        Task TimerInitialization { get; }
+        Task Initialization { get; }
     }
 
     public class ParamsLogger : IParamsLogger, IAsyncInitialization
@@ -44,27 +44,20 @@ namespace G_Hoover.Services.Logging
         {
             LogList = new List<LogModel>();
 
-            RunConfig();
-
-            if (_executeOnDebugSettings) // if on DEBUG
-            {
-                TimerInitialization = RunTimerAsync();
-
-                UnhandledExceptionsHandler();
-            }
+            Initialization = RunConfigAsync();
         }
 
         public List<LogModel> LogList { get; set; } //list of added logs
-        public Task TimerInitialization { get; private set; } //async init Task
+        public Task Initialization { get; set; } //async init Task
 
         /// <summary>
         /// configuration method, loading variables from log.config
         /// if file not found, setting up defaults
         /// </summary>
-        private void RunConfig()
+        private async Task RunConfigAsync()
         {
             _currentDomain = AppDomain.CurrentDomain;
-            string path = GetLogConfigPath();
+            string path = await GetLogConfigPathAsync();
 
             if (string.IsNullOrEmpty(path))
             {
@@ -95,6 +88,13 @@ namespace G_Hoover.Services.Logging
             if (_deleteLogs)
             {
                 DeleteFile(_logFile);
+            }
+
+            if (_executeOnDebugSettings) // if on DEBUG
+            {
+                await RunTimerAsync();
+
+                UnhandledExceptionsHandler();
             }
         }
 
@@ -145,7 +145,7 @@ namespace G_Hoover.Services.Logging
         /// file have to contain phrases: logFile, debugOnly, deleteLogs
         /// </summary>
         /// <returns>file path</returns>
-        private string GetLogConfigPath()
+        private async Task<string> GetLogConfigPathAsync()
         {
             bool ok = false;
 
@@ -154,7 +154,7 @@ namespace G_Hoover.Services.Logging
 
             foreach (var file in files)
             {
-                List<string> lines = ReadFileLines(file);
+                List<string> lines = await ReadFileLinesAsync(file);
 
                 if (lines.Any(l => l.Contains("logFile")) && lines.Any(l => l.Contains("debugOnly")) && lines.Any(l => l.Contains("deleteLogs")))
                     ok = true;
@@ -173,11 +173,11 @@ namespace G_Hoover.Services.Logging
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        private List<string> ReadFileLines(string file)
+        private async Task<List<string>> ReadFileLinesAsync(string file)
         {
             using (var reader = File.OpenText(file))
             {
-                var fileText = reader.ReadToEnd();
+                var fileText = await reader.ReadToEndAsync();
 
                 var array = fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
@@ -230,6 +230,12 @@ namespace G_Hoover.Services.Logging
             }
         }
 
+        /// <summary>
+        /// interface implementation
+        /// can be called from property setter
+        /// </summary>
+        /// <param name="value">property value</param>
+        /// <param name="propertyName">property name</param>
         public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
             if (_executeOnDebugSettings) // if on DEBUG
@@ -238,51 +244,51 @@ namespace G_Hoover.Services.Logging
 
                 object[] arguments = { propertyName, value };
 
-                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
-
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
+                MethodBase callingMethod = GetMethod(new StackTrace().GetFrame(1));
 
                 LogList.Add(new LogModel { MethodName = nameof(Prop), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
+        /// <summary>
+        /// interface implementation
+        /// can be called from methods
+        /// </summary>
+        /// <param name="arguments">array of passed arguments</param>
         public void Called(params object[] arguments)
         {
             if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
-                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
-
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
+                MethodBase callingMethod = GetMethod(new StackTrace().GetFrame(1));
 
                 LogList.Add(new LogModel { MethodName = nameof(Called), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
+        /// <summary>
+        /// interface implementation
+        /// can be called from methods
+        /// </summary>
+        /// <param name="arguments">array of passed arguments</param>
         public void Ended(params object[] arguments)
         {
             if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
-                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
-
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
+                MethodBase callingMethod = GetMethod(new StackTrace().GetFrame(1));
 
                 LogList.Add(new LogModel { MethodName = nameof(Ended), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
+        /// <summary>
+        /// interface implementation
+        /// can be called to pass information about some app event
+        /// </summary>
+        /// <param name="arguments">string info</param>
         public void Info(string value)
         {
             if (_executeOnDebugSettings) // if on DEBUG
@@ -291,12 +297,17 @@ namespace G_Hoover.Services.Logging
 
                 object[] arguments = { value };
 
-                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
+                MethodBase callingMethod = GetMethod(new StackTrace().GetFrame(1));
 
                 LogList.Add(new LogModel { MethodName = nameof(Info), Arguments = arguments, Date = date, Method = callingMethod });
             }
         }
 
+        /// <summary>
+        /// interface implementation
+        /// can be called from catch to pass information about exception
+        /// </summary>
+        /// <param name="arguments">string info</param>
         public void Error(string value)
         {
             if (_executeOnDebugSettings) // if on DEBUG
@@ -305,15 +316,22 @@ namespace G_Hoover.Services.Logging
 
                 object[] arguments = { value };
 
-                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
-
-                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-                {
-                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-                }
+                MethodBase callingMethod = GetMethod(new StackTrace().GetFrame(1));
 
                 LogList.Add(new LogModel { MethodName = nameof(Error), Arguments = arguments, Date = date, Method = callingMethod });
             }
+        }
+
+        private MethodBase GetMethod(StackFrame frame)
+        {
+            MethodBase callingMethod = frame.GetMethod();
+
+            if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+            {
+                callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+            }
+
+            return callingMethod;
         }
 
         private async Task GetStringAttributesAsync(LogModel log)
