@@ -11,9 +11,9 @@ namespace G_Hoover.Services.Connection
 {
     public class ConnectionService : IConnectionService
     {
-        ILogService _log;
+        IParamsLogger _log;
 
-        public ConnectionService(ILogService log)
+        public ConnectionService(IParamsLogger log)
         {
             _log = log;
         }

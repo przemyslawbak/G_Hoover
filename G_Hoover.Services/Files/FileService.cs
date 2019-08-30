@@ -12,14 +12,14 @@ namespace G_Hoover.Services.Files
 {
     public class FileService : IFileService
     {
-        ILogService _log;
+        IParamsLogger _log;
         IAppConfig _config;
 
         private readonly string _logFile;
         private readonly string _resultFile;
         private readonly string _audioFile;
 
-        public FileService(ILogService log, IAppConfig config)
+        public FileService(IParamsLogger log, IAppConfig config)
         {
             _log = log;
             _config = config;

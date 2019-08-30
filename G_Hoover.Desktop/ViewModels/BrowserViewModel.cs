@@ -31,7 +31,7 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
-        private readonly ILogService _log;
+        private readonly IParamsLogger _log;
 
         public BrowserViewModel(IFileService fileService,
             IDialogService dialogService,
@@ -39,7 +39,7 @@ namespace G_Hoover.Desktop.ViewModels
             IEventAggregator eventAggregator,
             IButtonsService buttonService,
             IAppConfig config,
-            ILogService log)
+            IParamsLogger log)
         {
             _dialogService = dialogService;
             _fileService = fileService;

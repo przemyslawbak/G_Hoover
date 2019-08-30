@@ -8,8 +8,8 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
-        private readonly ILogService _log;
-        public PhraseViewModel(string searchPhrase, ILogService log)
+        private readonly IParamsLogger _log;
+        public PhraseViewModel(string searchPhrase, IParamsLogger log)
         {
             _log = log;
 

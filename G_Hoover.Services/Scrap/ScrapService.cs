@@ -10,9 +10,9 @@ namespace G_Hoover.Services.Scrap
     public class ScrapService : IScrapService
     {
         private readonly IInputService _inputService;
-        private readonly ILogService _log;
+        private readonly IParamsLogger _log;
 
-        public ScrapService(IInputService inputService, ILogService log)
+        public ScrapService(IInputService inputService, IParamsLogger log)
         {
             _inputService = inputService;
             _log = log;

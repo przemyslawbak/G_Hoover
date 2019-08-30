@@ -24,29 +24,27 @@ namespace G_Hoover.Services.Logging
         Task TimerInitialization { get; }
     }
 
-    public class LogService : ILogService
+    public class ParamsLogger : IParamsLogger, IAsyncInitialization
     {
         private Timer _savingTimer;
         AppDomain _currentDomain;
-        private readonly string _logFileDefaults = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "log.txt");
-        private readonly bool _debugOnlyDefaults = true;
+
+        //config variables
         private string _logFile;
         private bool _debugOnly;
         private bool _executeOnDebugSettings;
         private bool _deleteLogs;
 
-        public LogService()
-        {
-            _currentDomain = AppDomain.CurrentDomain;
+        //config defaults
+        private readonly string _logFileDefaults = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "log.txt");
+        private readonly bool _debugOnlyDefaults = true;
+        private readonly bool _deleteLogsDefaults = true;
 
+        public ParamsLogger()
+        {
             LogList = new List<LogModel>();
 
             RunConfig();
-
-            if (_deleteLogs)
-            {
-                DeleteFile(_logFile);
-            }
 
             if (_executeOnDebugSettings) // if on DEBUG
             {
@@ -56,18 +54,23 @@ namespace G_Hoover.Services.Logging
             }
         }
 
-        public List<LogModel> LogList { get; set; }
-        public Task TimerInitialization { get; private set; }
-        public Task ConfigInitialization { get; private set; }
+        public List<LogModel> LogList { get; set; } //list of added logs
+        public Task TimerInitialization { get; private set; } //async init Task
 
+        /// <summary>
+        /// configuration method, loading variables from log.config
+        /// if file not found, setting up defaults
+        /// </summary>
         private void RunConfig()
         {
+            _currentDomain = AppDomain.CurrentDomain;
             string path = GetLogConfigPath();
 
-            if (string.IsNullOrEmpty(path)) //defaults
+            if (string.IsNullOrEmpty(path))
             {
                 _logFile = _logFileDefaults;
                 _debugOnly = _debugOnlyDefaults;
+                _deleteLogs = _deleteLogsDefaults;
             }
             else
             {
@@ -88,18 +91,33 @@ namespace G_Hoover.Services.Logging
             {
                 _executeOnDebugSettings = false;
             }
+
+            if (_deleteLogs)
+            {
+                DeleteFile(_logFile);
+            }
         }
 
+        /// <summary>
+        /// gets setting for deleteLogs from log.config or returns default
+        /// </summary>
+        /// <param name="config">app config</param>
+        /// <returns>bool value</returns>
         private bool GetDeleteLogs(Configuration config)
         {
             bool result;
 
-            string debugOnly = config.AppSettings.Settings["deleteLogs"].Value;
-            bool isParsed = bool.TryParse(debugOnly, out result);
+            string deleteLogs = config.AppSettings.Settings["deleteLogs"].Value;
+            bool isParsed = bool.TryParse(deleteLogs, out result);
 
-            return isParsed ? Convert.ToBoolean(debugOnly) : true;
+            return isParsed ? Convert.ToBoolean(deleteLogs) : _deleteLogsDefaults;
         }
 
+        /// <summary>
+        /// gets setting for debugOnly from log.config or returns default
+        /// </summary>
+        /// <param name="config">app config</param>
+        /// <returns>bool value</returns>
         private bool GetDebugOnlyPath(Configuration config)
         {
             bool result;
@@ -107,9 +125,14 @@ namespace G_Hoover.Services.Logging
             string debugOnly = config.AppSettings.Settings["debugOnly"].Value;
             bool isParsed = bool.TryParse(debugOnly, out result);
 
-            return isParsed ? Convert.ToBoolean(debugOnly) : true;
+            return isParsed ? Convert.ToBoolean(debugOnly) : _debugOnlyDefaults;
         }
 
+        /// <summary>
+        /// gets setting for logFile from log.config or returns default
+        /// </summary>
+        /// <param name="config">app config</param>
+        /// <returns>string path value</returns>
         private string GetLogPath(Configuration config)
         {
             string logFile = config.AppSettings.Settings["logFile"].Value;
@@ -117,6 +140,11 @@ namespace G_Hoover.Services.Logging
             return (!string.IsNullOrEmpty(logFile)) ? logFile : _logFileDefaults;
         }
 
+        /// <summary>
+        /// looking for log.config file, in the project folders
+        /// file have to contain phrases: logFile, debugOnly, deleteLogs
+        /// </summary>
+        /// <returns>file path</returns>
         private string GetLogConfigPath()
         {
             bool ok = false;
@@ -128,7 +156,7 @@ namespace G_Hoover.Services.Logging
             {
                 List<string> lines = ReadFileLines(file);
 
-                if (lines.Any(l => l.Contains("logFile")) && lines.Any(l => l.Contains("debugOnly")))
+                if (lines.Any(l => l.Contains("logFile")) && lines.Any(l => l.Contains("debugOnly")) && lines.Any(l => l.Contains("deleteLogs")))
                     ok = true;
 
                 if (ok)
@@ -140,6 +168,11 @@ namespace G_Hoover.Services.Logging
             return string.Empty;
         }
 
+        /// <summary>
+        /// file reader
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private List<string> ReadFileLines(string file)
         {
             using (var reader = File.OpenText(file))
@@ -169,13 +202,13 @@ namespace G_Hoover.Services.Logging
         {
             _savingTimer = new Timer();
 
-            if ((!_savingTimer.Enabled || _savingTimer == null) && LogList.Count > 0)
+            if ((!_savingTimer.Enabled || _savingTimer == null) && LogList.Count > 0 && !string.IsNullOrEmpty(_logFile))
             {
                 await ProcessLogList();
             }
             _savingTimer = new Timer();
             _savingTimer.Elapsed += new ElapsedEventHandler(ResetTimerAsync);
-            _savingTimer.Interval = 20;
+            _savingTimer.Interval = 10;
             _savingTimer.Start();
         }
 
@@ -222,8 +255,6 @@ namespace G_Hoover.Services.Logging
             {
                 DateTime date = DateTime.Now;
 
-                var frames = new StackTrace().GetFrames();
-
                 MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 
                 if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
@@ -240,8 +271,6 @@ namespace G_Hoover.Services.Logging
             if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
-
-                var frames = new StackTrace().GetFrames();
 
                 MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 
@@ -262,8 +291,6 @@ namespace G_Hoover.Services.Logging
 
                 object[] arguments = { value };
 
-                var frames = new StackTrace().GetFrames();
-
                 MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 
                 LogList.Add(new LogModel { MethodName = nameof(Info), Arguments = arguments, Date = date, Method = callingMethod });
@@ -277,8 +304,6 @@ namespace G_Hoover.Services.Logging
                 DateTime date = DateTime.Now;
 
                 object[] arguments = { value };
-
-                var frames = new StackTrace().GetFrames();
 
                 MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 

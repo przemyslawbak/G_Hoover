@@ -34,8 +34,8 @@ namespace G_Hoover.Desktop.Startup
             builder.RegisterType<ScrapService>()
               .As<IScrapService>().SingleInstance();
 
-            builder.RegisterType<LogService>()
-              .As<ILogService>().SingleInstance();
+            builder.RegisterType<ParamsLogger>()
+              .As<IParamsLogger>().SingleInstance();
 
             builder.RegisterType<AppConfig>()
               .As<IAppConfig>().SingleInstance();

@@ -22,7 +22,7 @@ namespace G_Hoover.Services.Browsing
     public class BrowseService : IBrowseService
     {
         private readonly IAppConfig _config;
-        private readonly ILogService _log;
+        private readonly IParamsLogger _log;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
         private readonly IFileService _fileService;
@@ -41,7 +41,7 @@ namespace G_Hoover.Services.Browsing
             IFileService fileService,
             IConnectionService connectionService,
             IAudioService audioService,
-            ILogService log,
+            IParamsLogger log,
             IAppConfig config)
         {
             _config = config;
@@ -110,26 +110,11 @@ namespace G_Hoover.Services.Browsing
 
         public async Task LoopCollectingAsync()
         {
-            _log.Called();
-
             try
             {
-                if (StopCT.IsCancellationRequested) StopCT.ThrowIfCancellationRequested(); //cancellation
-
-                if (NameList.Count > PhraseNo)
-                {
-                    InputCorrection = false;
-
-                    await GetNewRecordAsync();
-
-                    await LoopCollectingAsync(); //loop
-                }
-                else
-                {
-                    CancelCollectData();
-
-                    //finish; GetStoppedConfiguration is in ButtonsService already
-                }
+                InputCorrection = false;
+                await GetNewRecordAsync();
+                await LoopCollectingAsync();
             }
             catch (Exception e)
             {

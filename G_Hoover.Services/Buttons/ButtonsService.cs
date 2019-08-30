@@ -14,12 +14,12 @@ namespace G_Hoover.Services.Buttons
         private readonly IControlsService _controlsService;
         private readonly IFileService _fileService;
         private readonly IBrowseService _browseService;
-        private readonly ILogService _log;
+        private readonly IParamsLogger _log;
 
         public ButtonsService(IControlsService controlService,
             IFileService fileService,
             IBrowseService browseService,
-            ILogService log)
+            IParamsLogger log)
         {
             _controlsService = controlService;
             _fileService = fileService;

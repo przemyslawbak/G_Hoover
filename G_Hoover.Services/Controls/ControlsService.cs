@@ -14,9 +14,9 @@ namespace G_Hoover.Services.Controls
     public class ControlsService : IControlsService
     {
         private readonly IEventAggregator _eventAggregator;
-        private readonly ILogService _log;
+        private readonly IParamsLogger _log;
 
-        public ControlsService(IEventAggregator eventAggregator, ILogService log)
+        public ControlsService(IEventAggregator eventAggregator, IParamsLogger log)
         {
             _log = log;
             _eventAggregator = eventAggregator;
