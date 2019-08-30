@@ -7,6 +7,9 @@ namespace G_Hoover.Services.Config
     {
         public string AudioApiKey { get; } = ConfigurationManager.AppSettings["audioApiKey"];
         public string AudioApiRegion { get; } = ConfigurationManager.AppSettings["audioApiRegion"];
+        public string LogFile { get; } = ConfigurationManager.AppSettings["logFile"];
+        public string ResultFile { get; } = ConfigurationManager.AppSettings["resultFile"];
+        public string AudioFile { get; } = ConfigurationManager.AppSettings["audioFile"];
 
         public string GetFilePath()
         {
@@ -34,24 +37,23 @@ namespace G_Hoover.Services.Config
 
         public void SaveSearchPhrase(string searchPhrase)
         {
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["searchPhrase"].Value = searchPhrase;
-            config.Save(ConfigurationSaveMode.Minimal);
-            ConfigurationManager.RefreshSection("appSettings");
+            SaveInSettings(searchPhrase, nameof(searchPhrase));
         }
 
         public void SavePhraseNo(int phraseNo)
         {
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["phraseNo"].Value = phraseNo.ToString();
-            config.Save(ConfigurationSaveMode.Minimal);
-            ConfigurationManager.RefreshSection("appSettings");
+            SaveInSettings(phraseNo.ToString(), nameof(phraseNo));
         }
 
         public void SaveFilePath(string filePath)
         {
+            SaveInSettings(filePath, nameof(filePath));
+        }
+
+        private void SaveInSettings(string item, string nameOf)
+        {
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["filePath"].Value = filePath;
+            config.AppSettings.Settings[nameOf].Value = item;
             config.Save(ConfigurationSaveMode.Minimal);
             ConfigurationManager.RefreshSection("appSettings");
         }

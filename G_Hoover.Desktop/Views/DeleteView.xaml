@@ -10,10 +10,11 @@
         ResizeMode="NoResize"
         DataContext="{Binding PhraseViewModel, Source={StaticResource ViewModelLocator}}">
     <StackPanel>
-        <StackPanel Orientation="Horizontal"
+        <StackPanel Orientation="Vertical"
             HorizontalAlignment="Center"
             Margin="0 10 0 10">
-            <Label Content="Do you want to clear previous results?"/>
+            <Label Content="Do you want to clear previous results?" HorizontalAlignment="Center"/>
+            <Label Content="{Binding HowManyResults}" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel

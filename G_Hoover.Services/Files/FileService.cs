@@ -2,59 +2,55 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NLog;
-using G_Hoover.Services.Messages;
 using System.Text;
 using G_Hoover.Models;
-using CSCore.Codecs.WAV;
-using CSCore.SoundIn;
 using System.Text.RegularExpressions;
 using G_Hoover.Services.Logging;
+using G_Hoover.Services.Config;
 
 namespace G_Hoover.Services.Files
 {
     public class FileService : IFileService
     {
         ILogService _log;
+        IAppConfig _config;
 
-        private readonly string _logFile = "../../../../log.txt";
-        private readonly string _resultFile = "../../../../result.txt";
-        private readonly string _audioFile = "../../../../dump.wav";
+        private readonly string _logFile;
+        private readonly string _resultFile;
+        private readonly string _audioFile;
 
-        public FileService(ILogService log)
+        public FileService(ILogService log, IAppConfig config)
         {
             _log = log;
+            _config = config;
+
+            _logFile = _config.LogFile;
+            _resultFile = _config.ResultFile;
+            _audioFile = _config.AudioFile;
         }
 
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
             _log.Called(filePath);
 
-            List<string> list = new List<string>();
-
             try
             {
-                using (var reader = File.OpenText(filePath))
-                {
-                    var fileText = await reader.ReadToEndAsync();
-                    string[] array = fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                List<string> list = new List<string>();
 
-                    foreach (string line in array)
-                    {
-                        list.Add(line);
-                    }
+                string[] array = await GetArrayAsync(filePath);
+
+                foreach (string line in array)
+                {
+                    list.Add(line);
                 }
 
                 return list;
             }
             catch (Exception e)
             {
-
-                list.Clear();
-
                 _log.Error(e.Message);
 
-                return list;
+                return new List<string>();
             }
         }
 
@@ -166,6 +162,42 @@ namespace G_Hoover.Services.Files
             catch (Exception e)
             {
                 _log.Error(e.Message);
+            }
+        }
+
+        public async Task<int> GetHowManyRecordsAsync()
+        {
+            _log.Called();
+
+            try
+            {
+                int counter = 0;
+
+                string[] array = await GetArrayAsync(_resultFile);
+
+                foreach (string line in array)
+                {
+                    if (!string.IsNullOrEmpty(line))
+                        counter++;
+                }
+
+                return counter;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e.Message);
+
+                return 0;
+            }
+        }
+
+        private async Task<string[]> GetArrayAsync(string path)
+        {
+            using (var reader = File.OpenText(path))
+            {
+                var fileText = await reader.ReadToEndAsync();
+
+                return fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             }
         }
     }

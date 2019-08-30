@@ -4,6 +4,9 @@
     {
         string AudioApiKey { get; }
         string AudioApiRegion { get; }
+        string LogFile { get; }
+        string ResultFile { get; }
+        string AudioFile { get; }
 
         string GetFilePath();
         int GetPhraseNo();

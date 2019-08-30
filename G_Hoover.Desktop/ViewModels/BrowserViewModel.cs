@@ -49,7 +49,7 @@ namespace G_Hoover.Desktop.ViewModels
             _log = log;
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
-            StopCommand = new DelegateCommand(OnStopCommand);
+            StopCommand = new AsyncCommand(async () => await OnStopCommandAsync());
             PauseCommand = new DelegateCommand(OnPauseCommand);
             ConnectionChangeCommand = new AsyncCommand(async () => await OnConnectionChangeCommandAsync());
             ClickerChangeCommand = new DelegateCommand(OnClickerChangeCommand);
@@ -69,7 +69,6 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task InitializeProgramAsync()
         {
-            _fileService.RemoveOldLogs();
             _log.Called();
 
             try
@@ -133,7 +132,7 @@ namespace G_Hoover.Desktop.ViewModels
                     NameList = await _buttonService.ExecuteUploadButtonAsync(FilePath, false);
                     if (NameList.Count > 0)
                     {
-                        deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+                        deleteResults = await ShowDeleteDialogAsync(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
                     }
                     if (deleteResults == true)
                         _fileService.DeleteResultsFile();
@@ -148,13 +147,13 @@ namespace G_Hoover.Desktop.ViewModels
                 _buttonService.ExecutePauseButton(Paused);
         }
 
-        public void OnStopCommand(object obj)
+        public async Task OnStopCommandAsync()
         {
             bool? deleteResults = false;
 
             if (StopBtnEnabled)
                 _buttonService.ExecuteStopButton();
-            deleteResults = ShowDeleteDialog(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
+            deleteResults = await ShowDeleteDialogAsync(viewModel => _dialogService.ShowDialog<DeleteView>(this, viewModel));
             if (deleteResults == true)
                 _fileService.DeleteResultsFile();
         }
@@ -217,13 +216,15 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        public bool? ShowDeleteDialog(Func<DeleteViewModel, bool?> showDialog)
+        public async Task<bool?> ShowDeleteDialogAsync(Func<DeleteViewModel, bool?> showDialog)
         {
             _log.Called(string.Empty);
 
             try
             {
-                var dialogViewModel = new DeleteViewModel(_log);
+                int qty = await _fileService.GetHowManyRecordsAsync();
+
+                var dialogViewModel = new DeleteViewModel(_log, qty);
 
                 bool? success = showDialog(dialogViewModel);
 

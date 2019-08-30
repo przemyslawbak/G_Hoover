@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,14 +21,19 @@ namespace G_Hoover.Services.Logging
     }
     public interface IAsyncInitialization
     {
-        Task Initialization { get; }
+        Task TimerInitialization { get; }
     }
 
     public class LogService : ILogService
     {
         private Timer _savingTimer;
         AppDomain _currentDomain;
-        private readonly string _logFile = "../../../../log.txt";
+        private readonly string _logFileDefaults = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "log.txt");
+        private readonly bool _debugOnlyDefaults = true;
+        private string _logFile;
+        private bool _debugOnly;
+        private bool _executeOnDebugSettings;
+        private bool _deleteLogs;
 
         public LogService()
         {
@@ -35,32 +41,135 @@ namespace G_Hoover.Services.Logging
 
             LogList = new List<LogModel>();
 
-            if (Debugger.IsAttached) // only for DEBUG
-            {
-                Initialization = RunTimerAsync();
+            RunConfig();
 
-                UnhandledExceptionsHandlerAsync();
+            if (_deleteLogs)
+            {
+                DeleteFile(_logFile);
+            }
+
+            if (_executeOnDebugSettings) // if on DEBUG
+            {
+                TimerInitialization = RunTimerAsync();
+
+                UnhandledExceptionsHandler();
             }
         }
 
-        private async void UnhandledExceptionsHandlerAsync()
-        {
-            AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnUnhandledException);
+        public List<LogModel> LogList { get; set; }
+        public Task TimerInitialization { get; private set; }
+        public Task ConfigInitialization { get; private set; }
 
-            await ProcessLogList();
+        private void RunConfig()
+        {
+            string path = GetLogConfigPath();
+
+            if (string.IsNullOrEmpty(path)) //defaults
+            {
+                _logFile = _logFileDefaults;
+                _debugOnly = _debugOnlyDefaults;
+            }
+            else
+            {
+                ExeConfigurationFileMap configMap = new ExeConfigurationFileMap();
+                configMap.ExeConfigFilename = path;
+                Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
+
+                _logFile = GetLogPath(config);
+                _debugOnly = GetDebugOnlyPath(config);
+                _deleteLogs = GetDeleteLogs(config);
+            }
+
+            if (!_debugOnly || (_debugOnly && Debugger.IsAttached))
+            {
+                _executeOnDebugSettings = true;
+            }
+            else
+            {
+                _executeOnDebugSettings = false;
+            }
         }
 
-        void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+        private bool GetDeleteLogs(Configuration config)
+        {
+            bool result;
+
+            string debugOnly = config.AppSettings.Settings["deleteLogs"].Value;
+            bool isParsed = bool.TryParse(debugOnly, out result);
+
+            return isParsed ? Convert.ToBoolean(debugOnly) : true;
+        }
+
+        private bool GetDebugOnlyPath(Configuration config)
+        {
+            bool result;
+
+            string debugOnly = config.AppSettings.Settings["debugOnly"].Value;
+            bool isParsed = bool.TryParse(debugOnly, out result);
+
+            return isParsed ? Convert.ToBoolean(debugOnly) : true;
+        }
+
+        private string GetLogPath(Configuration config)
+        {
+            string logFile = config.AppSettings.Settings["logFile"].Value;
+
+            return (!string.IsNullOrEmpty(logFile)) ? logFile : _logFileDefaults;
+        }
+
+        private string GetLogConfigPath()
+        {
+            bool ok = false;
+
+            string newDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            string[] files = Directory.GetFiles(newDirectory, "log.config", SearchOption.AllDirectories);
+
+            foreach (var file in files)
+            {
+                List<string> lines = ReadFileLines(file);
+
+                if (lines.Any(l => l.Contains("logFile")) && lines.Any(l => l.Contains("debugOnly")))
+                    ok = true;
+
+                if (ok)
+                {
+                    return file;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private List<string> ReadFileLines(string file)
+        {
+            using (var reader = File.OpenText(file))
+            {
+                var fileText = reader.ReadToEnd();
+
+                var array = fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+                return new List<string>(array);
+            }
+        }
+
+        private void UnhandledExceptionsHandler()
+        {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnUnhandledExceptionAsync);
+        }
+
+        async void OnUnhandledExceptionAsync(object sender, UnhandledExceptionEventArgs args)
         {
             Error(string.Format("Runtime terminating: {0}", args.IsTerminating));
+
+            await ProcessLogList();
         }
 
         private async Task RunTimerAsync()
         {
             _savingTimer = new Timer();
 
-            if (!_savingTimer.Enabled || _savingTimer == null)
+            if ((!_savingTimer.Enabled || _savingTimer == null) && LogList.Count > 0)
             {
                 await ProcessLogList();
             }
@@ -88,20 +197,20 @@ namespace G_Hoover.Services.Logging
             }
         }
 
-        public List<LogModel> LogList { get; set; }
-        public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
-
         public void Prop(object value, [CallerMemberName] string propertyName = null)
         {
-            if (Debugger.IsAttached) // only for DEBUG
+            if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
                 object[] arguments = { propertyName, value };
 
-                var frames = new StackTrace().GetFrames();
+                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 
-                MethodBase callingMethod = GetCallingMethod(frames);
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
 
                 LogList.Add(new LogModel { MethodName = nameof(Prop), Arguments = arguments, Date = date, Method = callingMethod });
             }
@@ -109,13 +218,18 @@ namespace G_Hoover.Services.Logging
 
         public void Called(params object[] arguments)
         {
-            if (Debugger.IsAttached) // only for DEBUG
+            if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
                 var frames = new StackTrace().GetFrames();
 
-                MethodBase callingMethod = GetCallingMethod(frames);
+                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
 
                 LogList.Add(new LogModel { MethodName = nameof(Called), Arguments = arguments, Date = date, Method = callingMethod });
             }
@@ -123,13 +237,18 @@ namespace G_Hoover.Services.Logging
 
         public void Ended(params object[] arguments)
         {
-            if (Debugger.IsAttached) // only for DEBUG
+            if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
                 var frames = new StackTrace().GetFrames();
 
-                MethodBase callingMethod = GetCallingMethod(frames);
+                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
 
                 LogList.Add(new LogModel { MethodName = nameof(Ended), Arguments = arguments, Date = date, Method = callingMethod });
             }
@@ -137,7 +256,7 @@ namespace G_Hoover.Services.Logging
 
         public void Info(string value)
         {
-            if (Debugger.IsAttached) // only for DEBUG
+            if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
@@ -145,7 +264,7 @@ namespace G_Hoover.Services.Logging
 
                 var frames = new StackTrace().GetFrames();
 
-                MethodBase callingMethod = GetCallingMethod(frames);
+                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
 
                 LogList.Add(new LogModel { MethodName = nameof(Info), Arguments = arguments, Date = date, Method = callingMethod });
             }
@@ -153,7 +272,7 @@ namespace G_Hoover.Services.Logging
 
         public void Error(string value)
         {
-            if (Debugger.IsAttached) // only for DEBUG
+            if (_executeOnDebugSettings) // if on DEBUG
             {
                 DateTime date = DateTime.Now;
 
@@ -161,31 +280,15 @@ namespace G_Hoover.Services.Logging
 
                 var frames = new StackTrace().GetFrames();
 
-                MethodBase callingMethod = GetCallingMethod(frames);
+                MethodBase callingMethod = new StackTrace().GetFrame(1).GetMethod();
+
+                if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
+                {
+                    callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
+                }
 
                 LogList.Add(new LogModel { MethodName = nameof(Error), Arguments = arguments, Date = date, Method = callingMethod });
             }
-        }
-
-        private MethodBase GetCallingMethod(StackFrame[] frames)
-        {
-            MethodBase callingMethod;
-
-            if (frames.Length > 1)
-            {
-                callingMethod = new StackTrace().GetFrame(1).GetMethod();
-            }
-            else
-            {
-                callingMethod = null;
-            }
-
-            if (callingMethod != null && (callingMethod.Name == "MoveNext" || callingMethod.Name == "Run"))
-            {
-                callingMethod = GetRealMethodFromAsyncMethod(callingMethod);
-            }
-
-            return callingMethod;
         }
 
         private async Task GetStringAttributesAsync(LogModel log)
@@ -405,6 +508,14 @@ namespace G_Hoover.Services.Logging
             {
                 await Task.Delay(100);
                 await SaveLogAsync(line + " <--DELAYED");
+            }
+        }
+
+        private void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
             }
         }
     }

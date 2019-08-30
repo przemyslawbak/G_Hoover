@@ -17,5 +17,6 @@ namespace G_Hoover.Services.Files
         string GetAudioFilePath();
         string ProsessText(string audioResult);
         void DeleteResultsFile();
+        Task<int> GetHowManyRecordsAsync();
     }
 }

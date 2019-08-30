@@ -9,14 +9,27 @@ namespace G_Hoover.Desktop.ViewModels
     public class DeleteViewModel : ViewModelBase, IModalDialogViewModel
     {
         private readonly ILogService _log;
-        public DeleteViewModel(ILogService log)
+        public DeleteViewModel(ILogService log, int qty)
         {
             _log = log;
+            HowManyResults = qty.ToString();
 
             OkCommand = new DelegateCommand(Ok);
         }
 
         public ICommand OkCommand { get; }
+
+        private string _howManyResults;
+        public string HowManyResults
+        {
+            get => "Total results: " + _howManyResults;
+            private set
+            {
+                _howManyResults = value;
+                OnPropertyChanged();
+                _log.Prop(_howManyResults);
+            }
+        }
 
         private bool? _dialogResult;
         public bool? DialogResult

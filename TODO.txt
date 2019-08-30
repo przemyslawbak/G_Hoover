@@ -1,21 +1,23 @@
-when asking to delete results, tell how many:
-https://stackoverflow.com/a/13168006/11993544
-https://stackoverflow.com/a/18791181/11993544
-https://stackoverflow.com/a/52830075/11993544
-https://stackoverflow.com/a/35750642/11993544
-
-file paths from App.config, all classes
+LogService takes settings from own file: path, debug only?
+https://stackoverflow.com/a/506637/11993544
+https://developers.de/blogs/bahro/archive/2016/02/08/using-external-config-files-in-net-applications.aspx
 
 manual test failures for captcha solving + buttos
 
 track ControlsService calls on each btn click
 
+removing old logs from LogService
+
+check if all props I want in BrowseService logged
+
 --
+
+refactorise classes for testing
 
 testing:
 async (sender, args) - not anonymus??
 
-Timer: https://stackoverflow.com/a/11496412/11993544
+Timer: https://stackoverflow.com/a/11496412/11993544 <- testing
 
 --
 
