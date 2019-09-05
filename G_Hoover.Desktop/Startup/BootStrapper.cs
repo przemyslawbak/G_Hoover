@@ -9,10 +9,9 @@ using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
 using G_Hoover.Services.Input;
-using G_Hoover.Services.Logging;
-using G_Hoover.Services.Messages;
 using G_Hoover.Services.Scrap;
 using MvvmDialogs;
+using Params_Logger;
 using Prism.Events;
 using WindowsInput;
 
@@ -61,11 +60,8 @@ namespace G_Hoover.Desktop.Startup
             builder.RegisterType<DialogService>()
               .As<IDialogService>().SingleInstance();
 
-            builder.RegisterType<FileService>()
-              .As<IFileService>().SingleInstance();
-
-            builder.RegisterType<MessageService>()
-              .As<IMessageService>().SingleInstance();
+            builder.RegisterType<FilingService>()
+              .As<IFilingService>().SingleInstance();
 
             builder.RegisterType<ButtonsService>()
               .As<IButtonsService>().SingleInstance();

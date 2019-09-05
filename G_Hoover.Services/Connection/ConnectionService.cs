@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using CefSharp;
 using CefSharp.Wpf;
-using G_Hoover.Services.Logging;
+using Params_Logger;
 using Tor;
 using Tor.Config;
 

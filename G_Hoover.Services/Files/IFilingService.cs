@@ -7,7 +7,7 @@ using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace G_Hoover.Services.Files
 {
-    public interface IFileService
+    public interface IFilingService
     {
         Task<List<string>> GetNewListFromFileAsync(string filePath);
         void RemoveOldLogs();

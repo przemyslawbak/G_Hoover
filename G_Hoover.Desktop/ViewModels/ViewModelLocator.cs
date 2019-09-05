@@ -5,7 +5,8 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class ViewModelLocator
     {
-        IContainer _container;
+        private readonly IContainer _container;
+
         public ViewModelLocator()
         {
             _container = BootStrapper.BootStrap();

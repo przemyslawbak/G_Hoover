@@ -1,6 +1,6 @@
 ﻿using G_Hoover.Events;
 using G_Hoover.Models;
-using G_Hoover.Services.Logging;
+using Params_Logger;
 using Prism.Events;
 using System;
 using System.Runtime.InteropServices;

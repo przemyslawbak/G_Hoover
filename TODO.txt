@@ -1,12 +1,6 @@
-LogService takes settings from own file: path, debug only?
-https://stackoverflow.com/a/506637/11993544
-https://developers.de/blogs/bahro/archive/2016/02/08/using-external-config-files-in-net-applications.aspx
-
 manual test failures for captcha solving + buttos
 
 track ControlsService calls on each btn click
-
-removing old logs from LogService
 
 check if all props I want in BrowseService logged
 

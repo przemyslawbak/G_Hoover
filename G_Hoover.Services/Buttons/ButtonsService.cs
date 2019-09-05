@@ -2,7 +2,7 @@
 using G_Hoover.Services.Browsing;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Logging;
+using Params_Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,12 +12,12 @@ namespace G_Hoover.Services.Buttons
     public class ButtonsService : IButtonsService
     {
         private readonly IControlsService _controlsService;
-        private readonly IFileService _fileService;
+        private readonly IFilingService _fileService;
         private readonly IBrowseService _browseService;
         private readonly IParamsLogger _log;
 
         public ButtonsService(IControlsService controlService,
-            IFileService fileService,
+            IFilingService fileService,
             IBrowseService browseService,
             IParamsLogger log)
         {

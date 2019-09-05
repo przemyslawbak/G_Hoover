@@ -6,10 +6,9 @@ using G_Hoover.Models;
 using G_Hoover.Services.Buttons;
 using G_Hoover.Services.Config;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Logging;
-using G_Hoover.Services.Messages;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
+using Params_Logger;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -19,18 +18,17 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
-    public class BrowserViewModel : ViewModelBase, IAsyncInitialization
+    public class BrowserViewModel : ViewModelBase
     {
-        private readonly IFileService _fileService;
+        private readonly IFilingService _fileService;
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
         private readonly IParamsLogger _log;
 
-        public BrowserViewModel(IFileService fileService,
+        public BrowserViewModel(IFilingService fileService,
             IDialogService dialogService,
-            IMessageService messageService,
             IEventAggregator eventAggregator,
             IButtonsService buttonService,
             IAppConfig config,
@@ -61,7 +59,7 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task InitializeProgramAsync()
         {
-            await _log.Initialization; //awaiting for init of logger
+            await _log.GetLogger; //awaiting for init of logger
 
             _log.Called();
 

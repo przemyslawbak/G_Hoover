@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using System.Text;
 using G_Hoover.Models;
 using System.Text.RegularExpressions;
-using G_Hoover.Services.Logging;
 using G_Hoover.Services.Config;
+using Params_Logger;
 
 namespace G_Hoover.Services.Files
 {
-    public class FileService : IFileService
+    public class FilingService : IFilingService
     {
         IParamsLogger _log;
         IAppConfig _config;
@@ -19,7 +19,7 @@ namespace G_Hoover.Services.Files
         private readonly string _resultFile;
         private readonly string _audioFile;
 
-        public FileService(IParamsLogger log, IAppConfig config)
+        public FilingService(IParamsLogger log, IAppConfig config)
         {
             _log = log;
             _config = config;

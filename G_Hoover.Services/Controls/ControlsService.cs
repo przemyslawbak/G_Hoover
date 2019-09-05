@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Windows;
 using G_Hoover.Events;
 using G_Hoover.Models;
-using G_Hoover.Services.Files;
-using G_Hoover.Services.Logging;
-using G_Hoover.Services.Messages;
-using NLog;
+using Params_Logger;
 using Prism.Events;
 
 namespace G_Hoover.Services.Controls

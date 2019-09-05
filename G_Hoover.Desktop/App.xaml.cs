@@ -1,7 +1,4 @@
-﻿using G_Hoover.Services.Logging;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows;
 
 namespace G_Hoover.Desktop
 {

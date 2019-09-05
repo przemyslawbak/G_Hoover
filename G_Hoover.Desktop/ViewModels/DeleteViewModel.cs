@@ -1,6 +1,6 @@
 ﻿using G_Hoover.Desktop.Commands;
-using G_Hoover.Services.Logging;
 using MvvmDialogs;
+using Params_Logger;
 using System;
 using System.Windows.Input;
 

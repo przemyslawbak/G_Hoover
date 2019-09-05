@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CefSharp;
 using CefSharp.Wpf;
 using G_Hoover.Services.Input;
-using G_Hoover.Services.Logging;
+using Params_Logger;
 
 namespace G_Hoover.Services.Scrap
 {

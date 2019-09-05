@@ -13,8 +13,8 @@ using G_Hoover.Services.Config;
 using G_Hoover.Services.Connection;
 using G_Hoover.Services.Controls;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Logging;
 using G_Hoover.Services.Scrap;
+using Params_Logger;
 using Prism.Events;
 
 namespace G_Hoover.Services.Browsing
@@ -25,7 +25,7 @@ namespace G_Hoover.Services.Browsing
         private readonly IParamsLogger _log;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
-        private readonly IFileService _fileService;
+        private readonly IFilingService _fileService;
         private readonly IConnectionService _connectionService;
         private readonly IAudioService _audioService;
         private readonly IEventAggregator _eventAggregator;
@@ -38,7 +38,7 @@ namespace G_Hoover.Services.Browsing
         public BrowseService(IControlsService controlsService,
             IEventAggregator eventAggregator,
             IScrapService scrapService,
-            IFileService fileService,
+            IFilingService fileService,
             IConnectionService connectionService,
             IAudioService audioService,
             IParamsLogger log,

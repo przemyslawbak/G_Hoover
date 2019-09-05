@@ -2,10 +2,10 @@
 using CSCore.SoundIn;
 using G_Hoover.Services.Config;
 using G_Hoover.Services.Files;
-using G_Hoover.Services.Logging;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech.Intent;
+using Params_Logger;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -14,7 +14,7 @@ namespace G_Hoover.Services.Audio
 {
     public class AudioService : IAudioService
     {
-        private readonly IFileService _fileService;
+        private readonly IFilingService _fileService;
         private readonly IAppConfig _config;
         private readonly IParamsLogger _log;
 
@@ -23,7 +23,7 @@ namespace G_Hoover.Services.Audio
         private WaveWriter _writer;
         private readonly Timer _recordFileTimer;
 
-        public AudioService(IFileService fileService, IAppConfig config, IParamsLogger log)
+        public AudioService(IFilingService fileService, IAppConfig config, IParamsLogger log)
         {
             _fileService = fileService;
             _config = config;
