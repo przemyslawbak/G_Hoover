@@ -22,13 +22,13 @@ namespace G_Hoover.Services.Browsing
     public class BrowseService : IBrowseService
     {
         private readonly IAppConfig _config;
-        private readonly IParamsLogger _log;
         private readonly IControlsService _controlsService;
         private readonly IScrapService _scrapService;
         private readonly IFilingService _fileService;
         private readonly IConnectionService _connectionService;
         private readonly IAudioService _audioService;
         private readonly IEventAggregator _eventAggregator;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
         EventHandler<LoadingStateChangedEventArgs> _pageLoadedEventHandler;
         EventHandler<LoadingStateChangedEventArgs> _resultLoadedEventHandler;
@@ -41,11 +41,9 @@ namespace G_Hoover.Services.Browsing
             IFilingService fileService,
             IConnectionService connectionService,
             IAudioService audioService,
-            IParamsLogger log,
             IAppConfig config)
         {
             _config = config;
-            _log = log;
             _controlsService = controlsService;
             _scrapService = scrapService;
             _fileService = fileService;

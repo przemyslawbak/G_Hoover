@@ -10,11 +10,10 @@ namespace G_Hoover.Services.Controls
     public class ControlsService : IControlsService
     {
         private readonly IEventAggregator _eventAggregator;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
-        public ControlsService(IEventAggregator eventAggregator, IParamsLogger log)
+        public ControlsService(IEventAggregator eventAggregator)
         {
-            _log = log;
             _eventAggregator = eventAggregator;
         }
 

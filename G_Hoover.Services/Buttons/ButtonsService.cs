@@ -14,17 +14,15 @@ namespace G_Hoover.Services.Buttons
         private readonly IControlsService _controlsService;
         private readonly IFilingService _fileService;
         private readonly IBrowseService _browseService;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
         public ButtonsService(IControlsService controlService,
             IFilingService fileService,
-            IBrowseService browseService,
-            IParamsLogger log)
+            IBrowseService browseService)
         {
             _controlsService = controlService;
             _fileService = fileService;
             _browseService = browseService;
-            _log = log;
         }
 
         public void ExecuteStopButton()

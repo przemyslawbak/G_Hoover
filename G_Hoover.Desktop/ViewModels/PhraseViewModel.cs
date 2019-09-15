@@ -8,11 +8,9 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
-        private readonly IParamsLogger _log;
-        public PhraseViewModel(string searchPhrase, IParamsLogger log)
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
+        public PhraseViewModel(string searchPhrase)
         {
-            _log = log;
-
             OkCommand = new DelegateCommand(Ok);
 
             Before = "";

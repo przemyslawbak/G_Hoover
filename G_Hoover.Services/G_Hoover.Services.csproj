@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.props" Condition="Exists('..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.props')" />
-  <Import Project="..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.props')" />
+  <Import Project="..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.props" Condition="Exists('..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.props')" />
+  <Import Project="..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.props')" />
   <Import Project="..\packages\cef.redist.x86.75.1.14\build\cef.redist.x86.props" Condition="Exists('..\packages\cef.redist.x86.75.1.14\build\cef.redist.x86.props')" />
   <Import Project="..\packages\cef.redist.x64.75.1.14\build\cef.redist.x64.props" Condition="Exists('..\packages\cef.redist.x64.75.1.14\build\cef.redist.x64.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -61,8 +61,8 @@
     <Reference Include="Microsoft.CognitiveServices.Speech.csharp, Version=1.6.0.28, Culture=neutral, PublicKeyToken=d2e6dcccb609e663, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CognitiveServices.Speech.1.6.0\lib\net461\Microsoft.CognitiveServices.Speech.csharp.dll</HintPath>
     </Reference>
-    <Reference Include="Params_Logger, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Params_Logger.1.0.6\lib\netstandard2.0\Params_Logger.dll</HintPath>
+    <Reference Include="Params_Logger, Version=1.0.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Params_Logger.1.0.12\lib\netstandard2.0\Params_Logger.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -151,12 +151,12 @@
     <Error Condition="!Exists('..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets'))" />
     <Error Condition="!Exists('..\packages\cef.redist.x64.75.1.14\build\cef.redist.x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x64.75.1.14\build\cef.redist.x64.props'))" />
     <Error Condition="!Exists('..\packages\cef.redist.x86.75.1.14\build\cef.redist.x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x86.75.1.14\build\cef.redist.x86.props'))" />
-    <Error Condition="!Exists('..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.props'))" />
-    <Error Condition="!Exists('..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.targets'))" />
-    <Error Condition="!Exists('..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.props'))" />
-    <Error Condition="!Exists('..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.targets'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.targets'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets" Condition="Exists('..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets')" />
-  <Import Project="..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.75.1.141\build\CefSharp.Common.targets')" />
-  <Import Project="..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.targets" Condition="Exists('..\packages\CefSharp.Wpf.75.1.141\build\CefSharp.Wpf.targets')" />
+  <Import Project="..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.75.1.142\build\CefSharp.Common.targets')" />
+  <Import Project="..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.targets" Condition="Exists('..\packages\CefSharp.Wpf.75.1.142\build\CefSharp.Wpf.targets')" />
 </Project>

@@ -16,18 +16,17 @@ namespace G_Hoover.Services.Audio
     {
         private readonly IFilingService _fileService;
         private readonly IAppConfig _config;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
 
         private WasapiCapture _capture;
         private WaveWriter _writer;
         private readonly Timer _recordFileTimer;
 
-        public AudioService(IFilingService fileService, IAppConfig config, IParamsLogger log)
+        public AudioService(IFilingService fileService, IAppConfig config)
         {
             _fileService = fileService;
             _config = config;
-            _log = log;
 
             _recordFileTimer = new Timer();
         }

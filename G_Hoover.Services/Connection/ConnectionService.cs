@@ -11,12 +11,7 @@ namespace G_Hoover.Services.Connection
 {
     public class ConnectionService : IConnectionService
     {
-        IParamsLogger _log;
-
-        public ConnectionService(IParamsLogger log)
-        {
-            _log = log;
-        }
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
         public void ConfigureBrowserDirect(IWpfWebBrowser webBrowser)
         {

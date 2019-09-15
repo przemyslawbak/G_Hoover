@@ -25,21 +25,19 @@ namespace G_Hoover.Desktop.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly IButtonsService _buttonService;
         private readonly IAppConfig _config;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
         public BrowserViewModel(IFilingService fileService,
             IDialogService dialogService,
             IEventAggregator eventAggregator,
             IButtonsService buttonService,
-            IAppConfig config,
-            IParamsLogger log)
+            IAppConfig config)
         {
             _dialogService = dialogService;
             _fileService = fileService;
             _buttonService = buttonService;
             _eventAggregator = eventAggregator;
             _config = config;
-            _log = log;
 
             StartCommand = new AsyncCommand(async () => await OnStartCommandAsync());
             StopCommand = new AsyncCommand(async () => await OnStopCommandAsync());
@@ -59,8 +57,6 @@ namespace G_Hoover.Desktop.ViewModels
 
         public async Task InitializeProgramAsync()
         {
-            await _log.GetLogger; //awaiting for init of logger
-
             _log.Called();
 
             try
@@ -196,7 +192,7 @@ namespace G_Hoover.Desktop.ViewModels
 
             try
             {
-                var dialogViewModel = new PhraseViewModel(SearchPhrase, _log);
+                var dialogViewModel = new PhraseViewModel(SearchPhrase);
 
                 bool? success = showDialog(dialogViewModel);
 
@@ -218,7 +214,7 @@ namespace G_Hoover.Desktop.ViewModels
             {
                 int qty = await _fileService.GetHowManyRecordsAsync();
 
-                var dialogViewModel = new DeleteViewModel(_log, qty);
+                var dialogViewModel = new DeleteViewModel(qty);
 
                 bool? success = showDialog(dialogViewModel);
 

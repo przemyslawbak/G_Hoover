@@ -8,10 +8,9 @@ namespace G_Hoover.Desktop.ViewModels
 {
     public class DeleteViewModel : ViewModelBase, IModalDialogViewModel
     {
-        private readonly IParamsLogger _log;
-        public DeleteViewModel(IParamsLogger log, int qty)
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
+        public DeleteViewModel(int qty)
         {
-            _log = log;
             HowManyResults = qty.ToString();
 
             OkCommand = new DelegateCommand(Ok);

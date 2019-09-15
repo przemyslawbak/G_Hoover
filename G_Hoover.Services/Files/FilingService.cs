@@ -12,16 +12,15 @@ namespace G_Hoover.Services.Files
 {
     public class FilingService : IFilingService
     {
-        IParamsLogger _log;
-        IAppConfig _config;
+        private readonly IAppConfig _config;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
         private readonly string _logFile;
         private readonly string _resultFile;
         private readonly string _audioFile;
 
-        public FilingService(IParamsLogger log, IAppConfig config)
+        public FilingService(IAppConfig config)
         {
-            _log = log;
             _config = config;
 
             _logFile = _config.LogFile;

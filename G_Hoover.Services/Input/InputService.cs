@@ -17,7 +17,7 @@ namespace G_Hoover.Services.Input
 
         private readonly IInputSimulator _simulator;
         private readonly IEventAggregator _eventAggregator;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
 
         private readonly Random _rndX; //random int for X
@@ -25,11 +25,10 @@ namespace G_Hoover.Services.Input
         private int _corrX; //correction for X
         private int _corrY; //correction for Y
 
-        public InputService(IEventAggregator eventAggregator, IInputSimulator simulator, IParamsLogger log)
+        public InputService(IEventAggregator eventAggregator, IInputSimulator simulator)
         {
             _eventAggregator = eventAggregator;
             _simulator = simulator;
-            _log = log;
 
             _rndX = new Random();
             _rndY = new Random();

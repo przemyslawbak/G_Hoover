@@ -10,12 +10,11 @@ namespace G_Hoover.Services.Scrap
     public class ScrapService : IScrapService
     {
         private readonly IInputService _inputService;
-        private readonly IParamsLogger _log;
+        private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
-        public ScrapService(IInputService inputService, IParamsLogger log)
+        public ScrapService(IInputService inputService)
         {
             _inputService = inputService;
-            _log = log;
         }
 
         public async Task ClickAudioChallangeIconAsync(bool clickerInput)
