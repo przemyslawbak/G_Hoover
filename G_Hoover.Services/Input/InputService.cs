@@ -11,10 +11,11 @@ using WindowsInput.Native;
 
 namespace G_Hoover.Services.Input
 {
-
+    /// <summary>
+    /// service class that uses IInputSimulator for generating simulated inputs and uses User32.dll for moving the mouse coursor
+    /// </summary>
     public class InputService : IInputService
     {
-
         private readonly IInputSimulator _simulator;
         private readonly IEventAggregator _eventAggregator;
         private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
@@ -39,8 +40,11 @@ namespace G_Hoover.Services.Input
         }
 
         public bool Paused { get; set; } //is paused by the user?
-        public bool PleaseWaitVisible { get; set; } //is work in progress?
+        public bool PleaseWaitVisible { get; set; } //is `please wait` status?
 
+        /// <summary>
+        /// controls updated on event handling
+        /// </summary>
         public void OnUpdateControls(UiPropertiesModel obj)
         {
             Paused = obj.Paused;
@@ -50,16 +54,26 @@ namespace G_Hoover.Services.Input
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int posX, int posY);
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task ClickAudioChallangeInputAsync()
         {
             await MouseLeftButtonClick(236, 892);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task ClickCheckboxInputAsync()
         {
             await MouseLeftButtonClick(83, 212);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
+        /// <param name="inputCorrection">adds optional input correction</param>
         public async Task ClickNewAudioChallengeInputAsync(bool inputCorrection)
         {
             if (inputCorrection)
@@ -70,6 +84,10 @@ namespace G_Hoover.Services.Input
             await MouseLeftButtonClick(165, 440);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
+        /// <param name="inputCorrection">adds optional input correction</param>
         public async Task ClickPlayInputAsync(bool inputCorrection)
         {
             if (inputCorrection)
@@ -85,27 +103,44 @@ namespace G_Hoover.Services.Input
             await MouseLeftButtonClick(329, 280);
         }
 
-
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task ClickSearchBarInputAsync()
         {
             await MouseLeftButtonClick(820, 565);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task ClickSearchButtonInputAsync()
         {
             await MouseLeftButtonClick(850, 670);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task EnterResulInputAsync(string audioResult)
         {
             await KeyboardTextInput(audioResult);
         }
 
+        /// <summary>
+        /// clicks l.mouse btn
+        /// </summary>
         public async Task EnterPhraseInputAsync(string phrase)
         {
             await KeyboardTextInput(phrase);
         }
 
+        /// <summary>
+        /// DRY moves mouse to X,Y, and clicks l.mouse btn
+        /// </summary>
+        /// <param name="posX">X coordinate</param>
+        /// <param name="posY">Y coordinate</param>
+        /// <returns></returns>
         public async Task MouseLeftButtonClick(int posX, int posY)
         {
             _log.Called(posX, posY);
@@ -130,6 +165,11 @@ namespace G_Hoover.Services.Input
             }
         }
 
+        /// <summary>
+        /// DRY enters text input
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public async Task KeyboardTextInput(string text)
         {
             _log.Called(text);
@@ -145,6 +185,9 @@ namespace G_Hoover.Services.Input
             _simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
         }
 
+        /// <summary>
+        /// short pause while paused or wait status
+        /// </summary>
         public void Pause()
         {
             while (Paused || PleaseWaitVisible)

@@ -19,6 +19,9 @@ using Prism.Events;
 
 namespace G_Hoover.Services.Browsing
 {
+    /// <summary>
+    /// a service class browsing the search website
+    /// </summary>
     public class BrowseService : IBrowseService
     {
         private readonly IAppConfig _config;
@@ -65,11 +68,18 @@ namespace G_Hoover.Services.Browsing
             _eventAggregator.GetEvent<UpdateControlsEvent>().Subscribe(OnUpdateControls);
         }
 
+        /// <summary>
+        /// creates new cancellation token, calls LoopCollectingAsync
+        /// finally disposes cancellation token
+        /// </summary>
+        /// <param name="nameList">list of names/phrases</param>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <param name="searchPhrase">built search phrase</param>
         public async Task CollectDataAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase)
         {
             _log.Called(nameList.Count, string.Empty, searchPhrase);
 
-            if (StopTS == null || StopTS.IsCancellationRequested)
+            if (StopTS == null || StopTS.IsCancellationRequested) //if cancellation token is null or requested, create new one
             {
                 StopTS = new CancellationTokenSource();
                 StopCT = StopTS.Token;
@@ -106,6 +116,9 @@ namespace G_Hoover.Services.Browsing
             StopTS = null;
         }
 
+        /// <summary>
+        /// loops for GetNewRecordAsync, resets InputCorrection
+        /// </summary>
         public async Task LoopCollectingAsync()
         {
             try
@@ -120,6 +133,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// gets new record to be saved
+        /// </summary>
         public async Task GetNewRecordAsync()
         {
             _log.Called();
@@ -146,7 +162,7 @@ namespace G_Hoover.Services.Browsing
 
                         Pause(); //if paused
 
-                        await _scrapService.CliskSearchBtnAsync(ClickerInput, WebBrowser);
+                        await _scrapService.ClickSearchBtnAsync(ClickerInput, WebBrowser);
 
                         Pause(); //if paused
 
@@ -199,6 +215,9 @@ namespace G_Hoover.Services.Browsing
                 await Task.Delay(50); //if still crawling
         }
 
+        /// <summary>
+        /// resolves captcha if found
+        /// </summary>
         public async Task ResolveCaptchaAsync()
         {
             AudioTrials = 0;
@@ -249,6 +268,10 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// sets new browsing IP
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public void GetNewIp(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);
@@ -272,6 +295,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// resolves audio captcha
+        /// </summary>
         public async Task ResolveAudioChallengeAsync()
         {
             _log.Called();
@@ -320,6 +346,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// recording and processing audio
+        /// </summary>
         public async Task RecordAndProcessAudioAsync()
         {
             _log.Called();
@@ -355,6 +384,10 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// sending audio result
+        /// </summary>
+        /// <param name="audioResult">result of audio processing</param>
         public async Task SendAudioResultAsync(string audioResult)
         {
             _log.Called(audioResult);
@@ -396,6 +429,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// clicks to get new audio challenge
+        /// </summary>
         public async Task MakeNewAudioChallengeAsync()
         {
             InputCorrection = false;
@@ -407,6 +443,9 @@ namespace G_Hoover.Services.Browsing
             await RecordAndProcessAudioAsync();
         }
 
+        /// <summary>
+        /// scraps result and saves in the result file
+        /// </summary>
         public async Task GetAndSaveResultAsync()
         {
             ResultObjectModel result = new ResultObjectModel();
@@ -425,6 +464,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// pause browsing
+        /// </summary>
         public void Pause()
         {
             _log.Info("Paused");
@@ -435,6 +477,9 @@ namespace G_Hoover.Services.Browsing
             _log.Info("Unpaused");
         }
 
+        /// <summary>
+        /// changes input or connection if result is empty string
+        /// </summary>
         public void ResolveEmptyString()
         {
             if (!ClickerInput)
@@ -453,6 +498,10 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// collects result form html document
+        /// </summary>
+        /// <returns>ResultObjectModel</returns>
         public async Task<ResultObjectModel> CollectResultsAsync()
         {
             ResultObjectModel result = new ResultObjectModel
@@ -464,6 +513,10 @@ namespace G_Hoover.Services.Browsing
             return result;
         }
 
+        /// <summary>
+        /// checks for captcha in html document
+        /// </summary>
+        /// <returns>captcha found bool</returns>
         public async Task<bool> CheckForCaptchaAsync()
         {
             bool loadingPage = true;
@@ -488,6 +541,11 @@ namespace G_Hoover.Services.Browsing
 
             return isCaptcha;
         }
+
+        /// <summary>
+        /// changes connection type to Tor or direct
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public void ChangeConnectionType(IWpfWebBrowser webBrowser)
         {
             if (!SearchViaTor)
@@ -503,6 +561,9 @@ namespace G_Hoover.Services.Browsing
             HowManySearches = 0;
         }
 
+        /// <summary>
+        /// checks for current clicker type, depending on this setting up browser properties
+        /// </summary>
         public void VerifyClickerInput()
         {
             if (!ClickerInput) //if input clicker
@@ -519,6 +580,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// depending on current StatusPropertiesModel updates display properties
+        /// </summary>
         public void UpdateStatusProperties()
         {
             StatusPropertiesModel status = new StatusPropertiesModel()
@@ -539,6 +603,9 @@ namespace G_Hoover.Services.Browsing
             _eventAggregator.GetEvent<UpdateStatusEvent>().Publish(status);
         }
 
+        /// <summary>
+        /// updates controls by the event
+        /// </summary>
         public void OnUpdateControls(UiPropertiesModel obj)
         {
             Paused = obj.Paused;
@@ -554,6 +621,9 @@ namespace G_Hoover.Services.Browsing
             VerifyClickerInput();
         }
 
+        /// <summary>
+        /// cancellation of the token and stops loading website if currently loading any
+        /// </summary>
         public void CancelCollectData()
         {
             if (StopTS != null && !StopTS.IsCancellationRequested)
@@ -567,17 +637,27 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// updating SearchPhrase prop
+        /// </summary>
+        /// <param name="searchPhrase">string built phrase</param>
         public void UpdateSearchPhrase(string searchPhrase)
         {
             SearchPhrase = searchPhrase;
             _config.SaveSearchPhrase(searchPhrase);
         }
 
+        /// <summary>
+        /// saves PhraseNo prop into config file
+        /// </summary>
         public void SavePhraseNo()
         {
             _config.SavePhraseNo(PhraseNo);
         }
 
+        /// <summary>
+        /// gets PhraseNo from config file
+        /// </summary>
         public int GetPhraseNo()
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -586,6 +666,10 @@ namespace G_Hoover.Services.Browsing
             return toReturn;
         }
 
+        /// <summary>
+        /// save path to the file with list of names/phrases
+        /// </summary>
+        /// <param name="filePath">string path</param>
         public void SaveFilePath(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
@@ -594,6 +678,9 @@ namespace G_Hoover.Services.Browsing
             }
         }
 
+        /// <summary>
+        /// changes clicker type
+        /// </summary>
         public void ClickerChange()
         {
             ClickerInput = ClickerInput ? false : true;
@@ -611,7 +698,7 @@ namespace G_Hoover.Services.Browsing
         public IWpfWebBrowser WebBrowser { get; set; } //passed web browser instance from VM
         public bool LoadingPage { get; set; } //if page is now loading
         public bool InputCorrection { get; set; } //if need to add correction for input
-        public string Status { get; set; }
+        public string Status { get; set; } //current browsing status
 
         private int _phraseNo;
         public int PhraseNo //number of currently checked phrase

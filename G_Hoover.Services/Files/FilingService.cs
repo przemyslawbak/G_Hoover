@@ -10,6 +10,9 @@ using Params_Logger;
 
 namespace G_Hoover.Services.Files
 {
+    /// <summary>
+    /// service class that operates on files and folders
+    /// </summary>
     public class FilingService : IFilingService
     {
         private readonly IAppConfig _config;
@@ -23,11 +26,15 @@ namespace G_Hoover.Services.Files
         {
             _config = config;
 
-            _logFile = _config.LogFile;
             _resultFile = _config.ResultFile;
             _audioFile = _config.AudioFile;
         }
 
+        /// <summary>
+        /// gets list of phrases/names from specified file
+        /// </summary>
+        /// <param name="filePath">file path</param>
+        /// <returns>list of phrases/names</returns>
         public async Task<List<string>> GetNewListFromFileAsync(string filePath)
         {
             _log.Called(filePath);
@@ -53,20 +60,12 @@ namespace G_Hoover.Services.Files
             }
         }
 
-        public void RemoveOldLogs()
-        {
-            _log.Called();
-
-            try
-            {
-                DeleteFile(_logFile);
-            }
-            catch (Exception e)
-            {
-                _log.Error(e.Message);
-            }
-        }
-
+        /// <summary>
+        /// saving new resut object line
+        /// </summary>
+        /// <param name="result">object</param>
+        /// <param name="phrase">phrase name for this object</param>
+        /// <returns></returns>
         public async Task SaveNewResultAsync(ResultObjectModel result, string phrase)
         {
             _log.Called(string.Empty, phrase);
@@ -89,6 +88,12 @@ namespace G_Hoover.Services.Files
             }
         }
 
+        /// <summary>
+        /// combines string to be saved in result file
+        /// </summary>
+        /// <param name="result">result</param>
+        /// <param name="phrase">phrase name for this object</param>
+        /// <returns></returns>
         public string CombineStringResult(ResultObjectModel result, string phrase)
         {
             _log.Called(string.Empty, phrase);
@@ -112,6 +117,10 @@ namespace G_Hoover.Services.Files
             }
         }
 
+        /// <summary>
+        /// checks if audio file exists
+        /// </summary>
+        /// <returns>bool exists or not</returns>
         public bool CheckAudioFile()
         {
             _log.Called();
@@ -119,6 +128,10 @@ namespace G_Hoover.Services.Files
             return (new FileInfo(_audioFile).Length > 10000) ? true : false;
         }
 
+        /// <summary>
+        /// returns audio file path
+        /// </summary>
+        /// <returns>audio file path</returns>
         public string GetAudioFilePath()
         {
             _log.Called();
@@ -126,6 +139,11 @@ namespace G_Hoover.Services.Files
             return _audioFile;
         }
 
+        /// <summary>
+        /// cleaning up with Regex result srting
+        /// </summary>
+        /// <param name="audioResult">audio text result</param>
+        /// <returns>string text after clean up</returns>
         public string ProsessText(string audioResult)
         {
             _log.Called(audioResult);
@@ -133,6 +151,9 @@ namespace G_Hoover.Services.Files
             return Regex.Replace(audioResult.ToLower(), @"[.?!,]", "");
         }
 
+        /// <summary>
+        /// deletes result file
+        /// </summary>
         public void DeleteResultsFile()
         {
             _log.Called();
@@ -140,6 +161,9 @@ namespace G_Hoover.Services.Files
             DeleteFile(_resultFile);
         }
 
+        /// <summary>
+        /// deletes audio file
+        /// </summary>
         public void DeleteOldAudio()
         {
             _log.Called();
@@ -147,6 +171,10 @@ namespace G_Hoover.Services.Files
             DeleteFile(_audioFile);
         }
 
+        /// <summary>
+        /// DRY delete file
+        /// </summary>
+        /// <param name="path">file path</param>
         private void DeleteFile(string path)
         {
             _log.Called(path);
@@ -164,6 +192,10 @@ namespace G_Hoover.Services.Files
             }
         }
 
+        /// <summary>
+        /// returns number of lines (records) in result file
+        /// </summary>
+        /// <returns>int number</returns>
         public async Task<int> GetHowManyRecordsAsync()
         {
             _log.Called();
@@ -190,6 +222,11 @@ namespace G_Hoover.Services.Files
             }
         }
 
+        /// <summary>
+        /// DRY for reading string array
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private async Task<string[]> GetArrayAsync(string path)
         {
             using (var reader = File.OpenText(path))

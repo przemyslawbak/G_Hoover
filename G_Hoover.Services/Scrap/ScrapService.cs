@@ -7,6 +7,9 @@ using Params_Logger;
 
 namespace G_Hoover.Services.Scrap
 {
+    /// <summary>
+    /// service class that collects or inputs data into a browser
+    /// </summary>
     public class ScrapService : IScrapService
     {
         private readonly IInputService _inputService;
@@ -17,6 +20,10 @@ namespace G_Hoover.Services.Scrap
             _inputService = inputService;
         }
 
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
         public async Task ClickAudioChallangeIconAsync(bool clickerInput)
         {
             _log.Called(clickerInput);
@@ -38,6 +45,10 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
         public async Task ClickCheckboxIcon(bool clickerInput)
         {
             _log.Called(clickerInput);
@@ -59,6 +70,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
+        /// <param name="inputCorrection">bool if correction enabled</param>
         public async Task ClickNewAudioChallengeAsync(bool clickerInput, bool inputCorrection)
         {
             _log.Called(clickerInput, inputCorrection);
@@ -80,6 +96,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
+        /// <param name="inputCorrection">bool if correction enabled</param>
         public async Task ClickPlayIconAsync(bool clickerInput, bool inputCorrection)
         {
             _log.Called(clickerInput, inputCorrection);
@@ -101,6 +122,10 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
         public async Task ClickTextBoxAsync(bool clickerInput)
         {
             _log.Called(clickerInput);
@@ -122,6 +147,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// enters audio result in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
+        /// <param name="audioResult">string result to be entered</param>
         public async Task EnterResultAsync(bool clickerInput, string audioResult)
         {
             _log.Called(clickerInput, audioResult);
@@ -143,7 +173,12 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
-        public async Task CliskSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
+        /// <summary>
+        /// clicks html document object in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        public async Task ClickSearchBtnAsync(bool clickerInput, IWpfWebBrowser webBrowser)
         {
             _log.Called(clickerInput, string.Empty);
 
@@ -162,6 +197,12 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// enters phrase in a way depending on clickerInput
+        /// </summary>
+        /// <param name="clickerInput">bool if clicker enabled</param>
+        /// <param name="webBrowser">cafsharp browser interface</param>
+        /// <param name="phrase">built search phrase</param>
         public async Task EnterPhraseAsync(bool clickerInput, IWpfWebBrowser webBrowser, string phrase)
         {
             _log.Called(clickerInput, string.Empty, phrase);
@@ -189,6 +230,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// searches for header data in html document
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <returns>string tag data</returns>
         public async Task<string> GetHeaderAsync(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);
@@ -228,6 +274,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// searches for URL data in html document
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <returns>string tag data</returns>
         public async Task<string> GetUrlAsync(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);
@@ -268,6 +319,11 @@ namespace G_Hoover.Services.Scrap
             }
         }
 
+        /// <summary>
+        /// corrects string phrase
+        /// </summary>
+        /// <param name="phrase">string phrase</param>
+        /// <returns>corrected phrase</returns>
         private string ValidatePhrase(string phrase)
         {
             if (phrase.Contains("'"))
@@ -278,11 +334,20 @@ namespace G_Hoover.Services.Scrap
             return phrase;
         }
 
+        /// <summary>
+        /// splits scrapped URL
+        /// </summary>
+        /// <param name="url">scrapped URL with tag</param>
+        /// <returns>splitted URL</returns>
         private string SplitUrl(string url)
         {
             return url.Split(new[] { "<a href=\"" }, StringSplitOptions.None)[1].Split('"')[0];
         }
 
+        /// <summary>
+        /// switches off JS alerts
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public async Task TurnOffAlertsAsync(IWpfWebBrowser webBrowser)
         {
             await webBrowser.EvaluateScriptAsync(@"
@@ -290,6 +355,10 @@ namespace G_Hoover.Services.Scrap
 			");
         }
 
+        /// <summary>
+        /// checks if in the html document is captcha
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public async Task<bool> CheckForRecaptchaAsync(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);

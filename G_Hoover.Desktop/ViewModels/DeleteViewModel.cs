@@ -6,6 +6,9 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
+    /// <summary>
+    /// dialog viewmodel responsible for deleting (or not) current results
+    /// </summary>
     public class DeleteViewModel : ViewModelBase, IModalDialogViewModel
     {
         private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
@@ -16,10 +19,10 @@ namespace G_Hoover.Desktop.ViewModels
             OkCommand = new DelegateCommand(Ok);
         }
 
-        public ICommand OkCommand { get; }
+        public ICommand OkCommand { get; } //on OK click
 
         private string _howManyResults;
-        public string HowManyResults
+        public string HowManyResults //prop takes qty of records in current result file
         {
             get => "Total results: " + _howManyResults;
             private set
@@ -31,7 +34,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool? _dialogResult;
-        public bool? DialogResult
+        public bool? DialogResult //prop takes bool dialog result for OK button = true
         {
             get => _dialogResult;
             private set
@@ -42,6 +45,9 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// on OK btn click called
+        /// </summary>
         public void Ok(object obj)
         {
             _log.Called(string.Empty);

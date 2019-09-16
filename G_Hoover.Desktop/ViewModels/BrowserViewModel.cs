@@ -18,6 +18,9 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
+    /// <summary>
+    /// view model ran with main loaded view, parent for other views, holding props for browsing display and UI
+    /// </summary>
     public class BrowserViewModel : ViewModelBase
     {
         private readonly IFilingService _fileService;
@@ -55,6 +58,9 @@ namespace G_Hoover.Desktop.ViewModels
             Initialization = InitializeProgramAsync();
         }
 
+        /// <summary>
+        /// async initializes several properties
+        /// </summary>
         public async Task InitializeProgramAsync()
         {
             _log.Called();
@@ -74,33 +80,52 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// updates several UI controls
+        /// </summary>
         private void OnUpdateControls(UiPropertiesModel obj)
         {
             UiControls = obj;
         }
 
+        /// <summary>
+        /// updates several display controls
+        /// </summary>
+        /// <param name="obj"></param>
         private void OnUpdateStatus(StatusPropertiesModel obj)
         {
             StatusControls = obj;
         }
 
+        /// <summary>
+        /// updates several browser properties
+        /// </summary>
         private void OnUpdateBrowser(BrowserPropertiesModel obj)
         {
             BrowserControls = obj;
         }
 
+        /// <summary>
+        /// calls ExecuteChangeIpButtonAsync in btns service
+        /// </summary>
         private async Task OnChangeIpCommandAsync()
         {
             if (UiButtonsEnabled)
                 await _buttonService.ExecuteChangeIpButtonAsync(WebBrowser, Paused);
         }
 
+        /// <summary>
+        /// calls ExecuteStartButtonAsync in btns service
+        /// </summary>
         public async Task OnStartCommandAsync()
         {
             if (UiButtonsEnabled)
                 await _buttonService.ExecuteStartButtonAsync(NameList, WebBrowser, SearchPhrase, Paused);
         }
 
+        /// <summary>
+        /// updates SearchPhrase prop with ShowUploadDialog dialog and calls ExecuteBuildButton in btns service
+        /// </summary>
         public void OnBuildCommand(object obj)
         {
             if (UiButtonsEnabled)
@@ -110,6 +135,9 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// updates FilePath prop with method GetFilePath, conditionally calls ExecuteUploadButtonAsync in btns service and conditionally ShowDeleteDialogAsync
+        /// </summary>
         public async Task OnUploadCommandAsync()
         {
             bool? deleteResults = false;
@@ -131,12 +159,18 @@ namespace G_Hoover.Desktop.ViewModels
 
         }
 
+        /// <summary>
+        /// calls ExecutePauseButton in btns service
+        /// </summary>
         public void OnPauseCommand(object obj)
         {
             if (PauseBtnEnabled)
                 _buttonService.ExecutePauseButton(Paused);
         }
 
+        /// <summary>
+        /// calls ExecuteStopButton in btns service and conditionally ShowDeleteDialogAsync
+        /// </summary>
         public async Task OnStopCommandAsync()
         {
             bool? deleteResults = false;
@@ -148,18 +182,28 @@ namespace G_Hoover.Desktop.ViewModels
                 _fileService.DeleteResultsFile();
         }
 
+        /// <summary>
+        /// calls ExecuteClickerChangeButton in btns service
+        /// </summary>
         public void OnClickerChangeCommand(object obj)
         {
             if (UiButtonsEnabled)
                 _buttonService.ExecuteClickerChangeButton();
         }
 
+        /// <summary>
+        /// calls ExecuteConnectionButtonAsync in btns service
+        /// </summary>
         public async Task OnConnectionChangeCommandAsync()
         {
             if (UiButtonsEnabled)
                 await _buttonService.ExecuteConnectionButtonAsync(WebBrowser, Paused);
         }
 
+        /// <summary>
+        /// opens file browsing dialog, by default in Desktop folder, or previously opened file
+        /// </summary>
+        /// <returns>FileName string if success, empty string if not</returns>
         public string GetFilePath()
         {
             _log.Called();
@@ -186,6 +230,11 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// opens upload dialog
+        /// </summary>
+        /// <param name="showDialog"></param>
+        /// <returns>string if success, empty string if not</returns>
         public string ShowUploadDialog(Func<PhraseViewModel, bool?> showDialog)
         {
             _log.Called(string.Empty);
@@ -206,6 +255,11 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// opens delete results dialog
+        /// </summary>
+        /// <param name="showDialog"></param>
+        /// <returns>bool delete or not</returns>
         public async Task<bool?> ShowDeleteDialogAsync(Func<DeleteViewModel, bool?> showDialog)
         {
             _log.Called(string.Empty);
@@ -228,6 +282,9 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// updates progress bar set of properties
+        /// </summary>
         public void ProgressBarTick()
         {
             ProgressDisplay = string.Empty;
@@ -263,7 +320,8 @@ namespace G_Hoover.Desktop.ViewModels
         public Task Initialization { get; private set; } //for Asynchronous Initialization Pattern
 
         private string _filePath;
-        public string FilePath {
+        public string FilePath //path to the file with searched names
+        {
             get => _filePath;
             set
             {
@@ -326,7 +384,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private BrowserPropertiesModel _browserControls;
-        public BrowserPropertiesModel BrowserControls //controls props for browser
+        public BrowserPropertiesModel BrowserControls //setter updates controls props for browser
         {
             get => _browserControls;
             set
@@ -341,7 +399,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private StatusPropertiesModel _statusControls;
-        public StatusPropertiesModel StatusControls
+        public StatusPropertiesModel StatusControls //setter updates several display controls
         {
             get => _statusControls;
             set
@@ -356,7 +414,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _stopped;
-        public bool Stopped
+        public bool Stopped //browsing stopped prop
         {
             get => _stopped;
             set
@@ -368,7 +426,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _paused;
-        public bool Paused
+        public bool Paused //browsing paused prop
         {
             get => _paused;
             set
@@ -380,7 +438,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _isOnTop;
-        public bool IsOnTop
+        public bool IsOnTop //window on top prop
         {
             get => _isOnTop;
             set
@@ -392,7 +450,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private ResizeMode _resizeMode;
-        public ResizeMode ResizeMode
+        public ResizeMode ResizeMode //window resize mode prop
         {
             get => _resizeMode;
             set
@@ -404,7 +462,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private WindowState _curWindowState;
-        public WindowState CurWindowState
+        public WindowState CurWindowState //window states: maximised, minimised, normal prop
         {
             get => _curWindowState;
             set
@@ -416,7 +474,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _isBrowserFocused;
-        public bool IsBrowserFocused
+        public bool IsBrowserFocused // focus on browser prop
         {
             get => _isBrowserFocused;
             set
@@ -428,7 +486,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _pleaseWaitVisible;
-        public bool PleaseWaitVisible
+        public bool PleaseWaitVisible //wait msg display prop
         {
             get => _pleaseWaitVisible;
             set
@@ -439,7 +497,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
         private bool _pauseBtnEnabled;
-        public bool PauseBtnEnabled
+        public bool PauseBtnEnabled //pause msg display prop
         {
             get => _pauseBtnEnabled;
             set
@@ -450,7 +508,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _stopBtnEnabled;
-        public bool StopBtnEnabled
+        public bool StopBtnEnabled //is btn enabled prop
         {
             get => _stopBtnEnabled;
             set
@@ -461,7 +519,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private bool _uiButtonsEnabled;
-        public bool UiButtonsEnabled
+        public bool UiButtonsEnabled //are btns enabled prop
         {
             get => _uiButtonsEnabled;
             set
@@ -472,7 +530,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _address;
-        public string Address
+        public string Address //browsing address prop
         {
             get => _address;
             set
@@ -483,7 +541,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private IWpfWebBrowser _webBrowser;
-        public IWpfWebBrowser WebBrowser
+        public IWpfWebBrowser WebBrowser //cefsharp interface browser prop
         {
             get => _webBrowser;
             set
@@ -494,7 +552,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _connection;
-        public string Connection
+        public string Connection //connection type prop
         {
             get => _connection;
             set
@@ -506,7 +564,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _clicker;
-        public string Clicker
+        public string Clicker //clicker type prop
         {
             get => _clicker;
             set
@@ -518,7 +576,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _status;
-        public string Status
+        public string Status //browsing status prop
         {
             get => _status;
             set
@@ -530,7 +588,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _progressDisplay;
-        public string ProgressDisplay
+        public string ProgressDisplay //progress bar prop
         {
             get
             {
@@ -544,7 +602,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private int _updateStatusBar;
-        public int UpdateStatusBar
+        public int UpdateStatusBar //progress bar prop
         {
             get
             {

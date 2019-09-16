@@ -12,6 +12,9 @@ using System.Timers;
 
 namespace G_Hoover.Services.Audio
 {
+    /// <summary>
+    /// recording and processing audio
+    /// </summary>
     public class AudioService : IAudioService
     {
         private readonly IFilingService _fileService;
@@ -31,6 +34,9 @@ namespace G_Hoover.Services.Audio
             _recordFileTimer = new Timer();
         }
 
+        /// <summary>
+        /// records 8s audio sample with using of WasapiLoopbackCapture and timer
+        /// </summary>
         public async Task RecordAudioSampleAsync()
         {
             _log.Called();
@@ -73,6 +79,9 @@ namespace G_Hoover.Services.Audio
             }
         }
 
+        /// <summary>
+        /// ran after recording timer finishes, stops WasapiLoopbackCapture capturing, disposes audio writer, disables record timer
+        /// </summary>
         private void OnFinishedRecordingEvent(object sender, ElapsedEventArgs e)
         {
             _log.Called(sender.ToString(), string.Empty);
@@ -91,6 +100,10 @@ namespace G_Hoover.Services.Audio
             }
         }
 
+        /// <summary>
+        /// processing audio file with Microsoft.CognitiveServices and returns recognised text string or empty string
+        /// </summary>
+        /// <returns></returns>
         public async Task<string> ProcessAudioSampleAsync()
         {
             _log.Called();
@@ -158,6 +171,11 @@ namespace G_Hoover.Services.Audio
             }
         }
 
+        /// <summary>
+        /// creates and returns new wave writer
+        /// </summary>
+        /// <param name="capture">WasapiCapture</param>
+        /// <returns>WaveWriter</returns>
         public WaveWriter CreateNewWaveWriter(WasapiCapture capture)
         {
             _log.Called(string.Empty);

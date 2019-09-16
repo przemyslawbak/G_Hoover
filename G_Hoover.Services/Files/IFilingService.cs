@@ -10,7 +10,6 @@ namespace G_Hoover.Services.Files
     public interface IFilingService
     {
         Task<List<string>> GetNewListFromFileAsync(string filePath);
-        void RemoveOldLogs();
         Task SaveNewResultAsync(ResultObjectModel result, string phrase);
         void DeleteOldAudio();
         bool CheckAudioFile();

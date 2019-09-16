@@ -3,7 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace G_Hoover.Desktop.ViewModels
 {
-    public class ViewModelBase : INotifyPropertyChanged //INotify
+    /// <summary>
+    /// INotify implementation
+    /// </summary>
+    public class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

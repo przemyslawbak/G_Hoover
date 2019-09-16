@@ -9,10 +9,17 @@ using Tor.Config;
 
 namespace G_Hoover.Services.Connection
 {
+    /// <summary>
+    /// service class that establishes Tor or direct connection for the browser and changes IP
+    /// </summary>
     public class ConnectionService : IConnectionService
     {
         private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
 
+        /// <summary>
+        /// setting up browser for using direct connection
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public void ConfigureBrowserDirect(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);
@@ -35,6 +42,10 @@ namespace G_Hoover.Services.Connection
             }
         }
 
+        /// <summary>
+        /// setting up browser for using Tor connection
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
         public void ConfigureBrowserTor(IWpfWebBrowser webBrowser)
         {
             _log.Called(string.Empty);
@@ -59,6 +70,9 @@ namespace G_Hoover.Services.Connection
             }
         }
 
+        /// <summary>
+        /// initializes Tor browser connection
+        /// </summary>
         public void InitializeTor()
         {
             _log.Called();

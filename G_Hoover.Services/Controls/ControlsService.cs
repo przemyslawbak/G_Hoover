@@ -7,6 +7,9 @@ using Prism.Events;
 
 namespace G_Hoover.Services.Controls
 {
+    /// <summary>
+    /// service class used for setting up display and UI properties depending on browsing status
+    /// </summary>
     public class ControlsService : IControlsService
     {
         private readonly IEventAggregator _eventAggregator;
@@ -17,6 +20,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator = eventAggregator;
         }
 
+        /// <summary>
+        /// props for paused browsing, updates UpdateControlsEvent
+        /// </summary>
         public void GetPausedConfiguration()
         {
             _log.Called();
@@ -35,6 +41,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
+        /// <summary>
+        /// props for started browsing, updates UpdateControlsEvent
+        /// </summary>
         public void GetStartedConfiguration()
         {
             _log.Called();
@@ -53,6 +62,10 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
+        /// <summary>
+        /// props for stopped browsing, updates UpdateControlsEvent
+        /// </summary>
+        /// <param name="init">bool for initialization of the program</param>
         public void GetStoppedConfiguration(bool init)
         {
             _log.Called();
@@ -71,6 +84,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
+        /// <summary>
+        /// props for waiting status, updates UpdateControlsEvent
+        /// </summary>
         public void GetWaitConfiguration()
         {
             _log.Called();
@@ -89,6 +105,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateControlsEvent>().Publish(uiModel);
         }
 
+        /// <summary>
+        /// props for browser window show less, updates UpdateBrowserEvent
+        /// </summary>
         public void ShowLessBrowser()
         {
             _log.Called();
@@ -104,6 +123,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }
 
+        /// <summary>
+        /// props for browser window show more running status, updates UpdateBrowserEvent
+        /// </summary>
         public void ShowMoreBrowserRunning()
         {
             _log.Called();
@@ -134,6 +156,9 @@ namespace G_Hoover.Services.Controls
             _eventAggregator.GetEvent<UpdateBrowserEvent>().Publish(browser);
         }
 
+        /// <summary>
+        /// props for browser window show more paused status, updates UpdateBrowserEvent
+        /// </summary>
         public void ShowMoreBrowserPaused()
         {
             _log.Called();

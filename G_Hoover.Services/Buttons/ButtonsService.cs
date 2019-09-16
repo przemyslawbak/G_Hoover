@@ -25,6 +25,10 @@ namespace G_Hoover.Services.Buttons
             _browseService = browseService;
         }
 
+        /// <summary>
+        /// cancelling data collecting, in finally block calls GetStoppedConfiguration
+        /// stops browsing
+        /// </summary>
         public void ExecuteStopButton()
         {
             _log.Called(); //log
@@ -43,6 +47,11 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// if is paused, GetStartedConfiguration, if is not paused, GetPausedConfiguration
+        /// pauses (or restarts) browsing
+        /// </summary>
+        /// <param name="paused">is browsing paused bool</param>
         public void ExecutePauseButton(bool paused)
         {
             _log.Called(paused); //log
@@ -64,6 +73,14 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// calls GetStartedConfiguration, if browsing is not paused, calls CollectDataAsync, in finally block calls GetStoppedConfiguration
+        /// starts (or restarts) browsing
+        /// </summary>
+        /// <param name="nameList">list of searched names</param>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <param name="searchPhrase">build searched phrase</param>
+        /// <param name="paused">is browsing paused bool</param>
         public async Task ExecuteStartButtonAsync(List<string> nameList, IWpfWebBrowser webBrowser, string searchPhrase, bool paused)
         {
             _log.Called(nameList.Count, string.Empty, searchPhrase, paused); //log
@@ -90,6 +107,13 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// for processing time calls GetWaitConfiguration, if file path is not null/empty calls GetNewListFromFileAsync, if list not empty calls CancelCollectData and SaveFilePath
+        /// uploads new phrases
+        /// </summary>
+        /// <param name="filePath">path to the file with names</param>
+        /// <param name="init">is it application init bool</param>
+        /// <returns></returns>
         public async Task<List<string>> ExecuteUploadButtonAsync(string filePath, bool init)
         {
             _log.Called(filePath, init); //log
@@ -137,6 +161,10 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// updates built search phrase in browse service
+        /// </summary>
+        /// <param name="searchPhrase">build searched phrase</param>
         public void ExecuteBuildButton(string searchPhrase)
         {
             _log.Called(searchPhrase); //log
@@ -158,6 +186,13 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// for processing time calls GetWaitConfiguration, calls ChangeConnectionType, after this calls GetPausedConfiguration or GetStoppedConfiguration depending on paused bool
+        /// changes type of connection
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <param name="paused">is browsing paused bool</param>
+        /// <returns></returns>
         public async Task ExecuteConnectionButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
             _log.Called(string.Empty, paused); //log
@@ -185,6 +220,9 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// calls ClickerChange for change of clicker type
+        /// </summary>
         public void ExecuteClickerChangeButton()
         {
             _log.Called(); //log
@@ -199,6 +237,13 @@ namespace G_Hoover.Services.Buttons
             }
         }
 
+        /// <summary>
+        /// for processing time calls GetWaitConfiguration, calls GetNewIp
+        /// changes browing IP, or initializes Tor if direct connection, after this calls GetPausedConfiguration or GetStoppedConfiguration depending on paused bool
+        /// </summary>
+        /// <param name="webBrowser">cefsharp browser interface</param>
+        /// <param name="paused">is browsing paused bool</param>
+        /// <returns></returns>
         public async Task ExecuteChangeIpButtonAsync(IWpfWebBrowser webBrowser, bool paused)
         {
             _log.Called(); //log

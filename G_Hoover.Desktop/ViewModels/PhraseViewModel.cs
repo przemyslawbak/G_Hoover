@@ -6,6 +6,9 @@ using System.Windows.Input;
 
 namespace G_Hoover.Desktop.ViewModels
 {
+    /// <summary>
+    /// dialog viewmodel responsible for building search phrase
+    /// </summary>
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
         private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
@@ -18,6 +21,10 @@ namespace G_Hoover.Desktop.ViewModels
             SplitPhrase(searchPhrase);
         }
 
+        /// <summary>
+        /// splitting phrase into `Before` and `After`
+        /// </summary>
+        /// <param name="searchPhrase">complete phrase passed to the VM</param>
         public void SplitPhrase(string searchPhrase)
         {
             if (searchPhrase.Contains("<name>"))
@@ -27,10 +34,10 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        public ICommand OkCommand { get; }
+        public ICommand OkCommand { get; } //on OK click
 
         private bool? _dialogResult;
-        public bool? DialogResult
+        public bool? DialogResult //prop takes bool dialog result for OK button = true
         {
             get => _dialogResult;
             private set
@@ -41,6 +48,9 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// on OK btn click called, makes Text prop valid
+        /// </summary>
         public void Ok(object obj)
         {
             _log.Called(string.Empty);
@@ -57,6 +67,11 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
+        /// <summary>
+        /// makes text string valid
+        /// </summary>
+        /// <param name="text">valid text string</param>
+        /// <returns></returns>
         private string ValidateText(string text)
         {
             if (text.Contains("\""))
@@ -67,10 +82,10 @@ namespace G_Hoover.Desktop.ViewModels
             return text;
         }
 
-        public string Name { get; set; } = "<name>";
+        public string Name { get; } = "<name>"; //readonly prop for <name> inside of searched phrase
 
         private string _after;
-        public string After
+        public string After //text after <name>
         {
             get => _after;
             set
@@ -83,7 +98,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _before;
-        public string Before
+        public string Before //text before <name>
         {
             get => _before;
             set
@@ -96,7 +111,7 @@ namespace G_Hoover.Desktop.ViewModels
         }
 
         private string _text;
-        public string Text
+        public string Text //complete phrase with Before, Name, After
         {
             get => Before + "<name>" + After;
             set
@@ -106,7 +121,7 @@ namespace G_Hoover.Desktop.ViewModels
             }
         }
 
-        public bool ValidateInput
+        public bool ValidateInput //checks if After or Before contains <name>
         {
             get
             {

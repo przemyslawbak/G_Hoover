@@ -1,3 +1,9 @@
+ScrapService DRY
+
+documentation
+
+unit testing
+
 manual test failures for captcha solving + buttos
 
 track ControlsService calls on each btn click
@@ -10,8 +16,6 @@ refactorise classes for testing
 
 testing:
 async (sender, args) - not anonymus??
-
-Timer: https://stackoverflow.com/a/11496412/11993544 <- testing
 
 --
 

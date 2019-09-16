@@ -3,6 +3,9 @@ using G_Hoover.Desktop.Startup;
 
 namespace G_Hoover.Desktop.ViewModels
 {
+    /// <summary>
+    /// props with ViewModels called by windows when being opened
+    /// </summary>
     public class ViewModelLocator
     {
         private readonly IContainer _container;
