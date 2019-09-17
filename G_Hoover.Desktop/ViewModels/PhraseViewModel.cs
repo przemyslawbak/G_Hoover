@@ -12,12 +12,11 @@ namespace G_Hoover.Desktop.ViewModels
     public class PhraseViewModel : ViewModelBase, IModalDialogViewModel
     {
         private static readonly ILogger _log = ParamsLogger.LogInstance.GetLogger();
+
         public PhraseViewModel(string searchPhrase)
         {
             OkCommand = new DelegateCommand(Ok);
 
-            Before = "";
-            After = "";
             SplitPhrase(searchPhrase);
         }
 
@@ -40,7 +39,7 @@ namespace G_Hoover.Desktop.ViewModels
         public bool? DialogResult //prop takes bool dialog result for OK button = true
         {
             get => _dialogResult;
-            private set
+            set
             {
                 _dialogResult = value;
                 OnPropertyChanged();
@@ -51,7 +50,7 @@ namespace G_Hoover.Desktop.ViewModels
         /// <summary>
         /// on OK btn click called, makes Text prop valid
         /// </summary>
-        public void Ok(object obj)
+        private void Ok(object obj)
         {
             _log.Called(string.Empty);
 
@@ -113,15 +112,10 @@ namespace G_Hoover.Desktop.ViewModels
         private string _text;
         public string Text //complete phrase with Before, Name, After
         {
-            get => Before + "<name>" + After;
-            set
-            {
-                _text = value;
-                OnPropertyChanged();
-            }
+            get => Before + Name + After;
         }
 
-        public bool ValidateInput //checks if After or Before contains <name>
+        private bool ValidateInput //checks if After or Before contains <name>
         {
             get
             {

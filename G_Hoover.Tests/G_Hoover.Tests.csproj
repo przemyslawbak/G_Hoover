@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.13.0" />
+    <PackageReference Include="Params_Logger" Version="1.0.12" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
   </ItemGroup>
@@ -17,6 +19,11 @@
   <ItemGroup>
     <ProjectReference Include="..\G_Hoover.Desktop\G_Hoover.Desktop.csproj" />
     <ProjectReference Include="..\G_Hoover.Services\G_Hoover.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IntegrationTests\" />
+    <Folder Include="UnitTests\Services\" />
   </ItemGroup>
 
 </Project>
