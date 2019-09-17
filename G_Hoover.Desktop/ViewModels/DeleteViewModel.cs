@@ -37,7 +37,7 @@ namespace G_Hoover.Desktop.ViewModels
         public bool? DialogResult //prop takes bool dialog result for OK button = true
         {
             get => _dialogResult;
-            private set
+            set
             {
                 _dialogResult = value;
                 OnPropertyChanged();

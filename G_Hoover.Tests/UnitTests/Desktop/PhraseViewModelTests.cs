@@ -1,20 +1,15 @@
 ﻿using G_Hoover.Desktop.ViewModels;
-using Moq;
-using Params_Logger;
-using Params_Logger.Models;
 using Xunit;
 
 namespace G_Hoover.Tests.UnitTests.Desktop
 {
     public class PhraseViewModelTests
     {
-        private Mock<IParamsLogger> _logMock;
         private readonly string _searchPhrase = "testBefore <name> testAfter";
         private readonly PhraseViewModel _vm;
 
         public PhraseViewModelTests()
         {
-            _logMock = new Mock<IParamsLogger>();
             _vm = new PhraseViewModel(_searchPhrase);
         }
 
@@ -36,6 +31,7 @@ namespace G_Hoover.Tests.UnitTests.Desktop
         [InlineData("somethingBefore", "somethingAfter", true)]
         public void OkExecute_Called_ReturnsTrueAndUpdatesTextProp(string beforeText, string afterText, bool expected)
         {
+            _vm.DialogResult = null;
             _vm.Before = beforeText;
             _vm.After = afterText;
 
