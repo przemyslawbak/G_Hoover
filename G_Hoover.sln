@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Desktop", "G_Hoove
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Services", "G_Hoover.Services\G_Hoover.Services.csproj", "{A68921A8-FA6C-4813-9BA7-DE14F326BEAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "G_Hoover.Tests", "G_Hoover.Tests\G_Hoover.Tests.csproj", "{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Models", "G_Hoover.Models\G_Hoover.Models.csproj", "{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G_Hoover.Events", "G_Hoover.Events\G_Hoover.Events.csproj", "{6F004DB1-BADA-47BB-AB1E-52AA8602E9CC}"
@@ -35,14 +33,6 @@ Global
 		{A68921A8-FA6C-4813-9BA7-DE14F326BEAF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A68921A8-FA6C-4813-9BA7-DE14F326BEAF}.Release|x64.ActiveCfg = Release|Any CPU
 		{A68921A8-FA6C-4813-9BA7-DE14F326BEAF}.Release|x64.Build.0 = Release|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Debug|x64.ActiveCfg = Debug|x64
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Debug|x64.Build.0 = Debug|x64
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Release|x64.ActiveCfg = Release|Any CPU
-		{F57599B8-B66D-4FEA-B63C-0B1232BEFB87}.Release|x64.Build.0 = Release|Any CPU
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91BB241A-3A6A-4AC3-87A7-EB8BA775E7C6}.Debug|x64.ActiveCfg = Debug|Any CPU
